@@ -26,7 +26,7 @@ fn main() {
             if !file_contents.is_empty() {
                 panic!("Scanner not implemented");
             } else {
-                eprintln!(file_contents)
+                eprintln!(file_contents);
                 println!("EOF  null"); // Placeholder, replace this line when implementing the scanner
             }
         }
