@@ -24,7 +24,7 @@ fn main() {
 
             // TODO: Uncomment the code below to pass the first stage
             if !file_contents.is_empty() {
-                eprintln!("{}", file_contents)
+                eprintln!("{}", file_contents);
                 panic!("Scanner not implemented");
             } else {
 
