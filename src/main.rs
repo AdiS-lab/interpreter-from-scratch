@@ -27,7 +27,8 @@ fn main() {
                 for ch in file_contents.chars(){
                     match ch {
                         '(' => println!("LEFT_PAREN ( null"),
-                        ')' => println!("RIGHT_PAREN ) null")
+                        ')' => println!("RIGHT_PAREN ) null"),
+                        _ => {}
                     }
                 }
                 panic!("Scanner not implemented");
