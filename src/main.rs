@@ -24,8 +24,7 @@ fn main() {
 
             // TODO: Uncomment the code below to pass the first stage
             if !file_contents.is_empty() {
-                let s = String::file_contents;
-                for ch in s.chars(){
+                for ch in file_contents.chars(){
                     match ch {
                         '(' => println!("LEFT_PAREN ( null"),
                         ')' => println!("RIGHT_PAREN ) null")
