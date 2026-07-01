@@ -31,8 +31,8 @@ fn main() {
                         ')' => println!("RIGHT_PAREN ) null"),
                         _ => {}
                     } 
-                    println!("EOF  null");
                 }
+                println!("EOF  null");
             } else {
                 println!("EOF  null"); // Placeholder, replace this line when implementing the scanner
             }
