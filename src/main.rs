@@ -24,7 +24,7 @@ fn main() {
 
             // TODO: Uncomment the code below to pass the first stage
             if !file_contents.is_empty() {
-                eprintln!("this is file contents {}" ,file_contents);
+                // eprintln!("this is file contents {}" ,file_contents);
                 for ch in file_contents.chars(){
                     match ch {
                         '(' => println!("LEFT_PAREN ( null"),
@@ -32,10 +32,7 @@ fn main() {
                         _ => {}
                     }
                 }
-                panic!("Scanner not implemented");
             } else {
-
-                eprintln!("{}", file_contents);
                 println!("EOF  null"); // Placeholder, replace this line when implementing the scanner
             }
         }
