@@ -38,7 +38,7 @@ fn main() {
                          '-' => println!("MINUS - null"),
                         '/'=> println!("SLASH / null"),
                         ';' => println!("SEMICOLON ; null"),
-                        _ => {}
+                        _ => eprintln!("Error: Unexpected character: {}", ch)
                     } 
                 }
                 println!("EOF  null");
