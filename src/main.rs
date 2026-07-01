@@ -29,7 +29,7 @@ fn main() {
                     match ch {
                         '(' => println!("LEFT_PAREN ( null"),
                         ')' => println!("RIGHT_PAREN ) null"),
-                        '' => println!("EOF null")
+                        '' => println!("EOF null"),
                         _ => {}
                     }
                 }
