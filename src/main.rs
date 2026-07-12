@@ -25,7 +25,7 @@ fn main() -> ExitCode {
             });
 
             let mut err_exists = false;
-            let mut iter = file_contents.iter().peekable() // iteratable just creates a tracking struct
+            let mut iter = file_contents.chars().iter().peekable() // iteratable just creates a tracking struct
             // TODO: Uncomment the code below to pass the first stage
             if !file_contents.is_empty() {
                 while let Some(ch) = iter.next() {
