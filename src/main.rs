@@ -41,16 +41,15 @@ fn main() -> ExitCode {
                         '/'=> println!("SLASH / null"),
                         ';' => println!("SEMICOLON ; null"),
                         '=' => {
-                            println!("made it into the equal sign");
                             if let Some(next) = str_iter.peek(){ // does NOT consume the next value because creates a copy essentially
-                                println!("made it into equal is null");
                                 if *next == '='{
                                     println!("EQUAL_EQUAL = null");
                                     let _: Option<char> = str_iter.next();
-                                }else{ 
-                                    println!("made it into one equal sign");
+                                }else{
                                     println!("EQUAL = null");
                                 }
+                            }else{ 
+                                println!("EQUAL = null");
                             }
                         }
                         _ => {
