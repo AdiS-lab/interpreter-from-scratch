@@ -56,6 +56,22 @@ fn main() -> ExitCode {
                                 println!("BANG ! null");
                             }
                         }
+                        '>' => {
+                            if str_iter.peek() == Some(&'='){ // does NOT consume the next value. & finds address of equal, * refrences the address created by &
+                                let _: Option<char> = str_iter.next();
+                                println!("GREATER_EQUAL >= null");
+                            }else{  
+                                println!("GREATER > null");
+                            }
+                        },
+                        '<' => {
+                            if str_iter.peek() == Some(&'='){ // does NOT consume the next value. & finds address of equal, * refrences the address created by &
+                                let _: Option<char> = str_iter.next();
+                                println!("LESS_EQUAL <= null");
+                            }else{  
+                                println!("LESS < null");
+                            }
+                        },
                         _ => {
                             err_exists = true;
                             eprintln!("[line 1] Error: Unexpected character: {}", ch);
