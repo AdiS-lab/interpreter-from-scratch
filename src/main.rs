@@ -150,7 +150,8 @@ fn main() -> ExitCode {
                                     identifier.push(*new_ch);
                                     let _ : Option<char> = str_iter.next();
                                 };
-                                if let Some(reference) = resWords.contains_key(identifier){
+                                if resWords.contains_key(&identifier){
+                                    let reference = resWords[identifier];
                                     println!("{} {} null", reference, identifier);
                                 }else{
                                     println!("IDENTIFIER {} null", identifier);
