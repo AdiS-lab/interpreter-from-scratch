@@ -84,7 +84,6 @@ fn main() -> ExitCode {
                             println!("made it into pipe");
                         }
                         ' ' =>{
-                            println!("made it into space check")
                             if str_iter.peek() == Some(&' '){
                                 while str_iter.next() == Some(' '){};
                             }
