@@ -43,7 +43,7 @@ fn main() -> ExitCode {
                         ';' => println!("SEMICOLON ; null"),
                         '=' => {
                             let Some(next) = str_iter.peek() // does NOT consume the next value because creates a copy essentially
-                            if next == "="{
+                            if next == '='{
                                 println!("EQUAL_EQUAL = null");
                             }else{ 
                                 println!("EQUAL = null");
