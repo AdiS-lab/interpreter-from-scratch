@@ -47,6 +47,7 @@ fn main() -> ExitCode {
                     } 
                 }
                 if err_exists{
+                    println!("EOF  null");
                     return ExitCode::from(65);
                 }
                 println!("EOF  null");
