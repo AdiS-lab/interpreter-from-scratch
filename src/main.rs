@@ -85,11 +85,10 @@ fn main() -> ExitCode {
                         '!' => {
                             println!("made it into pipe");
                         },
-                        ' ' | '\t' =>{
-                        },
+                        ' ' | '\t' =>{},
                         '\n' =>{
                             newLine+=1;
-                        }
+                        },
                         _ => {
                             err_exists = true;
                             eprintln!("[line {}] Error: Unexpected character: {}", newLine, ch);
