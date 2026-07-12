@@ -41,17 +41,13 @@ fn main() -> ExitCode {
                         '/'=> println!("SLASH / null"),
                         ';' => println!("SEMICOLON ; null"),
                         '=' => {
-                            if let Some(next) = str_iter.peek(){ // does NOT consume the next value because creates a copy essentially
-                                if *next == '='{
-                                    println!("EQUAL_EQUAL == null");
-                                    let _: Option<char> = str_iter.next();
-                                }else{
-                                    println!("EQUAL = null");
-                                }
-                            }else{ 
+                            if str_iter.peek() == Some(&'='){ // does NOT consume the next value because creates a copy essentially
+                                let _: Option<char> = str_iter.next();
+                                println!("EQUAL_EQUAL == null");
+                            }else{  
                                 println!("EQUAL = null");
                             }
-                        }
+
                         _ => {
                             err_exists = true;
                             eprintln!("[line 1] Error: Unexpected character: {}", ch);
