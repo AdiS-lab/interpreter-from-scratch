@@ -109,9 +109,9 @@ fn main() -> ExitCode {
                             newLine+=1;
                         },
                         _ => {
-                            if ch.to_digit { 
-                                println!("check worked")
-                            }
+                            if ch.is_digit(10){ 
+                                println!("check worked");
+                            };
                             err_exists = true;
                             eprintln!("[line {}] Error: Unexpected character: {}", newLine, ch);
                         }
