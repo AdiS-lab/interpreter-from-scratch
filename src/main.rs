@@ -113,7 +113,7 @@ fn main() -> ExitCode {
                                 let mut literal = ch.to_string();
                                 while let Some(val) = str_iter.peek(){ //Option<&char>
                                     if val.is_digit(10) || *val == '.'{
-                                        let Some(newCh) = str_iter.next();
+                                        let Some(newCh)? = str_iter.next();
                                         literal.push(newCh);
                                     }else{
                                         break;
