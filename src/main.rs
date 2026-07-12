@@ -88,7 +88,7 @@ fn main() -> ExitCode {
                         ' ' | '\t' =>{
                         },
                         '\n' =>{
-                            newLine++;
+                            newLine+=1;
                         }
                         _ => {
                             err_exists = true;
