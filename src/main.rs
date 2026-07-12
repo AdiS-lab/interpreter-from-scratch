@@ -53,9 +53,8 @@ fn main() -> ExitCode {
                             }
                         },
                         '"' => {
-                            let mut lexeme = String::new(); // takes &temp and creates new mem add with modifiable string
+                            let mut lexeme = '"'.to_string(); // takes &temp and creates new mem add with modifiable string
                             let mut literal = String::new();
-                            lexeme.push('"');
                         
                             while let Some(newCh) = str_iter.next(){
                                 if newCh == '"' {
