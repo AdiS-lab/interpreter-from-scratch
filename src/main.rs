@@ -67,7 +67,7 @@ fn main() -> ExitCode {
                             }; // once reaching None, will have the strings. 
                             if !lexeme.ends_with('"'){
                                 err_exists = true;
-                                eprintln!("[line {}] Error: Error: Unterminated string.", newLine);
+                                eprintln!("[line {}] Error: Unterminated string.", newLine);
                             }else{
                                 println!("STRING {} {}", lexeme, literal);
                             }
