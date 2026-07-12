@@ -26,7 +26,7 @@ fn main() -> ExitCode {
 
             let mut err_exists = false;
             let mut str_iter = file_contents.chars().peekable();
-            let mut newLine = 1;
+            let mut new_line = 1;
 
             if !file_contents.is_empty() {
                 while let Some(ch) = str_iter.next() { // Option<char>
@@ -42,9 +42,9 @@ fn main() -> ExitCode {
                         '-' => println!("MINUS - null"), 
                         '/' => {
                             if str_iter.peek() == Some(&'/'){  
-                                while let Some(newCh) = str_iter.next(){
-                                    if newCh == '\n'{
-                                        newLine+=1;
+                                while let Some(new_ch) = str_iter.next(){
+                                    if new_ch == '\n'{
+                                        new_line+=1;
                                         break;
                                     }
                                 };
@@ -56,17 +56,17 @@ fn main() -> ExitCode {
                             let mut lexeme = '"'.to_string(); // takes &temp and creates new mem add with modifiable string
                             let mut literal = String::new();
                         
-                            while let Some(newCh) = str_iter.next(){
-                                if newCh == '"' {
-                                    lexeme.push(newCh);
+                            while let Some(new_ch) = str_iter.next(){
+                                if new_ch == '"' {
+                                    lexeme.push(new_ch);
                                     break;
                                 };
-                                lexeme.push(newCh);// "abcd...
-                                literal.push(newCh);//abcd... 
+                                lexeme.push(new_ch);// "abcd...
+                                literal.push(new_ch);//abcd... 
                             }; // once reaching None, will have the strings. 
                             if !lexeme.ends_with('"'){
                                 err_exists = true;
-                                eprintln!("[line {}] Error: Unterminated string.", newLine);
+                                eprintln!("[line {}] Error: Unterminated string.", new_line);
                             }else{
                                 println!("STRING {} {}", lexeme, literal);
                             }
@@ -106,15 +106,15 @@ fn main() -> ExitCode {
                         },
                         ' ' | '\t' =>{},
                         '\n' =>{
-                            newLine+=1;
+                            new_line+=1;
                         },
                         _ => {
                             if ch.is_digit(10){
                                 let mut literal = ch.to_string();
-                                while let Some(newCh) = str_iter.peek(){ //Option<&char>
-                                    if newCh.is_digit(10) || *newCh == '.'{
-                                        let newCh = str_iter.next().unwrap();
-                                        literal.push(newCh);
+                                while let Some(new_ch) = str_iter.peek(){ //Option<&char>
+                                    if new_ch.is_digit(10) || *new_ch == '.'{
+                                        let new_ch = str_iter.next().unwrap();
+                                        literal.push(new_ch);
                                     }else{
                                         break;
                                     }
@@ -125,16 +125,16 @@ fn main() -> ExitCode {
                             
                             }else if ch == '_' || ch.is_ascii_alphabetic(){
                                 let mut identifier = ch.to_string();
-                                while let Some(newCh) = str_iter.next(){
-                                    if !newCh.is_digit(10) || !(newCh == '_') || !newCh.is_ascii_alphabetic(){
+                                while let Some(new_ch) = str_iter.next(){
+                                    if !new_ch.is_digit(10) && !(new_ch == '_') && !new_ch.is_ascii_alphabetic(){
                                         break;
                                     }
-                                    identifier.push(newCh);
+                                    identifier.push(new_ch);
                                 };
                                 println!("IDENTIFIER {} null", identifier);
                             }else{
                                 err_exists = true;
-                                eprintln!("[line {}] Error: Unexpected character: {}", newLine, ch);
+                                eprintln!("[line {}] Error: Unexpected character: {}", new_line, ch);
                             }
                         }
                     } 
