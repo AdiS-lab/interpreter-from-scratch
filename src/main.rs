@@ -73,15 +73,10 @@ fn main() -> ExitCode {
                             }
                         },
                         '<' => {
-                            println!("made it into < operator");
                             if str_iter.peek() == Some(&'='){
                                 let _: Option<char> = str_iter.next();
                                 println!("LESS_EQUAL <= null");
-                            }else if str_iter.peek() == Some(&'|'){
-                                println!("made it to correct check");
-                                while str_iter.next() != Some('>'){}
-                            }
-                            else{  
+                            }else{  
                                 println!("LESS < null");
                             }
                         },
@@ -89,8 +84,7 @@ fn main() -> ExitCode {
                             println!("made it into pipe");
                         }
                         ' ' =>{
-                            while str_iter.next() != Some(' '){
-                            }
+                            println!("made it into space check")
                         }
                         _ => {
                             println!("this is char {}", ch);
