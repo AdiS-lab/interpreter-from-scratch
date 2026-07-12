@@ -43,7 +43,7 @@ fn main() -> ExitCode {
                         '=' => {
                             if let Some(next) = str_iter.peek(){ // does NOT consume the next value because creates a copy essentially
                                 if *next == '='{
-                                    println!("EQUAL_EQUAL = null");
+                                    println!("EQUAL_EQUAL == null");
                                     let _: Option<char> = str_iter.next();
                                 }else{
                                     println!("EQUAL = null");
