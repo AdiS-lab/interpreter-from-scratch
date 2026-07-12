@@ -2,7 +2,7 @@
 use std::env;
 use std::fs;
 use std::process::ExitCode;
-use std::iter::peekable
+use std::iter
 
 fn main() -> ExitCode {
     let args: Vec<String> = env::args().collect();
@@ -44,9 +44,9 @@ fn main() -> ExitCode {
                         '=' => {
                             let Some(next) = iter.peek() // does NOT consume the next value because creates a copy essentially
                             if next == "="{
-                                println!("EQUAL_EQUAL = null"),
+                                println!("EQUAL_EQUAL = null");
                             }else{ 
-                                println!("EQUAL = null")
+                                println!("EQUAL = null");
                             }
                         }
                         _ => {
