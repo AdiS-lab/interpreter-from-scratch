@@ -125,11 +125,12 @@ fn main() -> ExitCode {
                             
                             }else if ch == '_' || ch.is_ascii_alphabetic(){
                                 let mut identifier = ch.to_string();
-                                while let Some(new_ch) = str_iter.next(){
-                                    if !new_ch.is_digit(10) && !(new_ch == '_') && !new_ch.is_ascii_alphabetic(){
+                                while let Some(new_ch) = str_iter.peek(){
+                                    if !new_ch.is_digit(10) && !(*new_ch == '_') && !new_ch.is_ascii_alphabetic(){
                                         break;
                                     }
-                                    identifier.push(new_ch);
+                                    let new_ch = str_iter.next().unwrap();
+                                    literal.push(new_ch);
                                 };
                                 println!("IDENTIFIER {} null", identifier);
                             }else{
