@@ -37,7 +37,7 @@ fn main() -> ExitCode {
                         ',' => println!("COMMA , null"),
                         '+' => println!("PLUS + null"),
                         '*'=> println!("STAR * null"),
-                         '-' => println!("MINUS - null"),
+                        '-' => println!("MINUS - null"),
                         '/' => {
                             if str_iter.peek() == Some(&'/'){  
                                 while let Some(newCh) = str_iter.next(){
@@ -86,7 +86,6 @@ fn main() -> ExitCode {
                         ' ' | '\n' | '\t' =>{
                         },
                         _ => {
-                            println!("this is char {}", ch);
                             err_exists = true;
                             eprintln!("[line 1] Error: Unexpected character: {}", ch);
                         }
