@@ -120,7 +120,7 @@ fn main() -> ExitCode {
                                     }
                                 };
                                 if let Ok(value) = literal.parse::<f64>(){
-                                    println!("NUMBER {} {}", literal, value);
+                                    println!("NUMBER {} {:?}", literal, value);
                                 };
                             }else{
                                 err_exists = true;
