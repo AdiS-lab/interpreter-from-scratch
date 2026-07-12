@@ -25,7 +25,7 @@ fn main() -> ExitCode {
 
 
             let mut err_exists = false;
-            let str_iter = file_contents.chars().peekable()
+            let mut str_iter = file_contents.chars().peekable()
             // TODO: Uncomment the code below to pass the first stage
             if !file_contents.is_empty() {
                 while let Some(ch) = str_iter { // automatically creates an iteratable
@@ -42,8 +42,9 @@ fn main() -> ExitCode {
                         '/'=> println!("SLASH / null"),
                         ';' => println!("SEMICOLON ; null"),
                         '=' => {
-                            let Some(next) = str_iter.peek() // does NOT consume the next value because creates a copy essentially
-                            if next == '='{
+                            let Some(next) = str_iter.peek(); // does NOT consume the next value because creates a copy essentially
+                            // next is still a pointer because not consuming
+                            if *next == '='{
                                 println!("EQUAL_EQUAL = null");
                             }else{ 
                                 println!("EQUAL = null");
