@@ -71,7 +71,7 @@ fn main() -> ExitCode {
                             }else{  
                                 println!("GREATER > null");
                             }
-                        },<|TAB|>
+                        },
                         '<' => {
                             if str_iter.peek() == Some(&'='){
                                 let _: Option<char> = str_iter.next();
