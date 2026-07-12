@@ -53,17 +53,17 @@ fn main() -> ExitCode {
                             }
                         },
                         '"' => {
-                            let mut lexeme = String::new() // takes &temp and creates new mem add with modifiable string
-                            let mut literal = String::new()
-                            lexeme.push('"')
+                            let mut lexeme = String::new(); // takes &temp and creates new mem add with modifiable string
+                            let mut literal = String::new();
+                            lexeme.push('"');
                         
                             while let Some(newCh) = str_iter.next(){
                                 if newCh == '"' {
-                                    lexeme.push(newCh)
+                                    lexeme.push(newCh);
                                     break;
                                 };
-                                lexeme.push(newCh)// "abcd...
-                                lexeme.push(newCh)//abcd... 
+                                lexeme.push(newCh);// "abcd...
+                                lexeme.push(newCh);//abcd... 
                             }; // once reaching None, will have the strings. 
                             if !lexeme.ends_with('"'){
                                 eprintln!("[line {}] Error: Error: Unterminated string.", newLine);
