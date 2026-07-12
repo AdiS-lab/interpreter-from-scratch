@@ -76,12 +76,12 @@ fn main() -> ExitCode {
                             if str_iter.peek() == Some(&'='){
                                 let _: Option<char> = str_iter.next();
                                 println!("LESS_EQUAL <= null");
-                            }else if str_iter.peek() == Some(&'|'){
-                                while str_iter.next() != Some('>'){} 
                             }else{  
                                 println!("LESS < null");
                             }
                         },
+                        '<|TAB|>' => continue,
+                        '<|SPACE|>' => continue,
                         _ => {
                             err_exists = true;
                             eprintln!("[line 1] Error: Unexpected character: {}", ch);
