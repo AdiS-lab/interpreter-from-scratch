@@ -41,7 +41,7 @@ fn main() -> ExitCode {
                 ("true", "TRUE")
                 ("var", "VAR")
                 ("while", "WHILE")
-            ])
+            ]);
             let mut err_exists = false;
             let mut str_iter = file_contents.chars().peekable();
             let mut new_line = 1;
@@ -150,11 +150,11 @@ fn main() -> ExitCode {
                                     identifier.push(*new_ch);
                                     let _ : Option<char> = str_iter.next();
                                 };
-                                if let Some(val) = resWords.get(identifier){
-                                    println!("{} {} null", val, identifier)
+                                if let Some(refernce) = resWords.get(identifier){
+                                    println!("{} {} null", reference, identifier);
+                                }else{
+                                    println!("IDENTIFIER {} null", identifier);
                                 }
-
-                                println!("IDENTIFIER {} null", identifier);
                             }else{
                                 err_exists = true;
                                 eprintln!("[line {}] Error: Unexpected character: {}", new_line, ch);
