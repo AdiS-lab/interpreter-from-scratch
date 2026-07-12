@@ -54,12 +54,12 @@ fn main() -> ExitCode {
                         },
                         '"' => {
                             let mut lexeme = "";
-                            lexeme += '"';
-                            
+                            *lexeme += '"';
+
                             let mut literal = "";
                             while let Some(newCh) = str_iter.next(){
-                                lexeme += newCh; // "abcd...
-                                literal += newCh; //abcd...
+                                *lexeme += newCh; // "abcd...
+                                *literal += newCh; //abcd...
                                 if newCh == '"' {
                                     break;
                                 };
