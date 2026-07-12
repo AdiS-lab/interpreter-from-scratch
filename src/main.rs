@@ -52,6 +52,22 @@ fn main() -> ExitCode {
                                 println!("SLASH / null");
                             }
                         },
+                        '"' => {
+                            let mut lexeme = '"';
+                            let mut literal = "";
+                            while let Some(newCh) = str_iter.next(){
+                                lexeme += newCh; // "abcd...
+                                literal += newCh; //abcd...
+                                if newCh == '"' {
+                                    break;
+                                };
+                            }; // once reaching None, will have the strings. 
+                            if !lexeme.ends_with('"'){
+                                eprintln!("[line {}] Error: Error: Unterminated string.", newLine);
+                            }else{
+                                println!("STRING {} {}", lexeme, literal);
+                            }
+                        },
                         ';' => println!("SEMICOLON ; null"),
                         '=' => {
                             if str_iter.peek() == Some(&'='){ // does NOT consume the next value. & finds address of equal, * refrences the address created by &
