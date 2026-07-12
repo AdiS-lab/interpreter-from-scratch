@@ -111,14 +111,17 @@ fn main() -> ExitCode {
                         _ => {
                             if ch.is_digit(10){
                                 let mut literal = ch.to_string();
-                                while str_iter.peek() == Some(&val.is_digit(10)) || str_iter.peek() == Some(&'.'){
-                                    let newCh: Option<char> = str_iter.next();
-                                    literal.push(newCh);
+                                while str_iter.peek() == Some(val){ // continue peeking, if end/exists then break if not
+                                    if *val.is_digit(10) || *val == '.'{
+                                        let newCh: Option<char> = str_iter.next();
+                                        literal.push(newCh);
+                                    }else{
+                                        break;
+                                    }
                                 };
                                 if literal.parse::<f64>() == Ok(value){
                                     println!("NUMBER {} {}", literal, value);
                                 };
-            
                             }else{
                                 err_exists = true;
                                 eprintln!("[line {}] Error: Unexpected character: {}", newLine, ch);
