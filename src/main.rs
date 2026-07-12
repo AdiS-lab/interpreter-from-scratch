@@ -41,6 +41,7 @@ fn main() -> ExitCode {
                         '/'=> println!("SLASH / null"),
                         ';' => println!("SEMICOLON ; null"),
                         '=' => {
+                            println!("made it into the equal sign")
                             if let Some(next) = str_iter.peek(){ // does NOT consume the next value because creates a copy essentially
                                 if *next == '='{
                                     println!("EQUAL_EQUAL = null");
