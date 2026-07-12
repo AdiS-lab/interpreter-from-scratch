@@ -41,11 +41,19 @@ fn main() -> ExitCode {
                         '/'=> println!("SLASH / null"),
                         ';' => println!("SEMICOLON ; null"),
                         '=' => {
-                            if str_iter.peek() == Some(&'='){ // does NOT consume the next value because creates a copy essentially
+                            if str_iter.peek() == Some(&'='){ // does NOT consume the next value. & finds address of equal, * refrences the address created by &
                                 let _: Option<char> = str_iter.next();
                                 println!("EQUAL_EQUAL == null");
                             }else{  
                                 println!("EQUAL = null");
+                            }
+                        },
+                        '!' => {
+                            if str_iter.peek() == Some(&'='){ // does NOT consume the next value. & finds address of equal, * refrences the address created by &
+                                let _: Option<char> = str_iter.next();
+                                println!("BANG_EQUAL != null");
+                            }else{  
+                                println!("BANG ! null");
                             }
                         }
                         _ => {
