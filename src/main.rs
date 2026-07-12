@@ -40,19 +40,19 @@ fn main() -> ExitCode {
                          '-' => println!("MINUS - null"),
                         '/'=> println!("SLASH / null"),
                         ';' => println!("SEMICOLON ; null"),
+                        '=' => println!("EQUAL = null")
                         _ => {
                             err_exists = true;
                             eprintln!("[line 1] Error: Unexpected character: {}", ch);
                         }
                     } 
                 }
+                println!("EOF  null");
                 if err_exists{
-                    println!("EOF  null");
                     return ExitCode::from(65);
                 }
-                println!("EOF  null");
             } else {
-                println!("EOF  null"); // Placeholder, replace this line when implementing the scanner
+                println!("EOF  null");
             }
             return ExitCode::from(0)
         }
