@@ -112,8 +112,8 @@ fn main() -> ExitCode {
                             if ch.is_digit(10){
                                 let mut literal = ch.to_string();
                                 while let Some(val) = str_iter.peek(){ // continue peeking, if end/exists then break if not
-                                    if *val.is_digit(10) || *val == '.'{
-                                        let Some(newCh): char = str_iter.next();
+                                    if val.is_digit(10) || val == '.'{
+                                        let Some(newCh) = str_iter.next();
                                         literal.push(newCh);
                                     }else{
                                         break;
