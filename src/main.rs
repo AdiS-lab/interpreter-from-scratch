@@ -25,22 +25,22 @@ fn main() -> ExitCode {
             });
 
             let resWords = HashMap::from([
-                ("and", "AND" )
-                ("class", "CLASS")
-                ("else", "ELSE")
-                ("false", "FALSE" )
-                ("for", "FOR")
-                ("fun", "FUN")
-                ("if", "IF" )
-                ("nil", "NIL")
-                ("or", "OR" )
-                ("print", "PRINT")
-                ("return", "RETURN") 
-                ("super", "SUPER")
-                ("this", "THIS")
-                ("true", "TRUE")
-                ("var", "VAR")
-                ("while", "WHILE")
+                ("and", "AND" ),
+                ("class", "CLASS"),
+                ("else", "ELSE"),
+                ("false", "FALSE" ),
+                ("for", "FOR"),
+                ("fun", "FUN"),
+                ("if", "IF" ),
+                ("nil", "NIL"),
+                ("or", "OR" ),
+                ("print", "PRINT"),
+                ("return", "RETURN"), 
+                ("super", "SUPER"),
+                ("this", "THIS"),
+                ("true", "TRUE"),
+                ("var", "VAR"),
+                ("while", "WHILE"),
             ]);
             let mut err_exists = false;
             let mut str_iter = file_contents.chars().peekable();
@@ -150,7 +150,7 @@ fn main() -> ExitCode {
                                     identifier.push(*new_ch);
                                     let _ : Option<char> = str_iter.next();
                                 };
-                                if let Some(refernce) = resWords.get(identifier){
+                                if let Some(reference) = resWords.contains_key(identifier){
                                     println!("{} {} null", reference, identifier);
                                 }else{
                                     println!("IDENTIFIER {} null", identifier);
