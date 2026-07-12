@@ -26,6 +26,8 @@ fn main() -> ExitCode {
 
             let mut err_exists = false;
             let mut str_iter = file_contents.chars().peekable();
+            let mut newLine = 1
+
             if !file_contents.is_empty() {
                 while let Some(ch) = str_iter.next() { // automatically creates an iteratable
                     match ch {
@@ -83,11 +85,14 @@ fn main() -> ExitCode {
                         '!' => {
                             println!("made it into pipe");
                         },
-                        ' ' | '\n' | '\t' =>{
+                        ' ' | '\t' =>{
                         },
+                        '\n' =>{
+                            newLine++;
+                        }
                         _ => {
                             err_exists = true;
-                            eprintln!("[line 1] Error: Unexpected character: {}", ch);
+                            eprintln!("[line {}] Error: Unexpected character: {}", newLine, ch);
                         }
                     } 
                 }
