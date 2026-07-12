@@ -3,7 +3,7 @@ use std::env;
 use std::fs;
 use std::process::ExitCode;
 
-fn main() {
+fn main() -> ExitCode {
     let args: Vec<String> = env::args().collect();
     if args.len() < 3 {
         eprintln!("Usage: {} tokenize <filename>", args[0]);
@@ -41,12 +41,12 @@ fn main() {
                         '/'=> println!("SLASH / null"),
                         ';' => println!("SEMICOLON ; null"),
                         _ => {
-                            errExists = true;
+                            err_exists = true;
                             eprintln!("[line 1] Error: Unexpected character: {}", ch);
                         }
                     } 
                 }
-                if errExists{
+                if err_exists{
                     return ExitCode::from(65);
                 }
                 println!("EOF  null");
