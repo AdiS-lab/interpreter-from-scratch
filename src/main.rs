@@ -23,7 +23,7 @@ fn main() {
                 String::new()
             });
 
-            let errExists: bool = false;
+            let mut err_exists = false;
             // TODO: Uncomment the code below to pass the first stage
             if !file_contents.is_empty() {
                 // eprintln!("this is file contents {}" ,file_contents);
@@ -47,12 +47,13 @@ fn main() {
                     } 
                 }
                 if errExists{
-                    ExitCode::from(65);
+                    return ExitCode::from(65);
                 }
                 println!("EOF  null");
             } else {
                 println!("EOF  null"); // Placeholder, replace this line when implementing the scanner
             }
+            return ExitCode::from(0)
         }
         _ => {
             eprintln!("Unknown command: {}", command);
