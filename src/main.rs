@@ -85,7 +85,7 @@ fn main() -> ExitCode {
                         }
                         ' ' =>{
                             while str_iter.peek() == Some(&' '){
-                                let _:Option<char> = str_iter.next()
+                                let _:Option<char> = str_iter.next();
                             };
                         }
                         _ => {
