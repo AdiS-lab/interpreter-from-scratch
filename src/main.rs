@@ -23,10 +23,12 @@ fn main() -> ExitCode {
                 String::new()
             });
 
+
             let mut err_exists = false;
+            let str_iter = file_contents.chars()
             // TODO: Uncomment the code below to pass the first stage
             if !file_contents.is_empty() {
-                while let Some(ch) = file_contents.chars() { // automatically creates an iteratable
+                while let Some(ch) = str_iter { // automatically creates an iteratable
                     match ch {
                         '(' => println!("LEFT_PAREN ( null"),
                         ')' => println!("RIGHT_PAREN ) null"),
@@ -40,7 +42,7 @@ fn main() -> ExitCode {
                         '/'=> println!("SLASH / null"),
                         ';' => println!("SEMICOLON ; null"),
                         '=' => {
-                            let Some(next) = file_contents.peek() // does NOT consume the next value because creates a copy essentially
+                            let Some(next) = str_iter.peek() // does NOT consume the next value because creates a copy essentially
                             if next == "="{
                                 println!("EQUAL_EQUAL = null");
                             }else{ 
