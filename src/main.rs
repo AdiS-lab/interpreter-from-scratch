@@ -109,11 +109,20 @@ fn main() -> ExitCode {
                             newLine+=1;
                         },
                         _ => {
-                            if ch.is_digit(10){ 
-                                println!("check worked");
-                            };
-                            err_exists = true;
-                            eprintln!("[line {}] Error: Unexpected character: {}", newLine, ch);
+                            if ch.is_digit(10){
+                                let mut literal = ch.to_string();
+                                while str_iter.peek() == Some(&val.is_digit(10)) || str_iter.peek() == Some(&'.'){
+                                    let newCh = str.next();
+                                    literal.push(newCh);
+                                };
+                                if literal.parse::<f64>(val) == Ok{
+                                    println!("NUMBER {} {}", literal, val);
+                                };
+            
+                            }else{
+                                err_exists = true;
+                                eprintln!("[line {}] Error: Unexpected character: {}", newLine, ch);
+                            }
                         }
                     } 
                 }
