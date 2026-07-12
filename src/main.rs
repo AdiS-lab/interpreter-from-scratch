@@ -38,7 +38,13 @@ fn main() -> ExitCode {
                         '+' => println!("PLUS + null"),
                         '*'=> println!("STAR * null"),
                          '-' => println!("MINUS - null"),
-                        '/'=> println!("SLASH / null"),
+                        '/' => {
+                            if str_iter.peek() == Some(&'/'){  
+                                while let Some(newCh) = str_iter.next();
+                            }else{  
+                                println!("SLASH / null");
+                            }
+                        },
                         ';' => println!("SEMICOLON ; null"),
                         '=' => {
                             if str_iter.peek() == Some(&'='){ // does NOT consume the next value. & finds address of equal, * refrences the address created by &
@@ -49,7 +55,7 @@ fn main() -> ExitCode {
                             }
                         },
                         '!' => {
-                            if str_iter.peek() == Some(&'='){ // does NOT consume the next value. & finds address of equal, * refrences the address created by &
+                            if str_iter.peek() == Some(&'='){ 
                                 let _: Option<char> = str_iter.next();
                                 println!("BANG_EQUAL != null");
                             }else{  
@@ -57,7 +63,7 @@ fn main() -> ExitCode {
                             }
                         }
                         '>' => {
-                            if str_iter.peek() == Some(&'='){ // does NOT consume the next value. & finds address of equal, * refrences the address created by &
+                            if str_iter.peek() == Some(&'='){ 
                                 let _: Option<char> = str_iter.next();
                                 println!("GREATER_EQUAL >= null");
                             }else{  
@@ -65,7 +71,7 @@ fn main() -> ExitCode {
                             }
                         },
                         '<' => {
-                            if str_iter.peek() == Some(&'='){ // does NOT consume the next value. & finds address of equal, * refrences the address created by &
+                            if str_iter.peek() == Some(&'='){
                                 let _: Option<char> = str_iter.next();
                                 println!("LESS_EQUAL <= null");
                             }else{  
