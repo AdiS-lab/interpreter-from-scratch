@@ -39,12 +39,10 @@ fn main() -> ExitCode {
                         ',' => println!("COMMA , null"),
                         '+' => println!("PLUS + null"),
                         '*'=> println!("STAR * null"),
-                        '-' => println!("MINUS - null"),
+                        '-' => println!("MINUS - null"), 
                         '/' => {
                             if str_iter.peek() == Some(&'/'){  
-                                while let Some(newCh) = str_iter.next(){
-
-                                };
+                                while str_iter.next() != Some('\n'){};
                             }else{  
                                 println!("SLASH / null");
                             }
