@@ -40,7 +40,9 @@ fn main() -> ExitCode {
                          '-' => println!("MINUS - null"),
                         '/' => {
                             if str_iter.peek() == Some(&'/'){  
-                                while let Some(newCh) = str_iter.next();
+                                while let Some(newCh) = str_iter.next(){
+                                    
+                                };
                             }else{  
                                 println!("SLASH / null");
                             }
