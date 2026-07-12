@@ -113,8 +113,8 @@ fn main() -> ExitCode {
                                 let mut literal = ch.to_string();
                                 while let Some(new_ch) = str_iter.peek(){ //Option<&char>
                                     if new_ch.is_digit(10) || *new_ch == '.'{
-                                        let new_ch = str_iter.next().unwrap();
-                                        literal.push(new_ch);
+                                        literal.push(*new_ch);
+                                        let _ : Option<char> = str_iter.next();
                                     }else{
                                         break;
                                     }
@@ -129,8 +129,8 @@ fn main() -> ExitCode {
                                     if !new_ch.is_digit(10) && !(*new_ch == '_') && !new_ch.is_ascii_alphabetic(){
                                         break;
                                     }
-                                    let new_ch = str_iter.next().unwrap();
-                                    identifier.push(new_ch);
+                                    identifier.push(*new_ch);
+                                    let _ : Option<char> = str_iter.next();
                                 };
                                 println!("IDENTIFIER {} null", identifier);
                             }else{
