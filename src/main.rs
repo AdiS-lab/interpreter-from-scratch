@@ -84,9 +84,9 @@ fn main() -> ExitCode {
                             println!("made it into pipe");
                         }
                         ' ' =>{
-                            if str_iter.peek() == Some(&' '){
-                                while str_iter.next() == Some(' '){};
-                            }
+                            while str_iter.peek() == Some(' '){
+                                let_:Option<char> = str_iter.next()
+                            };
                         }
                         _ => {
                             println!("this is char {}", ch);
