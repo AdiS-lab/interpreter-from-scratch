@@ -53,7 +53,9 @@ fn main() -> ExitCode {
                             }
                         },
                         '"' => {
-                            let mut lexeme = '"';
+                            let mut lexeme = "";
+                            lexeme += '"';
+                            
                             let mut literal = "";
                             while let Some(newCh) = str_iter.next(){
                                 lexeme += newCh; // "abcd...
