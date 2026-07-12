@@ -22,7 +22,7 @@ fn main() {
                 String::new()
             });
 
-            const bool = false
+            const errExists: Boolean = false
             // TODO: Uncomment the code below to pass the first stage
             if !file_contents.is_empty() {
                 // eprintln!("this is file contents {}" ,file_contents);
@@ -40,12 +40,12 @@ fn main() {
                         '/'=> println!("SLASH / null"),
                         ';' => println!("SEMICOLON ; null"),
                         _ => {
-                            bool = true
+                            errExists = true
                             eprintln!("[line 1] Error: Unexpected character: {}", ch)
                         }
                     } 
                 }
-                if(bool){
+                if(errExists){
                     return ExitCode::from(65)
                 }
                 println!("EOF  null");
