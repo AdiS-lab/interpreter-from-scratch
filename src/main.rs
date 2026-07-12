@@ -40,7 +40,7 @@ fn main() -> ExitCode {
                          '-' => println!("MINUS - null"),
                         '/'=> println!("SLASH / null"),
                         ';' => println!("SEMICOLON ; null"),
-                        '=' => println!("EQUAL = null")
+                        '=' => println!("EQUAL = null"),
                         _ => {
                             err_exists = true;
                             eprintln!("[line 1] Error: Unexpected character: {}", ch);
