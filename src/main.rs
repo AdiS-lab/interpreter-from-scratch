@@ -73,7 +73,7 @@ fn main() -> ExitCode {
                             }
                         },
                         '<' => {
-                            println("made it into < operator");
+                            println!("made it into < operator");
                             if str_iter.peek() == Some(&'='){
                                 let _: Option<char> = str_iter.next();
                                 println!("LESS_EQUAL <= null");
