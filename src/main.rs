@@ -79,7 +79,7 @@ fn main() -> ExitCode {
                                 println!("LESS_EQUAL <= null");
                             }else if str_iter.peek() == Some(&'|'){
                                 println!("made it to correct check");
-                                while str_iter.next() != Some(&'>'){}
+                                while str_iter.next() != Some('>'){}
                             }
                             else{  
                                 println!("LESS < null");
