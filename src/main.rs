@@ -82,12 +82,17 @@ fn main() -> ExitCode {
                         },
                         '!' => {
                             println!("made it into pipe");
-                        }
+                        },
                         ' ' =>{
                             while str_iter.peek() == Some(&' '){
                                 let _:Option<char> = str_iter.next();
                             };
-                        }
+                        },
+                        '\n' =>{
+                            while str_iter.peek() == Some(&'\n'){
+                                let _:Option<char> = str_iter.next();
+                            };
+                        },
                         _ => {
                             println!("this is char {}", ch);
                             err_exists = true;
