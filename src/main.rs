@@ -47,7 +47,7 @@ fn main() -> ExitCode {
                             }else{  
                                 println!("EQUAL = null");
                             }
-
+                        }
                         _ => {
                             err_exists = true;
                             eprintln!("[line 1] Error: Unexpected character: {}", ch);
