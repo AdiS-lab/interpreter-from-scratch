@@ -43,6 +43,7 @@ fn main() -> ExitCode {
                         '/' => {
                             if str_iter.peek() == Some(&'/'){  
                                 while str_iter.next() != Some('\n'){};
+                                newLine += 1;
                             }else{  
                                 println!("SLASH / null");
                             }
