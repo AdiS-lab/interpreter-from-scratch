@@ -41,12 +41,13 @@ fn main() -> ExitCode {
                         '/'=> println!("SLASH / null"),
                         ';' => println!("SEMICOLON ; null"),
                         '=' => {
-                            let Some(next) = str_iter.peek(); // does NOT consume the next value because creates a copy essentially
-                            // next is still a pointer because not consuming
-                            if *next == '='{
-                                println!("EQUAL_EQUAL = null");
-                            }else{ 
-                                println!("EQUAL = null");
+                            if let Some(next) = str_iter.peek(){ // does NOT consume the next value because creates a copy essentially
+                                if *next == '='{
+                                    println!("EQUAL_EQUAL = null");
+                                    str_iter.next()
+                                }else{ 
+                                    println!("EQUAL = null");
+                                }
                             }
                         }
                         _ => {
