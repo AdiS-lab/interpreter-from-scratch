@@ -152,7 +152,7 @@ fn main() -> ExitCode {
                                 };
 
                                 if resWords.contains_key(&*identifier){
-                                    let reference = resWords[*&identifier];
+                                    let reference = resWords[&*identifier];
                                     println!("{} {} null", reference, identifier);
                                 }else{
                                     println!("IDENTIFIER {} null", identifier);
