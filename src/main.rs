@@ -119,7 +119,7 @@ fn main() -> ExitCode {
                                         break;
                                     }
                                 };
-                                if literal.parse::<f64>() == Ok(value){
+                                if let Ok(value) = literal.parse::<f64>(){
                                     println!("NUMBER {} {}", literal, value);
                                 };
                             }else{
