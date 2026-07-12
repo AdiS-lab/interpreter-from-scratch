@@ -2,7 +2,7 @@
 use std::env;
 use std::fs;
 use std::process::ExitCode;
-use std::iterable::peekable
+use std::iter::peekable
 
 fn main() -> ExitCode {
     let args: Vec<String> = env::args().collect();
