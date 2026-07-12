@@ -2,6 +2,7 @@
 use std::env;
 use std::fs;
 use std::process::ExitCode;
+use std::collections::HashMap;
 
 fn main() -> ExitCode {
     let args: Vec<String> = env::args().collect();
@@ -23,7 +24,24 @@ fn main() -> ExitCode {
                 String::new()
             });
 
-
+            let resWords = HashMap::from([
+                ("and", "AND" )
+                ("class", "CLASS")
+                ("else", "ELSE")
+                ("false", "FALSE" )
+                ("for", "FOR")
+                ("fun", "FUN")
+                ("if", "IF" )
+                ("nil", "NIL")
+                ("or", "OR" )
+                ("print", "PRINT")
+                ("return", "RETURN") 
+                ("super", "SUPER")
+                ("this", "THIS")
+                ("true", "TRUE")
+                ("var", "VAR")
+                ("while", "WHILE")
+            ])
             let mut err_exists = false;
             let mut str_iter = file_contents.chars().peekable();
             let mut new_line = 1;
@@ -109,7 +127,7 @@ fn main() -> ExitCode {
                             new_line+=1;
                         },
                         _ => {
-                            if ch.is_digit(10){
+                            if ch.is_digit(10){ // finding numbers
                                 let mut literal = ch.to_string();
                                 while let Some(new_ch) = str_iter.peek(){ //Option<&char>
                                     if new_ch.is_digit(10) || *new_ch == '.'{
@@ -122,8 +140,8 @@ fn main() -> ExitCode {
                                 if let Ok(value) = literal.parse::<f64>(){
                                     println!("NUMBER {} {:?}", literal, value);
                                 };
-                            
-                            }else if ch == '_' || ch.is_ascii_alphabetic(){
+                             
+                            }else if ch == '_' || ch.is_ascii_alphabetic(){ //creating identifiers
                                 let mut identifier = ch.to_string();
                                 while let Some(new_ch) = str_iter.peek(){
                                     if !new_ch.is_digit(10) && !(*new_ch == '_') && !new_ch.is_ascii_alphabetic(){
@@ -132,6 +150,10 @@ fn main() -> ExitCode {
                                     identifier.push(*new_ch);
                                     let _ : Option<char> = str_iter.next();
                                 };
+                                if let Some(val) = resWords.get(identifier){
+                                    println!("{} {} null", val, identifier)
+                                }
+
                                 println!("IDENTIFIER {} null", identifier);
                             }else{
                                 err_exists = true;
