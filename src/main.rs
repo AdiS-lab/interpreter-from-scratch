@@ -126,7 +126,7 @@ fn main() -> ExitCode {
                             }else if ch == '_' || ch.is_ascii_alphabetic(){
                                 let mut identifier = ch.to_string();
                                 while let Some(newCh) = str_iter.next(){
-                                    if !newCh.is_digit(10) || !ch == '_' || !ch.is_ascii_alphabetic(){
+                                    if !newCh.is_digit(10) || !(newCh == '_') || !newCh.is_ascii_alphabetic(){
                                         break;
                                     }
                                     identifier.push(newCh);
