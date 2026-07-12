@@ -7,7 +7,7 @@ fn main() -> ExitCode {
     let args: Vec<String> = env::args().collect();
     if args.len() < 3 {
         eprintln!("Usage: {} tokenize <filename>", args[0]);
-        return;
+        return ExitCode::from(1);
     }
 
     let command = &args[1];
@@ -57,6 +57,7 @@ fn main() -> ExitCode {
         }
         _ => {
             eprintln!("Unknown command: {}", command);
+            return ExitCode::from(1)
         }
     }
 }
