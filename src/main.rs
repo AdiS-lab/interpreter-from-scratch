@@ -41,7 +41,7 @@ fn main() -> ExitCode {
                         '/' => {
                             if str_iter.peek() == Some(&'/'){  
                                 while let Some(newCh) = str_iter.next(){
-                                    
+
                                 };
                             }else{  
                                 println!("SLASH / null");
@@ -71,11 +71,13 @@ fn main() -> ExitCode {
                             }else{  
                                 println!("GREATER > null");
                             }
-                        },
+                        },<|TAB|>
                         '<' => {
                             if str_iter.peek() == Some(&'='){
                                 let _: Option<char> = str_iter.next();
                                 println!("LESS_EQUAL <= null");
+                            }else if str_iter.peek() == Some(&'|'){
+                                while str_iter.next() != Some('>'){} 
                             }else{  
                                 println!("LESS < null");
                             }
