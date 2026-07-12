@@ -85,6 +85,7 @@ fn main() -> ExitCode {
                         }
                         ' ' =>{
                             println!("made it into space check")
+                            while str_iter.next() == ' '{}
                         }
                         _ => {
                             println!("this is char {}", ch);
