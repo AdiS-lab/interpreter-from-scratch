@@ -85,6 +85,7 @@ fn main() -> ExitCode {
                                 println!("LESS < null");
                             }
                         },
+                        '!' => continue;
                         _ => {
                             err_exists = true;
                             eprintln!("[line 1] Error: Unexpected character: {}", ch);
