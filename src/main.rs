@@ -111,7 +111,7 @@ fn main() -> ExitCode {
                         _ => {
                             if ch.is_digit(10){
                                 let mut literal = ch.to_string();
-                                while str_iter.peek() == Some(val){ // continue peeking, if end/exists then break if not
+                                while let Some(val) = str_iter.peek(){ // continue peeking, if end/exists then break if not
                                     if *val.is_digit(10) || *val == '.'{
                                         let newCh: Option<char> = str_iter.next();
                                         literal.push(newCh);
