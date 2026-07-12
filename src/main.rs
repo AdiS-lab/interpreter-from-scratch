@@ -83,11 +83,7 @@ fn main() -> ExitCode {
                         '!' => {
                             println!("made it into pipe");
                         },
-                        ' ' =>{
-                            continue;
-                        },
-                        '\n' =>{
-                            continue;
+                        ' ' | '\n' | '\t' =>{
                         },
                         _ => {
                             println!("this is char {}", ch);
