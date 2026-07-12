@@ -25,10 +25,9 @@ fn main() -> ExitCode {
 
 
             let mut err_exists = false;
-            let mut str_iter = file_contents.chars().peekable()
-            // TODO: Uncomment the code below to pass the first stage
+            let mut str_iter = file_contents.chars().peekable();
             if !file_contents.is_empty() {
-                while let Some(ch) = str_iter { // automatically creates an iteratable
+                while let Some(ch) = str_iter.next() { // automatically creates an iteratable
                     match ch {
                         '(' => println!("LEFT_PAREN ( null"),
                         ')' => println!("RIGHT_PAREN ) null"),
