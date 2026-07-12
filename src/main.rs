@@ -2,7 +2,6 @@
 use std::env;
 use std::fs;
 use std::process::ExitCode;
-use std::iter
 
 fn main() -> ExitCode {
     let args: Vec<String> = env::args().collect();
@@ -25,10 +24,9 @@ fn main() -> ExitCode {
             });
 
             let mut err_exists = false;
-            let mut iter = file_contents.chars().iter().peekable() // iteratable just creates a tracking struct
             // TODO: Uncomment the code below to pass the first stage
             if !file_contents.is_empty() {
-                while let Some(ch) = iter.next() {
+                while let Some(ch) = file_contents.chars() { // automatically creates an iteratable
                     match ch {
                         '(' => println!("LEFT_PAREN ( null"),
                         ')' => println!("RIGHT_PAREN ) null"),
@@ -42,7 +40,7 @@ fn main() -> ExitCode {
                         '/'=> println!("SLASH / null"),
                         ';' => println!("SEMICOLON ; null"),
                         '=' => {
-                            let Some(next) = iter.peek() // does NOT consume the next value because creates a copy essentially
+                            let Some(next) = file_contents.peek() // does NOT consume the next value because creates a copy essentially
                             if next == "="{
                                 println!("EQUAL_EQUAL = null");
                             }else{ 
