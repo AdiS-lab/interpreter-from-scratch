@@ -29,7 +29,7 @@ fn main() -> ExitCode {
             let mut newLine = 1;
 
             if !file_contents.is_empty() {
-                while let Some(ch) = str_iter.next() { // automatically creates an iteratable
+                while let Some(ch) = str_iter.next() { // Option<char>
                     match ch {
                         '(' => println!("LEFT_PAREN ( null"),
                         ')' => println!("RIGHT_PAREN ) null"),
@@ -97,7 +97,7 @@ fn main() -> ExitCode {
                             }
                         },
                         '<' => {
-                            if str_iter.peek() == Some(&'='){
+                            if str_iter.peek() == Some(&'='){ // automatically derefences equal, so chars are compared. 
                                 let _: Option<char> = str_iter.next();
                                 println!("LESS_EQUAL <= null");
                             }else{  
@@ -111,8 +111,8 @@ fn main() -> ExitCode {
                         _ => {
                             if ch.is_digit(10){
                                 let mut literal = ch.to_string();
-                                while let Some(val) = str_iter.peek(){ // continue peeking, if end/exists then break if not
-                                    if val.is_digit(10) || val == '.'{
+                                while let Some(val) = str_iter.peek(){ //Option<&char>
+                                    if val.is_digit(10) || *val == '.'{
                                         let Some(newCh) = str_iter.next();
                                         literal.push(newCh);
                                     }else{
