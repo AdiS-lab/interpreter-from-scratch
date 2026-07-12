@@ -111,8 +111,8 @@ fn main() -> ExitCode {
                         _ => {
                             if ch.is_digit(10){
                                 let mut literal = ch.to_string();
-                                while let Some(val) = str_iter.peek(){ //Option<&char>
-                                    if val.is_digit(10) || *val == '.'{
+                                while let Some(newCh) = str_iter.peek(){ //Option<&char>
+                                    if newCh.is_digit(10) || *newCh == '.'{
                                         let newCh = str_iter.next().unwrap();
                                         literal.push(newCh);
                                     }else{
@@ -122,6 +122,16 @@ fn main() -> ExitCode {
                                 if let Ok(value) = literal.parse::<f64>(){
                                     println!("NUMBER {} {:?}", literal, value);
                                 };
+                            
+                            }else if ch == '_' || ch.is_ascii_alphabetic{
+                                let mut identifier = ch.to_string();
+                                while let Some(newCh) = str_iter.next(){
+                                    if newCh == ' ' || newCh == '\n' || newCh == '\t'{
+                                        break;
+                                    }
+                                    identifier.push(newCh);
+                                };
+                                println!("IDENTIFIER {} null", identifier);
                             }else{
                                 err_exists = true;
                                 eprintln!("[line {}] Error: Unexpected character: {}", newLine, ch);
