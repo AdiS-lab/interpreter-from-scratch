@@ -88,6 +88,10 @@ fn main() -> ExitCode {
                         '!' => {
                             println!("made it into pipe");
                         }
+                        ' ' =>{
+                            while str_iter.next() != Some(' '){
+                            }
+                        }
                         _ => {
                             println!("this is char {}", ch);
                             err_exists = true;
