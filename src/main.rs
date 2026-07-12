@@ -104,14 +104,14 @@ fn main() -> ExitCode {
                                 println!("LESS < null");
                             }
                         },
-                        '!' => {
-                            println!("made it into pipe");
-                        },
                         ' ' | '\t' =>{},
                         '\n' =>{
                             newLine+=1;
                         },
                         _ => {
+                            if ch.to_digit { 
+                                println!("check worked")
+                            }
                             err_exists = true;
                             eprintln!("[line {}] Error: Unexpected character: {}", newLine, ch);
                         }
