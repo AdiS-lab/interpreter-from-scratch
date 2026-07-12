@@ -112,11 +112,11 @@ fn main() -> ExitCode {
                             if ch.is_digit(10){
                                 let mut literal = ch.to_string();
                                 while str_iter.peek() == Some(&val.is_digit(10)) || str_iter.peek() == Some(&'.'){
-                                    let newCh = str.next();
+                                    let newCh: Option<char> = str.next();
                                     literal.push(newCh);
                                 };
-                                if literal.parse::<f64>(val) == Ok{
-                                    println!("NUMBER {} {}", literal, val);
+                                if literal.parse::<f64>(value) == Ok{
+                                    println!("NUMBER {} {}", literal, value);
                                 };
             
                             }else{
