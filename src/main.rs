@@ -23,7 +23,7 @@ fn main() {
                 String::new()
             });
 
-            const errExists: Boolean = false;
+            let errExists: bool = false;
             // TODO: Uncomment the code below to pass the first stage
             if !file_contents.is_empty() {
                 // eprintln!("this is file contents {}" ,file_contents);
@@ -46,8 +46,8 @@ fn main() {
                         }
                     } 
                 }
-                if(errExists){
-                    return ExitCode::from(65);
+                if errExists{
+                    ExitCode::from(65);
                 }
                 println!("EOF  null");
             } else {
