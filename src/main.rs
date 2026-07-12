@@ -89,7 +89,7 @@ fn main() -> ExitCode {
                             println!("made it into pipe");
                         }
                         _ => {
-                            println!(ch);
+                            println!("{}", ch);
                             err_exists = true;
                             eprintln!("[line 1] Error: Unexpected character: {}", ch);
                         }
