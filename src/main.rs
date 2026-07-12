@@ -130,7 +130,7 @@ fn main() -> ExitCode {
                                         break;
                                     }
                                     let new_ch = str_iter.next().unwrap();
-                                    literal.push(new_ch);
+                                    identifier.push(new_ch);
                                 };
                                 println!("IDENTIFIER {} null", identifier);
                             }else{
