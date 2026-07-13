@@ -5,14 +5,10 @@ use std::process::ExitCode;
 use std::collections::HashMap;
 
 
-fn tokenize(filename) -> Array<string> {
+fn tokenize(file_contents: string) -> Vec {
     // You can use print statements as follows for debugging, they'll be visible when running tests.
-    let file_contents = fs::read_to_string(filename).unwrap_or_else(|_| { // same as catching error
-        eprintln!("Failed to read file {}", filename);
-        String::new()
-    });
-    let result = []
-    result.push("hi")
+    let mut result = vec![];
+    result.push("hi");
 
     let resWords = HashMap::from([
         ("and", "AND" ),
@@ -163,8 +159,8 @@ fn tokenize(filename) -> Array<string> {
     }// marking the end of file
      // want to return the normal. 
     
-    return result
-    return ExitCode::from(0)
+    return result;
+    return ExitCode::from(0);
 }
 
 
@@ -177,11 +173,16 @@ fn main() -> ExitCode {
 
     let command = &args[1];
     let filename = &args[2];
+    let file_contents = fs::read_to_string(filename).unwrap_or_else(|_| { // same as catching error
+        eprintln!("Failed to read file {}", filename);
+        String::new()
+    });
 
     match command.as_str() {
         "parse" => { // iterator. 
-            let tokens = tokenize(filename);  
+            let tokens = tokenize(file_contents);  
             println!("{}", tokens);
+            return ExitCode::from(1)
         },
         _ => {
             eprintln!("Unknown command: {}", command);
