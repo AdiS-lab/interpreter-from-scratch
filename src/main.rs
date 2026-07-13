@@ -5,9 +5,9 @@ use std::process::ExitCode;
 use std::collections::HashMap;
 
 
-fn tokenize(file_contents: String) -> Vec<&str> {
+fn tokenize(file_contents: String) -> Vec<*&str> {
     // You can use print statements as follows for debugging, they'll be visible when running tests.
-    let mut result = vec![];
+    let mut result = Vec::new();
     result.push("hi");
 
     let resWords = HashMap::from([
