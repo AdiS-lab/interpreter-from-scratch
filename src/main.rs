@@ -5,7 +5,7 @@ use std::process::ExitCode;
 use std::collections::HashMap;
 
 
-fn tokenize(file_contents: String) -> Vec<static &str> {
+fn tokenize(file_contents: String) -> Vec<&'static str> {
     // You can use print statements as follows for debugging, they'll be visible when running tests.
     let mut result = Vec::new();
     result.push("hi");
@@ -43,7 +43,7 @@ fn tokenize(file_contents: String) -> Vec<static &str> {
                 ',' => result.push("COMMA , null"),
                 '+' => result.push("PLUS + null"),
                 '*'=> result.push("STAR * null"),
-                '-' => result.push("MINUS - null"), 
+                '-' => result.push("MINUS - null"),
                 '/' => {
                     if str_iter.peek() == Some(&'/'){  
                         while let Some(new_ch) = str_iter.next(){
