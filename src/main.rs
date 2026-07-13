@@ -8,7 +8,7 @@ use std::collections::HashMap;
 fn tokenize(file_contents: String) -> Vec<String> {
     // You can use print statements as follows for debugging, they'll be visible when running tests.
     let mut result = Vec::new();
-    let mut test = "hi".to_string()
+    let test = "hi".to_string();
     result.push(test);
 
     let resWords = HashMap::from([
