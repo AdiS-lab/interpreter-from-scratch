@@ -123,7 +123,7 @@ fn tokenize(file_contents: String) -> String {
                             }
                         };
                         if let Ok(value) = literal.parse::<f64>(){
-                            result.push_str(format!("NUMBER {} {:?},", literal, value));
+                            result.push_str(&format!("NUMBER {} {:?},", literal, value));
                         };
                         
                     }else if ch == '_' || ch.is_ascii_alphabetic(){ //creating identifiers
@@ -138,13 +138,13 @@ fn tokenize(file_contents: String) -> String {
 
                         if res_words.contains_key(&*identifier){
                             let reference = res_words[&*identifier];
-                            result.push_str(format!("{} {} null,", reference, identifier));
+                            result.push_str(&format!("{} {} null,", reference, identifier));
                         }else{
-                            result.push_str(format!("IDENTIFIER {} null,", identifier));
+                            result.push_str(&format!("IDENTIFIER {} null,", identifier));
                         }
                     }else{
                         err_exists = true;
-                        result.push_str(format!("[line {}] Error: Unexpected character: {},", new_line, ch));
+                        result.push_str(&format!("[line {}] Error: Unexpected character: {},", new_line, ch));
                     }
                 }
             } // match ends. 
