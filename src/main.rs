@@ -182,7 +182,7 @@ fn main() -> ExitCode {
         "parse" => { // iterator. 
             let tokenStr = tokenize(file_contents);  
             let tokens: Vec<String>= tokenStr.split(",").map(|s| s.to_string()).collect();
-            println!("{:?}", tokens[0].split(" ").map(|s| s.to_string()).collect()::<Vec<String>>[0]);
+            println!("{:?}", tokens[0].split(" ").map(|s| s.to_string()).collect::<Vec<String>>()[0]);
             return ExitCode::from(0)
         },
         _ => {
