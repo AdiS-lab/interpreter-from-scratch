@@ -53,7 +53,7 @@ fn tokenize(file_contents: String) -> Vec<&'static str> {
                             }
                         };
                     }else{  
-                        println!("SLASH / null");
+                        result.push!("SLASH / null");
                     }
                 },
                 '"' => {
@@ -70,42 +70,42 @@ fn tokenize(file_contents: String) -> Vec<&'static str> {
                     }; // once reaching None, will have the strings. 
                     if !lexeme.ends_with('"'){
                         err_exists = true;
-                        eprintln!("[line {}] Error: Unterminated string.", new_line);
+                        result.push!("[line {}] Error: Unterminated string.", new_line);
                     }else{
-                        println!("STRING {} {}", lexeme, literal);
+                        result.push!("STRING {} {}", lexeme, literal);
                     }
                 },
-                ';' => println!("SEMICOLON ; null"),
+                ';' => result.push!("SEMICOLON ; null"),
                 '=' => {
                     if str_iter.peek() == Some(&'='){ // does NOT consume the next value. & finds address of equal, * refrences the address created by &
                         let _: Option<char> = str_iter.next();
-                        println!("EQUAL_EQUAL == null");
+                        result.push!("EQUAL_EQUAL == null");
                     }else{  
-                        println!("EQUAL = null");
+                        result.push!("EQUAL = null");
                     }
                 },
                 '!' => {
                     if str_iter.peek() == Some(&'='){ 
                         let _: Option<char> = str_iter.next();
-                        println!("BANG_EQUAL != null");
+                        result.push!("BANG_EQUAL != null");
                     }else{  
-                        println!("BANG ! null");
+                        result.push!("BANG ! null");
                     }
                 }
                 '>' => {
                     if str_iter.peek() == Some(&'='){ 
                         let _: Option<char> = str_iter.next();
-                        println!("GREATER_EQUAL >= null");
+                        result.push!("GREATER_EQUAL >= null");
                     }else{  
-                        println!("GREATER > null");
+                        result.push!("GREATER > null");
                     }
                 },
                 '<' => {
                     if str_iter.peek() == Some(&'='){ // automatically derefences equal, so chars are compared. 
                         let _: Option<char> = str_iter.next();
-                        println!("LESS_EQUAL <= null");
+                        result.push!("LESS_EQUAL <= null");
                     }else{  
-                        println!("LESS < null");
+                        result.push!("LESS < null");
                     }
                 },
                 ' ' | '\t' =>{},
@@ -124,7 +124,7 @@ fn tokenize(file_contents: String) -> Vec<&'static str> {
                             }
                         };
                         if let Ok(value) = literal.parse::<f64>(){
-                            println!("NUMBER {} {:?}", literal, value);
+                            result.push!("NUMBER {} {:?}", literal, value);
                         };
                         
                     }else if ch == '_' || ch.is_ascii_alphabetic(){ //creating identifiers
@@ -139,24 +139,24 @@ fn tokenize(file_contents: String) -> Vec<&'static str> {
 
                         if res_words.contains_key(&*identifier){
                             let reference = res_words[&*identifier];
-                            println!("{} {} null", reference, identifier);
+                            result.push!("{} {} null", reference, identifier);
                         }else{
-                            println!("IDENTIFIER {} null", identifier);
+                            result.push!("IDENTIFIER {} null", identifier);
                         }
                     }else{
                         err_exists = true;
-                        eprintln!("[line {}] Error: Unexpected character: {}", new_line, ch);
+                        result.push!("[line {}] Error: Unexpected character: {}", new_line, ch);
                     }
                 }
             } // match ends. 
         }
-        println!("EOF  null");
+        result.push!("EOF  null");
         if err_exists{
             return result
             // return ExitCode::from(65);
         }
     } else {
-        println!("EOF  null");
+        result.push!("EOF  null");
     }// marking the end of file
      // want to return the normal. 
     
