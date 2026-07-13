@@ -181,7 +181,7 @@ fn main() -> ExitCode {
     match command.as_str() {
         "parse" => { // iterator. 
             let tokenStr = tokenize(file_contents);  
-            let tokens = tokenStr.split(",").collect();
+            let tokens: Vec<String>= tokenStr.split(",").map(|s| s.to_string()).collect();
             println!("{:?}", tokens);
             return ExitCode::from(1)
         },
