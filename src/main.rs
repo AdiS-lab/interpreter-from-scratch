@@ -53,7 +53,7 @@ fn tokenize(file_contents: String) -> Vec<&'static str> {
                             }
                         };
                     }else{  
-                        result.push!("SLASH / null");
+                        result.push("SLASH / null");
                     }
                 },
                 '"' => {
@@ -70,9 +70,9 @@ fn tokenize(file_contents: String) -> Vec<&'static str> {
                     }; // once reaching None, will have the strings. 
                     if !lexeme.ends_with('"'){
                         err_exists = true;
-                        result.push("[line {}] Error: Unterminated string.", new_line);
+                        result.push(format!("[line {}] Error: Unterminated string.", new_line));
                     }else{
-                        result.push("STRING {} {}", lexeme, literal);
+                        result.push(format!("STRING {} {}", lexeme, literal));
                     }
                 },
                 ';' => result.push("SEMICOLON ; null"),
@@ -124,7 +124,7 @@ fn tokenize(file_contents: String) -> Vec<&'static str> {
                             }
                         };
                         if let Ok(value) = literal.parse::<f64>(){
-                            result.push("NUMBER {} {:?}", literal, value);
+                            result.push(format!("NUMBER {} {:?}", literal, value));
                         };
                         
                     }else if ch == '_' || ch.is_ascii_alphabetic(){ //creating identifiers
@@ -139,9 +139,9 @@ fn tokenize(file_contents: String) -> Vec<&'static str> {
 
                         if res_words.contains_key(&*identifier){
                             let reference = res_words[&*identifier];
-                            result.push("{} {} null", reference, identifier);
+                            result.push(format!("{} {} null", reference, identifier));
                         }else{
-                            result.push("IDENTIFIER {} null", identifier);
+                            result.push(format!("IDENTIFIER {} null", identifier));
                         }
                     }else{
                         err_exists = true;
