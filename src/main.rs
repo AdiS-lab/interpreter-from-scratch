@@ -69,9 +69,9 @@ fn tokenize(file_contents: String) -> String {
                     }; // once reaching None, will have the strings. 
                     if !lexeme.ends_with('"'){
                         err_exists = true;
-                        result.push_str(format!("[line {}] Error: Unterminated string.,", new_line));
+                        result.push_str(&format!("[line {}] Error: Unterminated string.,", new_line));
                     }else{
-                        result.push_str(format!("STRING {} {},", lexeme, literal));
+                        result.push_str(&format!("STRING {} {},", lexeme, literal));
                     }
                 },
                 ';' => result.push_str("SEMICOLON ; null,"),
