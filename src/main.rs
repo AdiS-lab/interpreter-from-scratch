@@ -182,8 +182,8 @@ fn main() -> ExitCode {
         "parse" => { // iterator. 
             let tokenStr = tokenize(file_contents);  
             let tokens: Vec<String>= tokenStr.split(",").map(|s| s.to_string()).collect();
-            println!("{:?}", tokens);
-            return ExitCode::from(1)
+            println!("{:?}", tokens[0].split(" ").collect()[0]);
+            return ExitCode::from(0)
         },
         _ => {
             eprintln!("Unknown command: {}", command);
