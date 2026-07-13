@@ -5,13 +5,13 @@ use std::process::ExitCode;
 use std::collections::HashMap;
 
 
-fn tokenize(file_contents: String) -> Vec<String> {
+fn tokenize(file_contents: String) -> Vec<&str> {
     // You can use print statements as follows for debugging, they'll be visible when running tests.
     let mut result = Vec::new();
-    let test = "hi".to_string();
+    let mut test = "hi";
     result.push(test);
 
-    let resWords = HashMap::from([
+    let res_words = HashMap::from([
         ("and", "AND" ),
         ("class", "CLASS"),
         ("else", "ELSE"),
@@ -36,15 +36,15 @@ fn tokenize(file_contents: String) -> Vec<String> {
     if !file_contents.is_empty() {
         while let Some(ch) = str_iter.next() { // Option<char>
             match ch {
-                '(' => println!("LEFT_PAREN ( null"),
-                ')' => println!("RIGHT_PAREN ) null"),
-                '{' => println!("LEFT_BRACE {{ null"),
-                '}'=> println!("RIGHT_BRACE }} null"),
-                '.' => println!("DOT . null"),
-                ',' => println!("COMMA , null"),
-                '+' => println!("PLUS + null"),
-                '*'=> println!("STAR * null"),
-                '-' => println!("MINUS - null"), 
+                '(' => result.push!("LEFT_PAREN ( null"),
+                ')' => result.push!("RIGHT_PAREN ) null"),
+                '{' => result.push!("LEFT_BRACE {{ null"),
+                '}'=> result.push!("RIGHT_BRACE }} null"),
+                '.' => result.push!("DOT . null"),
+                ',' => result.push!("COMMA , null"),
+                '+' => result.push!("PLUS + null"),
+                '*'=> result.push!("STAR * null"),
+                '-' => result.push!("MINUS - null"), 
                 '/' => {
                     if str_iter.peek() == Some(&'/'){  
                         while let Some(new_ch) = str_iter.next(){
@@ -138,8 +138,8 @@ fn tokenize(file_contents: String) -> Vec<String> {
                             let _ : Option<char> = str_iter.next();
                         };
 
-                        if resWords.contains_key(&*identifier){
-                            let reference = resWords[&*identifier];
+                        if res_words.contains_key(&*identifier){
+                            let reference = res_words[&*identifier];
                             println!("{} {} null", reference, identifier);
                         }else{
                             println!("IDENTIFIER {} null", identifier);
@@ -192,3 +192,5 @@ fn main() -> ExitCode {
         }
     }
 }
+
+// h
