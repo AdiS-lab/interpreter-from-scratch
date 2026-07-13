@@ -5,7 +5,7 @@ use std::process::ExitCode;
 use std::collections::HashMap;
 
 
-fn tokenize(file_contents: string) -> Vec {
+fn tokenize(file_contents: String) -> Vec<T> {
     // You can use print statements as follows for debugging, they'll be visible when running tests.
     let mut result = vec![];
     result.push("hi");
@@ -160,7 +160,7 @@ fn tokenize(file_contents: string) -> Vec {
      // want to return the normal. 
     
     return result;
-    return ExitCode::from(0);
+    // return ExitCode::from(0);
 }
 
 
