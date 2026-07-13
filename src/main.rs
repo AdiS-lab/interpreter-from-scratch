@@ -152,7 +152,8 @@ fn tokenize(file_contents: String) -> Vec<String> {
         }
         println!("EOF  null");
         if err_exists{
-            return ExitCode::from(65);
+            return result
+            // return ExitCode::from(65);
         }
     } else {
         println!("EOF  null");
@@ -174,7 +175,7 @@ fn main() -> ExitCode {
     let command = &args[1];
     let filename = &args[2];
     let file_contents = fs::read_to_string(filename).unwrap_or_else(|_| { // same as catching error
-        eprintln!("Failed to read file {}", filename);
+        eprintln!("Failed to read file {:?}", filename);
         String::new()
     });
 
