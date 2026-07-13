@@ -5,10 +5,9 @@ use std::process::ExitCode;
 use std::collections::HashMap;
 
 
-fn tokenize(file_contents: String) -> Vec<&'static str> {
+fn tokenize(file_contents: String) -> String {
     // You can use print statements as follows for debugging, they'll be visible when running tests.
-    let mut result = Vec::new();
-    result.push("hi");
+    let mut result = String::new();
 
     let res_words = HashMap::from([
         ("and", "AND" ),
@@ -35,15 +34,15 @@ fn tokenize(file_contents: String) -> Vec<&'static str> {
     if !file_contents.is_empty() {
         while let Some(ch) = str_iter.next() { // Option<char>
             match ch {
-                '(' => result.push("LEFT_PAREN ( null"),
-                ')' => result.push("RIGHT_PAREN ) null"),
-                '{' => result.push("LEFT_BRACE {{ null"),
-                '}'=> result.push("RIGHT_BRACE }} null"),
-                '.' => result.push("DOT . null"),
-                ',' => result.push("COMMA , null"),
-                '+' => result.push("PLUS + null"),
-                '*'=> result.push("STAR * null"),
-                '-' => result.push("MINUS - null"),
+                '(' => result.push("LEFT_PAREN ( null,"),
+                ')' => result.push("RIGHT_PAREN ) null,"),
+                '{' => result.push("LEFT_BRACE {{ null,"),
+                '}'=> result.push("RIGHT_BRACE }} null,"),
+                '.' => result.push("DOT . null,"),
+                ',' => result.push("COMMA , null,"),
+                '+' => result.push("PLUS + null,"),
+                '*'=> result.push("STAR * null,"),
+                '-' => result.push("MINUS - null,"),
                 '/' => {
                     if str_iter.peek() == Some(&'/'){  
                         while let Some(new_ch) = str_iter.next(){
@@ -53,7 +52,7 @@ fn tokenize(file_contents: String) -> Vec<&'static str> {
                             }
                         };
                     }else{  
-                        result.push("SLASH / null");
+                        result.push("SLASH / null,");
                     }
                 },
                 '"' => {
@@ -70,42 +69,42 @@ fn tokenize(file_contents: String) -> Vec<&'static str> {
                     }; // once reaching None, will have the strings. 
                     if !lexeme.ends_with('"'){
                         err_exists = true;
-                        result.push(format!("[line {}] Error: Unterminated string.", new_line));
+                        result.push(format!("[line {}] Error: Unterminated string.,", new_line));
                     }else{
-                        result.push(format!("STRING {} {}", lexeme, literal));
+                        result.push(format!("STRING {} {},", lexeme, literal));
                     }
                 },
-                ';' => result.push("SEMICOLON ; null"),
+                ';' => result.push("SEMICOLON ; null,"),
                 '=' => {
                     if str_iter.peek() == Some(&'='){ // does NOT consume the next value. & finds address of equal, * refrences the address created by &
                         let _: Option<char> = str_iter.next();
-                        result.push("EQUAL_EQUAL == null");
+                        result.push("EQUAL_EQUAL == null,");
                     }else{  
-                        result.push("EQUAL = null");
+                        result.push("EQUAL = null,");
                     }
                 },
                 '!' => {
                     if str_iter.peek() == Some(&'='){ 
                         let _: Option<char> = str_iter.next();
-                        result.push("BANG_EQUAL != null");
+                        result.push("BANG_EQUAL != null,");
                     }else{  
-                        result.push("BANG ! null");
+                        result.push("BANG ! null,");
                     }
                 }
                 '>' => {
                     if str_iter.peek() == Some(&'='){ 
                         let _: Option<char> = str_iter.next();
-                        result.push("GREATER_EQUAL >= null");
+                        result.push("GREATER_EQUAL >= null,");
                     }else{  
-                        result.push("GREATER > null");
+                        result.push("GREATER > null,");
                     }
                 },
                 '<' => {
                     if str_iter.peek() == Some(&'='){ // automatically derefences equal, so chars are compared. 
                         let _: Option<char> = str_iter.next();
-                        result.push("LESS_EQUAL <= null");
+                        result.push("LESS_EQUAL <= null,");
                     }else{  
-                        result.push("LESS < null");
+                        result.push("LESS < null,");
                     }
                 },
                 ' ' | '\t' =>{},
@@ -124,7 +123,7 @@ fn tokenize(file_contents: String) -> Vec<&'static str> {
                             }
                         };
                         if let Ok(value) = literal.parse::<f64>(){
-                            result.push(format!("NUMBER {} {:?}", literal, value));
+                            result.push(format!("NUMBER {} {:?},", literal, value));
                         };
                         
                     }else if ch == '_' || ch.is_ascii_alphabetic(){ //creating identifiers
@@ -139,13 +138,13 @@ fn tokenize(file_contents: String) -> Vec<&'static str> {
 
                         if res_words.contains_key(&*identifier){
                             let reference = res_words[&*identifier];
-                            result.push(format!("{} {} null", reference, identifier));
+                            result.push(format!("{} {} null,", reference, identifier));
                         }else{
-                            result.push(format!("IDENTIFIER {} null", identifier));
+                            result.push(format!("IDENTIFIER {} null,", identifier));
                         }
                     }else{
                         err_exists = true;
-                        result.push("[line {}] Error: Unexpected character: {}", new_line, ch);
+                        result.push("[line {}] Error: Unexpected character: {},", new_line, ch);
                     }
                 }
             } // match ends. 
