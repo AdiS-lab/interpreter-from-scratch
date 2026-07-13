@@ -7,7 +7,7 @@ use std::collections::HashMap;
 
 fn tokenize(file_contents: String) -> String {
     // You can use print statements as follows for debugging, they'll be visible when running tests.
-    let result = String::new();
+    let mut result = String::new();
 
     let res_words = HashMap::from([
         ("and", "AND" ),
