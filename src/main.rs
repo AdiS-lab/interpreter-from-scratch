@@ -5,11 +5,10 @@ use std::process::ExitCode;
 use std::collections::HashMap;
 
 
-fn tokenize(file_contents: String) -> Vec<String> {
+fn tokenize(file_contents: String) -> Vec<static &str> {
     // You can use print statements as follows for debugging, they'll be visible when running tests.
     let mut result = Vec::new();
-    let test = "hi".to_string();
-    result.push(test);
+    result.push("hi");
 
     let res_words = HashMap::from([
         ("and", "AND" ),
@@ -36,15 +35,15 @@ fn tokenize(file_contents: String) -> Vec<String> {
     if !file_contents.is_empty() {
         while let Some(ch) = str_iter.next() { // Option<char>
             match ch {
-                '(' => result.push("LEFT_PAREN ( null".to_string),
-                ')' => result.push("RIGHT_PAREN .to_string) null".to_string),
-                '{' => result.push("LEFT_BRACE {{ null".to_string),
-                '}'=> result.push("RIGHT_BRACE }} null".to_string),
-                '.' => result.push("DOT . null".to_string),
-                ',' => result.push("COMMA , null".to_string),
-                '+' => result.push("PLUS + null".to_string),
-                '*'=> result.push("STAR * null".to_string),
-                '-' => result.push("MINUS - null".to_string), 
+                '(' => result.push("LEFT_PAREN ( null"),
+                ')' => result.push("RIGHT_PAREN ) null"),
+                '{' => result.push("LEFT_BRACE {{ null"),
+                '}'=> result.push("RIGHT_BRACE }} null"),
+                '.' => result.push("DOT . null"),
+                ',' => result.push("COMMA , null"),
+                '+' => result.push("PLUS + null"),
+                '*'=> result.push("STAR * null"),
+                '-' => result.push("MINUS - null"), 
                 '/' => {
                     if str_iter.peek() == Some(&'/'){  
                         while let Some(new_ch) = str_iter.next(){
