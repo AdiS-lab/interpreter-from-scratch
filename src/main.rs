@@ -69,9 +69,9 @@ fn tokenize(file_contents: String) -> String {
                     }; // once reaching None, will have the strings. 
                     if !lexeme.ends_with('"'){
                         err_exists = true;
-                        result.push(format!("[line {}] Error: Unterminated string.,", new_line));
+                        result.push_str(format!("[line {}] Error: Unterminated string.,", new_line));
                     }else{
-                        result.push(format!("STRING {} {},", lexeme, literal));
+                        result.push_str(format!("STRING {} {},", lexeme, literal));
                     }
                 },
                 ';' => result.push_str("SEMICOLON ; null,"),
@@ -138,13 +138,13 @@ fn tokenize(file_contents: String) -> String {
 
                         if res_words.contains_key(&*identifier){
                             let reference = res_words[&*identifier];
-                            result.push(format!("{} {} null,", reference, identifier));
+                            result.push_str(format!("{} {} null,", reference, identifier));
                         }else{
-                            result.push(format!("IDENTIFIER {} null,", identifier));
+                            result.push_str(format!("IDENTIFIER {} null,", identifier));
                         }
                     }else{
                         err_exists = true;
-                        result.push(format!("[line {}] Error: Unexpected character: {},", new_line, ch));
+                        result.push_str(format!("[line {}] Error: Unexpected character: {},", new_line, ch));
                     }
                 }
             } // match ends. 
