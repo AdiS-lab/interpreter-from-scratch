@@ -5,7 +5,7 @@ use std::process::ExitCode;
 use std::collections::HashMap;
 
 
-fn tokenize(file_contents: String) -> Vec<String> {
+fn tokenize(file_contents: String) -> Vec<&str> {
     // You can use print statements as follows for debugging, they'll be visible when running tests.
     let mut result = vec![];
     result.push("hi");
@@ -175,14 +175,14 @@ fn main() -> ExitCode {
     let command = &args[1];
     let filename = &args[2];
     let file_contents = fs::read_to_string(filename).unwrap_or_else(|_| { // same as catching error
-        eprintln!("Failed to read file {:?}", filename);
+        eprintln!("Failed to read file {}", filename);
         String::new()
     });
 
     match command.as_str() {
         "parse" => { // iterator. 
             let tokens = tokenize(file_contents);  
-            println!("{}", tokens);
+            println!("{:?}", tokens);
             return ExitCode::from(1)
         },
         _ => {
