@@ -336,7 +336,7 @@ fn main() -> ExitCode {
         },"parse" => { // iterator. 
             let tokenStr = tokenize(file_contents);  // NUMBER 50 50.0, EOF null
             let tokens: Vec<String>= tokenStr.split(",").map(|s| s.to_string()).collect(); // ["NUMBER 50 50.0 ", "EOF null"]
-            let token_iter = tokens.iter().peekable();
+            let mut token_iter = tokens.iter().peekable();
             let mut full_str = String::new();
 
             while let Some(token) = token_iter.next(){ // [NUMBER 50 50.0]
@@ -346,7 +346,7 @@ fn main() -> ExitCode {
                     "NUMBER" => full_str.push_str(ind_tokens.get(2).unwrap_or(&"")), // &&str 
                     "STRING" => {
                         let str_tok: Vec<String> = token.split('"').map(|s| s.to_string()).collect();
-                        full_str.push_str(&str_tok[1]); //auto derefs the option
+                        full_str.push_str(&str_tok[1].unwrap()_or("")); //Option<&String>
                     }
                     "LEFT_PAREN" => full_str.push_str("group"),
                     "RIGHT_PAREN" => {},
@@ -356,6 +356,7 @@ fn main() -> ExitCode {
                 };// end match
                 };
             };// end while loop
+            
             println!("{}",full_str);
             return ExitCode::from(0)
         },
