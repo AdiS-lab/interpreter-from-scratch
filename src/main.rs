@@ -243,7 +243,7 @@ fn main() -> ExitCode {
                     }; // once reaching None, will have the strings. 
                     if !lexeme.ends_with('"'){
                         err_exists = true;
-                        println!( "[line {}] Error: Unterminated string.", new_line);
+                        eprintln!( "[line {}] Error: Unterminated string.", new_line);
                     }else{
                         println!( "STRING {} {}", lexeme, literal);
                     }
@@ -318,7 +318,7 @@ fn main() -> ExitCode {
                         }
                     }else{
                         err_exists = true;
-                        println!( "[line {}] Error: Unexpected character: {}", new_line, ch);
+                        eprintln!( "[line {}] Error: Unexpected character: {}", new_line, ch);
                     }
                 }
             } // match ends. 
