@@ -336,13 +336,13 @@ fn main() -> ExitCode {
         },"parse" => { // iterator. 
             let tokenStr = tokenize(file_contents);  
             let tokens: Vec<String>= tokenStr.split(",").map(|s| s.to_string()).collect(); // ["NUMBER etc ", "BRACKET {{"]
-            let indTokens: Vec<&str> = tokens[0].split(" ").collect(); // gets first val 
-            if let Some(&indTokens) = indTokens.get(0){
-                match indTokens[0]{
-                    "NUMBER" => println!("{}", indTokens[2]),
-                    _ => println!("{}", indTokens[1])
-                }
-            }
+            let ind_tokens: Vec<&str> = tokens[0].split(" ").collect(); // gets first val 
+            if let Some(&tk_type) = ind_tokens.get(0){
+                match tk_type[0]{
+                    "NUMBER" => println!("{}", tk_type[2]),
+                    _ => println!("{}", tk_type[1])
+                };
+            };
             return ExitCode::from(0)
         },
         _ => {
