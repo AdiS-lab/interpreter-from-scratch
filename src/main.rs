@@ -195,7 +195,7 @@ fn comparison(it: &mut Peekable<Iter<String>>) -> String{
 
 fn add(it: &mut Peekable<Iter<String>>) -> String{
     let mut built_str = mult(it); // starts as left
-    let tk_type = peekAhead(it);
+    let mut tk_type = peekAhead(it);
     while matches!(tk_type, "PLUS" | "MINUS"){ 
         let operator = consume(it);
         let right = mult(it);
@@ -207,7 +207,7 @@ fn add(it: &mut Peekable<Iter<String>>) -> String{
 
 fn mult(it: &mut Peekable<Iter<String>>) -> String{
     let mut built_str = unary(it); //  num or String
-    let tk_type = peekAhead(it);
+    let mut tk_type = peekAhead(it);
 
     while matches!(tk_type, "STAR" | "SLASH"){
         let operator = consume(it); // * 
@@ -219,7 +219,7 @@ fn mult(it: &mut Peekable<Iter<String>>) -> String{
 }
 
 fn unary(it: &mut Peekable<Iter<String>>) -> String{
-    let tk_type = peekAhead(it);
+    let mut tk_type = peekAhead(it);
     if matches!(tk_type, "MINUS" | "BANG"){
         let build_str = String::new()
         while matches!(tk_type, "MINUS" | "BANG"){
