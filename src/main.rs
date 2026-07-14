@@ -169,8 +169,6 @@ fn tokenize(file_contents: String) -> String {
 }
 
 fn equality(it: &mut Peekable<Iter<String>>) -> String {
-    println!("this is iter {:?} ", it);
-
     let left = comparison(it);
     let tk_type = peekAhead(it); // &str
 
@@ -224,7 +222,6 @@ fn unary(it: &mut Peekable<Iter<String>>) -> String{
     if matches!(tk_type, "MINUS" | "BANG"){
         let operator = consume(it);
         let right = literal(it); //  should be true
-        println!("({} {})", operator, right);
         return format!("({} {})", operator, right) // should be ! then true
     }
     return literal(it)
@@ -232,9 +229,7 @@ fn unary(it: &mut Peekable<Iter<String>>) -> String{
 
 fn literal(it: &mut Peekable<Iter<String>>) -> String{
     let tk_type = peekAhead(it);
-    println!("{}", tk_type);
     if matches!(tk_type, "NUMBER" | "TRUE" | "FALSE" |  "NIL" |  "STRING"){
-        println!("{}", consume(it));
         return consume(it)
     }else if matches!(tk_type, "RIGHT_PAREN"){
         return String::new()
@@ -252,7 +247,6 @@ fn literal(it: &mut Peekable<Iter<String>>) -> String{
 }  
 
 fn consume(it: &mut Peekable<Iter<String>>) -> String {
-    println!("this is iter at consume {:?}", it);
     let current = it.next().unwrap(); // &String
     let tk_arr: Vec<&str> = current.split(" ").collect(); // Vec<&str>
     let &tk_type = tk_arr.get(0).unwrap();
