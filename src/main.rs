@@ -194,8 +194,7 @@ fn comparison(it: &mut Peekable<Iter<String>>) -> String{
 fn add(it: &mut Peekable<Iter<String>>) -> String{
     let built_str = mult(it);
     let tk_type = peekAhead(it);
-
-    if matches!(tk_type == "PLUS" | "MINUS"){ 
+    if matches!(tk_type, "PLUS" | "MINUS"){ 
         let operator = consume(it);
         let right = mult(it);
         return ("({} {} {})", operator, right, mult)
@@ -227,9 +226,9 @@ fn unary(it: &mut Peekable<Iter<String>>) -> String{
 }
 
 fn literal(it: &mut Peekable<Iter<String>>) -> String{
-    let tk_type = peekAhead(it)
+    let tk_type = peekAhead(it);
     if matches!(tk_type, "NUMBER" | "true" | "false" |  "nil" |  "STRING"){
-        return consume(it) 
+        return consume(it)
     }else if matches!(tk_type, "RIGHT_PAREN"){
         return ""
     }else if matches!(tk_type, "LEFT_PAREN"){
