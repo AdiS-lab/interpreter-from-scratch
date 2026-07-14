@@ -232,7 +232,7 @@ fn unary(it: &mut Peekable<Iter<String>>) -> String{
 
 fn literal(it: &mut Peekable<Iter<String>>) -> String{
     let tk_type = peekAhead(it);
-    println!("{}", tk_type)
+    println!("{}", tk_type);
     if matches!(tk_type, "NUMBER" | "true" | "false" |  "nil" |  "STRING"){
         println!("{}", consume(it));
         return consume(it)
@@ -244,6 +244,8 @@ fn literal(it: &mut Peekable<Iter<String>>) -> String{
         let right = equality(it); // gets String, will throw inside if no ending
         _ = consume(it); // consume )
         return format!("{} {})", middle, right)
+    }else if tk_type == "EOF"{
+        return String::new()
     }else{
         return String::new()
     }
