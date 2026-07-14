@@ -336,16 +336,24 @@ fn main() -> ExitCode {
         },"parse" => { // iterator. 
             let tokenStr = tokenize(file_contents);  // NUMBER 50 50.0, EOF null
             let tokens: Vec<String>= tokenStr.split(",").map(|s| s.to_string()).collect(); // ["NUMBER 50 50.0 ", "EOF null"]
-            let ind_tokens: Vec<&str> = tokens[0].split(" ").collect(); // [NUMBER, 50, 50.0]
-            if let Some(&tk_type) = ind_tokens.get(0){// gets type
-                match tk_type{
-                    "NUMBER" => println!("{}", ind_tokens.get(2).unwrap_or(&"")),
-                    "STRING" => println!("{}", tokens[0].split('"').map(|s| s.to_string()).collect::<Vec<String>>()[1]),
+            let token_iter = tokens.iter().peekable();
+
+            while let Some(token) = token_iter.next(){ // [NUMBER 50 50.0]
+                let ind_tokens: Vec<&str> = token.split(" ").collect()
+                let mut fullStr = String::new()
+                if let Some(tk_type) = ind_tokens[0]{
+                 match tk_type{
+                    "NUMBER" => fullStr.push("{}", ind_tokens.get(2).unwrap_or(&"")),
+                    "STRING" => fullStr.push("{}", tokens[0].split('"').map(|s| s.to_string()).collect::<Vec<String>>()[1]),
+                    "LEFT_PAREN" => fullStr.push("group"),
+                    "RIGHT_PAREN" => {},
                     _ => {
-                        println!("{}", ind_tokens.get(1).unwrap_or(&""));
-                    }// get is for &str
+                        println!("{}", token.get(1).unwrap_or(&""));
+                    }
+                }// end match
                 }
-            };
+            }// end while loop
+            
             return ExitCode::from(0)
         },
         _ => {
