@@ -199,7 +199,7 @@ fn add(it: &mut Peekable<Iter<String>>) -> String{
     if matches!(tk_type, "PLUS" | "MINUS"){ 
         let operator = consume(it);
         let right = mult(it);
-        return format!("({} {} {})", operator, right, mult)
+        return format!("({} {} {})", operator, built_str, right)
     }
     return built_str
 }
