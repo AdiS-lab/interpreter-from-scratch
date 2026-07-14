@@ -345,8 +345,8 @@ fn main() -> ExitCode {
                     "NUMBER" => println!("{}", ind_tokens.get(2).unwrap_or(&"")),
                     "STRING" => println!("{}", tokens[0].split('"').map(|s| s.to_string()).collect::<Vec<String>>()[1]),
                     _ => {
-                        println!("{:?}", ind_tokens)
-                        println!("{}", ind_tokens.get(1).unwrap_or(&"")) 
+                        println!("{:?}", ind_tokens);
+                        println!("{}", ind_tokens.get(1).unwrap_or(&""));
                     }// get is for &str
                 }
             };
