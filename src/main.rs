@@ -343,7 +343,7 @@ fn main() -> ExitCode {
             if let Some(&tk_type) = ind_tokens.get(0){// gets type
                 match tk_type{
                     "NUMBER" => println!("{}", ind_tokens.get(2).unwrap_or(&"")),
-                    "STRING" => println!("{}", tokens.split[0].split(" ").map(|s| s.to_string())collect::Vec<String>()[1]),
+                    "STRING" => println!("{}", tokens.split[0].split(" ").map(|s| s.to_string()).collect::Vec<String>()[1]),
                     _ => println!("{}", ind_tokens.get(1).unwrap_or(&"")) // get is for &str
                 }
             };
