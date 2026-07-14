@@ -268,6 +268,7 @@ fn consume(it: &mut Peekable<Iter<String>>) -> String {
     }else if tk_type == "NUMBER"{
         return tk_arr.get(2).unwrap_or(&"").to_string() // &str --> String
     }else{
+        println!("inside consume {}", tk_arr.get(1).unwrap_or(&"").to_string())
         return tk_arr.get(1).unwrap_or(&"").to_string() // &str --> String
     }
 }
