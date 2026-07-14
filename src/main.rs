@@ -222,9 +222,9 @@ fn mult(it: &mut Peekable<Iter<String>>) -> String{
 fn unary(it: &mut Peekable<Iter<String>>) -> String{
     let tk_type = peekAhead(it);
     if matches!(tk_type, "MINUS" | "BANG"){
-        let operator = consume(it); 
+        let operator = consume(it);
         let right = literal(it); //  should be true
-        println!("{}", right);
+        println!("({} {})", operator, right);
         return format!("({} {})", operator, right) // should be ! then true
     }
     return literal(it)
