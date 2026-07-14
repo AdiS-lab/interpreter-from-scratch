@@ -144,7 +144,7 @@ fn tokenize(file_contents: String) -> String {
                             result.push_str(&format!("{} {}", reference, identifier));
 
                         }else{
-                            result.push_str(&format!("IDENTIFIER {},", identifier));
+                            result.push_str(&format!("IDENTIFIER {} null,", identifier));
                         }
                     }else{
                         err_exists = true;
@@ -337,14 +337,17 @@ fn main() -> ExitCode {
     
     return ExitCode::from(0);
         },"parse" => { // iterator. 
-            let tokenStr = tokenize(file_contents);  
-            let tokens: Vec<String>= tokenStr.split(",").map(|s| s.to_string()).collect(); // ["NUMBER etc ", "BRACKET {{"] 
-            let ind_tokens: Vec<&str> = tokens[0].split(" ").collect(); // gets first val, don't want to split by space
+            let tokenStr = tokenize(file_contents);  // NUMBER 50 50.0, EOF null
+            let tokens: Vec<String>= tokenStr.split(",").map(|s| s.to_string()).collect(); // ["NUMBER 50 50.0 ", "EOF null"]
+            let ind_tokens: Vec<&str> = tokens[0].split(" ").collect(); // [NUMBER, 50, 50.0]
             if let Some(&tk_type) = ind_tokens.get(0){// gets type
                 match tk_type{
                     "NUMBER" => println!("{}", ind_tokens.get(2).unwrap_or(&"")),
                     "STRING" => println!("{}", tokens[0].split('"').map(|s| s.to_string()).collect::<Vec<String>>()[1]),
-                    _ => println!("{}", ind_tokens.get(1).unwrap_or(&"")) // get is for &str
+                    _ => {
+                        println!("{:?}", ind_tokens)
+                        println!("{}", ind_tokens.get(1).unwrap_or(&"")) 
+                    }// get is for &str
                 }
             };
             return ExitCode::from(0)
