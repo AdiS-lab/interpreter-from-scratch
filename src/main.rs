@@ -221,15 +221,12 @@ fn mult(it: &mut Peekable<Iter<String>>) -> String{
 fn unary(it: &mut Peekable<Iter<String>>) -> String{
     let mut tk_type = peekAhead(it);
     if matches!(tk_type, "MINUS" | "BANG"){
+        let mut build_str = String::new()
         while matches!(tk_type, "MINUS" | "BANG"){
             let operator = consume(it); 
-            println!("this is operator {}", operator);
-            let build_str = literal(it); 
-            println!("this is build_str");
+            build_str = literal(it); 
             build_str.push_str(&format!("({} {})", operator, build_str)); // should be ! then ! then true
             tk_type = peekAhead(it);
-            println!("this is build string {}", build_str);
-            println!("this is token type {}", tk_type);
         } 
         return build_str
     }
@@ -238,10 +235,7 @@ fn unary(it: &mut Peekable<Iter<String>>) -> String{
 
 fn literal(it: &mut Peekable<Iter<String>>) -> String{
     let tk_type = peekAhead(it);
-    println!("this is iterator inside literal {:?}", it);
-    println!("this is peeking inside literal {}", tk_type);
     if matches!(tk_type, "NUMBER" | "TRUE" | "FALSE" |  "NIL" |  "STRING"){
-        println!("{}", consume(it));
         return consume(it)
     }else if matches!(tk_type, "RIGHT_PAREN"){
         return String::new()
@@ -268,7 +262,6 @@ fn consume(it: &mut Peekable<Iter<String>>) -> String {
     }else if tk_type == "NUMBER"{
         return tk_arr.get(2).unwrap_or(&"").to_string() // &str --> String
     }else{
-        println!("inside consume {}", tk_arr.get(1).unwrap_or(&"").to_string());
         return tk_arr.get(1).unwrap_or(&"").to_string() // &str --> String
     }
 }
