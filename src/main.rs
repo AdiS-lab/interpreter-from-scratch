@@ -226,6 +226,7 @@ fn unary(it: &mut Peekable<Iter<String>>) -> String{
             let operator = consume(it); 
             println!("this is operator {}", operator);
             build_str = literal(it); 
+            println!("this is build_str")
             build_str.push_str(&format!("({} {})", operator, build_str)); // should be ! then ! then true
             tk_type = peekAhead(it);
             println!("this is build string {}", build_str);
