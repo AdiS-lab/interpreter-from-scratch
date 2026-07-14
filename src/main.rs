@@ -187,7 +187,7 @@ fn comparison(it: &mut Peekable<Iter<String>>) -> String{
     if matches! (tk_type, "GREATER_EQUAL" | "GREATER" |  "LESS" | "LESS_EQUAL"){
         let operator = consume(it);
         let right = comparison(it);
-        return ("({} {} {})", operator, left, right)
+        return format!("({} {} {})", operator, left, right)
     };
 }
 
