@@ -223,8 +223,8 @@ fn unary(it: &mut Peekable<Iter<String>>) -> String{
     if matches!(tk_type, "MINUS" | "BANG"){
         let mut build_str = String::new();
         while matches!(tk_type, "MINUS" | "BANG"){
-            let operator = consume(it); 
-            let right = literal(it); 
+            let operator = consume(it);    
+            let right = literal(it);
             build_str.push_str(&format!("({} {})", operator, right)); // should be ! then ! then true
             tk_type = peekAhead(it);
         } 
@@ -237,6 +237,8 @@ fn literal(it: &mut Peekable<Iter<String>>) -> String{
     let tk_type = peekAhead(it);
     if matches!(tk_type, "NUMBER" | "TRUE" | "FALSE" |  "NIL" |  "STRING"){
         return consume(it)
+    }else if matches!("BANG" | "MINUS"){
+        return unary(it)
     }else if matches!(tk_type, "RIGHT_PAREN"){
         return String::new()
     }else if matches!(tk_type, "LEFT_PAREN"){
@@ -245,7 +247,7 @@ fn literal(it: &mut Peekable<Iter<String>>) -> String{
         let right = equality(it); // gets String, will throw inside if no ending
         _ = consume(it); // consume )
         return format!("{} {})", middle, right)
-    }else if matches!(tk_type, "EOF" | "BANG" | "MINUS"){
+    }else if matches!(tk_type, "EOF"){
         return String::new()
     }else{
         return String::new()
