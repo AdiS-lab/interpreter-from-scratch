@@ -221,7 +221,7 @@ fn mult(it: &mut Peekable<Iter<String>>) -> String{
 fn unary(it: &mut Peekable<Iter<String>>) -> String{
     let mut tk_type = peekAhead(it);
     if matches!(tk_type, "MINUS" | "BANG"){
-        let mut build_str = String::new()
+        let mut build_str = String::new();
         while matches!(tk_type, "MINUS" | "BANG"){
             let operator = consume(it); 
             build_str = literal(it); 
