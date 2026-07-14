@@ -245,7 +245,7 @@ fn literal(it: &mut Peekable<Iter<String>>) -> String{
         let right = equality(it); // gets String, will throw inside if no ending
         _ = consume(it); // consume )
         return format!("{} {})", middle, right)
-    }else if !matches(tk_type, "EOF" | "BANG" | "MINUS"){
+    }else if matches!(tk_type, "EOF" | "BANG" | "MINUS"){
         return String::new()
     }else{
         return String::new()
