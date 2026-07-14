@@ -252,6 +252,7 @@ fn literal(it: &mut Peekable<Iter<String>>) -> String{
 }  
 
 fn consume(it: &mut Peekable<Iter<String>>) -> String {
+    println!("{}", it)
     let current = it.next().unwrap(); // &String
     let tk_arr: Vec<&str> = current.split(" ").collect(); // Vec<&str>
     let &tk_type = tk_arr.get(0).unwrap();
