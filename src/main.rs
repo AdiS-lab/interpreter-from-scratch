@@ -339,21 +339,20 @@ fn main() -> ExitCode {
             let token_iter = tokens.iter().peekable();
 
             while let Some(token) = token_iter.next(){ // [NUMBER 50 50.0]
-                let ind_tokens: Vec<&str> = token.split(" ").collect()
-                let mut fullStr = String::new()
-                if let Some(tk_type) = ind_tokens[0]{
+                let ind_tokens: Vec<&str> = token.split(" ").collect();
+                let mut fullStr = String::new();
+                if let Some(tk_type) = ind_tokens.get(0){
                  match tk_type{
-                    "NUMBER" => fullStr.push_str("{}", ind_tokens.get(2).unwrap_or(&"")),
+                    "NUMBER" => fullStr.push_str("{}", ind_tokens.get(2).unwrap_or("")),
                     "STRING" => fullStr.push_str("{}", token.split('"').map(|s| s.to_string()).collect::<Vec<String>>()[1]),
                     "LEFT_PAREN" => fullStr.push_str("group"),
                     "RIGHT_PAREN" => {},
                     _ => {
                         println!("{}", ind_tokens.get(1).unwrap_or(&""));
                     }
-                }// end match
-                }
-            }// end while loop
-            
+                };// end match
+                };
+            };// end while loop
             return ExitCode::from(0)
         },
         _ => {
