@@ -341,22 +341,22 @@ fn main() -> ExitCode {
 
             while let Some(token) = token_iter.next(){ // [NUMBER 50 50.0]
                 let ind_tokens: Vec<&str> = token.split(" ").collect();
-                if let Some(tk_type) = ind_tokens.get(0){ // <String>.split(space) => Vec<&str>, so get(0) = Option<&&str> Some<&tk_type> = Option<&&str>
+                if let Some(&tk_type) = ind_tokens.get(0){ // <String>.split(space) => Vec<&str>, so get(0) = Option<&&str> Some<&tk_type> = Option<&&str>
                  match tk_type{
-                    "NUMBER" => full_str.push_str("{}", *ind_tokens.get(2).unwrap_or(&"").to_string()), // &&str 
+                    "NUMBER" => full_str.push_str(ind_tokens.get(2).unwrap_or(&"")), // &&str 
                     "STRING" => {
                         let str_tok: Vec<String> = token.split('"').map(|s| s.to_string()).collect();
-                        full_str.push_str("{}", *str_tok[1]); 
+                        full_str.push_str(str_tok[1]); 
                     }
                     "LEFT_PAREN" => full_str.push_str("group"),
                     "RIGHT_PAREN" => {},
                     _ => {
-                        full_str.push_str("{}", *ind_tokens.get(1).unwrap_or(&"").to_string());
+                        full_str.push_str(ind_tokens.get(1).unwrap_or(&""));
                     }
                 };// end match
                 };
             };// end while loop
-            return full_str;
+            println!("{}",full_str);
             return ExitCode::from(0)
         },
         _ => {
