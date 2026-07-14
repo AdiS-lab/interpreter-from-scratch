@@ -337,8 +337,9 @@ fn main() -> ExitCode {
             let tokenStr = tokenize(file_contents);  
             let tokens: Vec<String>= tokenStr.split(",").map(|s| s.to_string()).collect(); // ["NUMBER etc ", "BRACKET {{"]
             let ind_tokens: Vec<&str> = tokens[0].split(" ").collect(); // gets first val 
+
             if let Some(&tk_type) = ind_tokens.get(0){
-                match tk_type.get(0){
+                match tk_type{
                     "NUMBER" => println!("{}", ind_tokens.get(2).unwrap_or(&"")),
                     _ => println!("{}", ind_tokens.get(1).unwrap_or(&""))
                 };
