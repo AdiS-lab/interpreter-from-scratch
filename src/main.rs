@@ -175,7 +175,7 @@ fn equality(it: &mut Peekable<Iter<String>>) -> String {
     if matches!(tk_type, "BANG_EQUAL" | "EQUAL_EQUAL"){
         let operator = consume(it); // operator = String
         let right = comparison(it); // loop
-        return ("({} {} {})", operator, left, right);
+        return format!("({} {} {})", operator, left, right);
     }else{
         return left
     }
@@ -201,7 +201,7 @@ fn add(it: &mut Peekable<Iter<String>>) -> String{
         let right = mult(it);
         return format!("({} {} {})", operator, right, mult)
     }
-    return left
+    return built_str
 }
 
 fn mult(it: &mut Peekable<Iter<String>>) -> String{
@@ -211,7 +211,7 @@ fn mult(it: &mut Peekable<Iter<String>>) -> String{
     while matches!(tk_type, "STAR" | "SLASH"){
         let operator = consume(it); // * 
         let right = unary(it); // num or String
-        built_str.push_str(format!("({} {} {})", operator, built_str, right));
+        built_str.push_str(&format!("({} {} {})", operator, built_str, right));
         let tk_type = peekAhead(it);
     }
     return built_str
@@ -258,7 +258,7 @@ fn consume(it: &mut Peekable<Iter<String>>) -> String {
     }
 }
 
-fn peekAhead<'a>(it: &mut Peekable<Iter<String>>) -> &'a str {
+fn peekAhead<'a>(it: &mut Peekable<Iter<'a, String>>) -> &'a str {
     if let Some(&word) = it.peek(){
         let words: Vec<&str> = word.split(" ").collect(); // splits String into &str
         let new_type = *words.get(0).unwrap_or(&""); // Option<&&str> --> &str
