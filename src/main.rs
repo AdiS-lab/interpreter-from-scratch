@@ -338,9 +338,9 @@ fn main() -> ExitCode {
             let tokens: Vec<String>= tokenStr.split(",").map(|s| s.to_string()).collect(); // ["NUMBER etc ", "BRACKET {{"]
             let ind_tokens: Vec<&str> = tokens[0].split(" ").collect(); // gets first val 
             if let Some(&tk_type) = ind_tokens.get(0){
-                match tk_type[0]{
-                    "NUMBER" => println!("{}", tk_type[2]),
-                    _ => println!("{}", tk_type[1])
+                match tk_type.get(0){
+                    "NUMBER" => println!("{}", tk_typeget(2)),
+                    _ => println!("{}", tk_type.get(1))
                 };
             };
             return ExitCode::from(0)
