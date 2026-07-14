@@ -242,6 +242,7 @@ fn literal(it: &mut Peekable<Iter<String>>) -> String{
     println!("this is iterator inside literal {:?}", it);
     println!("this is peeking inside literal {}", tk_type);
     if matches!(tk_type, "NUMBER" | "TRUE" | "FALSE" |  "NIL" |  "STRING"){
+        println!("{}", consume(it))
         return consume(it)
     }else if matches!(tk_type, "RIGHT_PAREN"){
         return String::new()
