@@ -343,12 +343,12 @@ fn main() -> ExitCode {
                 let mut fullStr = String::new()
                 if let Some(tk_type) = ind_tokens[0]{
                  match tk_type{
-                    "NUMBER" => fullStr.push("{}", ind_tokens.get(2).unwrap_or(&"")),
-                    "STRING" => fullStr.push("{}", tokens[0].split('"').map(|s| s.to_string()).collect::<Vec<String>>()[1]),
-                    "LEFT_PAREN" => fullStr.push("group"),
+                    "NUMBER" => fullStr.push_str("{}", ind_tokens.get(2).unwrap_or(&"")),
+                    "STRING" => fullStr.push_str("{}", token.split('"').map(|s| s.to_string()).collect::<Vec<String>>()[1]),
+                    "LEFT_PAREN" => fullStr.push_str("group"),
                     "RIGHT_PAREN" => {},
                     _ => {
-                        println!("{}", token.get(1).unwrap_or(&""));
+                        println!("{}", ind_tokens.get(1).unwrap_or(&""));
                     }
                 }// end match
                 }
