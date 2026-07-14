@@ -168,36 +168,36 @@ fn tokenize(file_contents: String) -> String {
 }
 
 fn equality(iterator) -> String {
-    let left = comparison(iterator)
-    let tk_type = peekAhead(iterator) // &str
+    let left = comparison(iterator);
+    let tk_type = peekAhead(iterator); // &str
 
     if matches!(tk_type, "BANG_EQUAL", "EQUAL_EQUAL"){
-        let operator = consume(iterator) // operator = String
-        let right = comparison(iterator) // loop
-        return ("({} {} {})", operator, left, right)
+        let operator = consume(iterator); // operator = String
+        let right = comparison(iterator); // loop
+        return ("({} {} {})", operator, left, right);
     }else{
         return left
     }
 }
 
 fn comparison(iterator) -> String{
-    let left = add(iterator)
-    let tk_type = peekAhead(iterator)
+    let left = add(iterator);
+    let tk_type = peekAhead(iterator);
 
     if matches! (tk_type, "GREATER_EQUAL",  "GREATER",  "LESS", "LESS_EQUAL"){
-        let operator = consume(iterator)
-        let right = comparison(iterator)
+        let operator = consume(iterator);
+        let right = comparison(iterator);
         return ("({} {} {})", operator, left, right)
-    }
+    };
 }
 
 fn add(iterator) -> String{
-    let left = mult(iterator)
-    let tk_type = peekAhead(iterator)
+    let left = mult(iterator);
+    let tk_type = peekAhead(iterator);
 
     if matches!(tk_type == "PLUS" , "MINUS"){
-        let operator = consume(iterator)
-        let right = mult(iterator)
+        let operator = consume(iterator);
+        let right = mult(iterator);
 
         return ("({} {} {})", operator, right, mult)
     }
@@ -205,22 +205,22 @@ fn add(iterator) -> String{
 }
 
 fn mult(iterator) -> String{
-    let left = unary(iterator) //  num or String
-    let tk_type = peekAhead(iterator)
+    let left = unary(iterator); //  num or String
+    let tk_type = peekAhead(iterator);
 
     if matches!(tk_type "STAR", "SLASH"){
-        let operator = consume(iterator) 
-        let right = unary(iterator) // num or String
+        let operator = consume(iterator);
+        let right = unary(iterator); // num or String
         return ("({} {} {})", operator, left, right)
     }
     return left
 }
 
 fn unary() -> String{
-    let tk_type = peekAhead(iterator)
+    let tk_type = peekAhead(iterator);
     if matches!(tk_type, "MINUS",  "BANG"){
-        let operator = consume(iterator) 
-        res = primary()
+        let operator = consume(iterator); 
+        let right = literal(iterator);
         return ("{} {}", operator, right)
     }
     return literal(iterator)
@@ -231,12 +231,12 @@ fn literal(iterator) -> String{
     if matches!(tk_type "NUMBER", "true", "false", "nil", "STRING"){
         return consume(iterator) 
     }else if matches!(tk_type, "RIGHT_PAREN"){
-        return 
+        return ""
     }else if matches!(tk_type, "LEFT_PAREN"){
-        let middle = "(group "
-        _ = consume(iterator) // consumes (
-        let right = equality(iterator) // gets String, will throw inside if no ending
-        _ = consume(iterator) // consume )
+        let middle = "(group ";
+        _ = consume(iterator); // consumes (
+        let right = equality(iterator); // gets String, will throw inside if no ending
+        _ = consume(iterator); // consume )
         return ("{} {})", middle, right)
     }else{
         return ""
@@ -245,7 +245,7 @@ fn literal(iterator) -> String{
 
 fn consume(iterator) -> String {
     let Some(current) = iterator.next()
-    let tk_arr: Vec<&str> = current.split(" ").collect() // Vec<&str>
+    let tk_arr: Vec<&str> = current.split(" ").collect(); // Vec<&str>
     if let Some(&tk_type) = tk_arr.get(0){ // comparing Some(&str) to Option<&&str>
         if tk_type == "STRING"{
             return *current.split('"').collect::<Vec<String>>()[1] // &String --> String
@@ -258,8 +258,8 @@ fn consume(iterator) -> String {
 
 fn peekAhead(iterator) -> &str {
     if Some(&word) = iterator.peek(){
-        let aheadWords: Vec<&str> = word.split(" ").collect() // splits String into &str
-        let new_type = *word.get(0).unwrap_or(&"") // Option<&&str> --> &str
+        let aheadWords: Vec<&str> = word.split(" ").collect(); // splits String into &str
+        let new_type = *word.get(0).unwrap_or(&""); // Option<&&str> --> &str
         return new_type // iterator   is Vec<String> Option<&String> compared to Some(&String)
     }else{
         return ""
