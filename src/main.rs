@@ -141,8 +141,7 @@ fn tokenize(file_contents: String) -> String {
                         if res_words.contains_key(&*identifier){
                             let reference = res_words[&*identifier];
                             // result.push_str(&format!("{} {} null,", reference, identifier));
-                            println!("{} {} null", reference, identifier);
-                            result.push_str(&format!("{} {} null", reference, identifier));
+                            result.push_str(&format!("{} {} null,", reference, identifier));
 
                         }else{
                             result.push_str(&format!("IDENTIFIER {} null,", identifier));
