@@ -167,7 +167,6 @@ fn tokenize(file_contents: String) -> String {
     // return ExitCode::from(0);
 }
 
-
 fn main() -> ExitCode {
     let args: Vec<String> = env::args().collect();
     if args.len() < 3 {
@@ -334,30 +333,13 @@ fn main() -> ExitCode {
             // want to return the normal. 
             return ExitCode::from(0);
         },"parse" => { // iterator. 
-            let tokenStr = tokenize(file_contents);  // NUMBER 50 50.0, EOF null
+            let tokenStr = tokenize(file_contents); // NUMBER 50 50.0, EOF null
             let tokens: Vec<String>= tokenStr.split(",").map(|s| s.to_string()).collect(); // ["NUMBER 50 50.0 ", "EOF null"]
             let mut token_iter = tokens.iter().peekable();
-            let mut full_str = String::new();
+            let result = equality(token_iter) // pass this inside 
 
-            while let Some(token) = token_iter.next(){ // [NUMBER 50 50.0]
-                let ind_tokens: Vec<&str> = token.split(" ").collect();
-                if let Some(&tk_type) = ind_tokens.get(0){ // <String>.split(space) => Vec<&str>, so get(0) = Option<&&str> Some<&tk_type> = Option<&&str>
-                 match tk_type{
-                    "NUMBER" => full_str.push_str(ind_tokens.get(2).unwrap_or(&"")), // &&str 
-                    "STRING" => {
-                        let str_tok: Vec<String> = token.split('"').map(|s| s.to_string()).collect();
-                        full_str.push_str(&str_tok[1]); //<&String>
-                    }
-                    "LEFT_PAREN" => full_str.push_str("(group "),
-                    "RIGHT_PAREN" => full_str.push_str(")"),
-                    _ => {
-                        full_str.push_str(ind_tokens.get(1).unwrap_or(&""));
-                    }
-                };// end match
-                };
-            };// end while loop
-            
-            println!("{}",full_str);
+
+            println!("{}", result)
             return ExitCode::from(0)
         },
         _ => {
@@ -367,4 +349,114 @@ fn main() -> ExitCode {
     }
 }
 
-// h
+expression     → equality ;
+equality       → comparison ( ( "!=" | "==" ) comparison )* ;
+comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
+term           → factor ( ( "-" | "+" ) factor )* ;
+factor         → unary ( ( "/" | "*" ) unary )* ;
+unary          → ( "!" | "-" ) unary
+               | primary ;
+primary        → NUMBER | STRING | "true" | "false" | "nil"
+               | "(" expression ")" ;
+               
+
+___________________________________________________________
+
+fn equality(iterator) -> String {
+    let left = comparison(iterator)
+    let tk_type = peekAhead(iterator) // &str
+
+    if matches!(tk_type, "BANG_EQUAL", "EQUAL_EQUAL"){
+        let operator = consume(iterator) // operator = String
+        let right = comparison(iterator) // loop
+        return ("({} {} {})", operator, left, right)
+    }else{
+        return left
+    }
+}
+
+fn comparison(iterator) -> String{
+    let left = add(iterator)
+    let tk_type = peekAhead(iterator)
+
+    if matches! (tk_type, "GREATER_EQUAL",  "GREATER",  "LESS", "LESS_EQUAL"){
+        let operator = consume(iterator)
+        let right = comparison(iterator)
+        return ("({} {} {})", operator, left, right)
+    }
+}
+
+fn add(iterator) -> String{
+    let left = mult(iterator)
+    let tk_type = peekAhead(iterator)
+
+    if matches!(tk_type == "PLUS" , "MINUS"){
+        let operator = consume(iterator)
+        let right = mult(iterator)
+
+        return ("({} {} {})", operator, right, mult)
+    }
+    return left
+}
+
+fn mult(iterator) -> String{
+    let left = unary(iterator) //  num or String
+    let tk_type = peekAhead(iterator)
+
+    if matches!(tk_type "STAR", "SLASH"){
+        let operator = consume(iterator) 
+        let right = unary(iterator) // num or String
+        return ("({} {} {})", operator, left, right)
+    }
+    return left
+}
+
+fn unary() -> String{
+    let tk_type = peekAhead(iterator)
+    if matches!(tk_type, "MINUS",  "BANG"){
+        let operator = consume(iterator) 
+        res = primary()
+        return ("{} {}", operator, right)
+    }
+    return literal(iterator)
+}
+
+fn literal(iterator) -> String{
+    let tk_type = peekAhead(iterator)
+    if matches!(tk_type "NUMBER", "true", "false", "nil", "STRING"){
+        return consume(iterator) 
+    }else if matches!(tk_type, "RIGHT_PAREN"){
+        return 
+    }else if matches!(tk_type, "LEFT_PAREN"){
+        let middle = "(group "
+        _ = consume(iterator) // consumes (
+        let right = equality(iterator) // gets String, will throw inside if no ending
+        _ = consume(iterator) // consume )
+        return ("{} {})", middle, right)
+    }else{
+        return ""
+    }
+}  
+
+fn consume(iterator) -> String {
+    let Some(current) = iterator.next()
+    let tk_arr: Vec<&str> = current.split(" ").collect() // Vec<&str>
+    if let Some(&tk_type) = tk_arr.get(0){ // comparing Some(&str) to Option<&&str>
+        if tk_type == "STRING"{
+            return *current.split('"').collect::<Vec<String>>()[1] // &String --> String
+        }else{
+            return (*tk_arr.get(1).unwrap_or(&"")).to_string() // &str --> String
+        }
+    }
+    return String::new()
+}
+
+fn peekAhead(iterator) -> &str {
+    if Some(&word) = iterator.peek(){
+        let aheadWords: Vec<&str> = word.split(" ").collect() // splits String into &str
+        let new_type = *word.get(0).unwrap_or(&"") // Option<&&str> --> &str
+        return new_type // iterator   is Vec<String> Option<&String> compared to Some(&String)
+    }else{
+        return ""
+    }
+}
