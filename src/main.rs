@@ -233,7 +233,7 @@ fn unary(it: &mut Peekable<Iter<String>>) -> String{
 fn literal(it: &mut Peekable<Iter<String>>) -> String{
     let tk_type = peekAhead(it);
     println!("{}", tk_type);
-    if matches!(tk_type, "NUMBER" | "true" | "false" |  "nil" |  "STRING"){
+    if matches!(tk_type, "NUMBER" | "TRUE" | "FALSE" |  "NIL" |  "STRING"){
         println!("{}", consume(it));
         return consume(it)
     }else if matches!(tk_type, "RIGHT_PAREN"){
