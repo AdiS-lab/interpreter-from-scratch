@@ -339,8 +339,8 @@ fn main() -> ExitCode {
             let ind_tokens: Vec<&str> = tokens[0].split(" ").collect(); // gets first val 
             if let Some(&tk_type) = ind_tokens.get(0){
                 match tk_type.get(0){
-                    "NUMBER" => println!("{}", tk_typeget(2)),
-                    _ => println!("{}", tk_type.get(1))
+                    "NUMBER" => println!("{}", ind_tokens.get(2).unwrap_or(&"")),
+                    _ => println!("{}", ind_tokens.get(1).unwrap_or(&""))
                 };
             };
             return ExitCode::from(0)
