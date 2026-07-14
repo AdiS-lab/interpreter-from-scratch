@@ -4,7 +4,7 @@ use std::fs;
 use std::process::ExitCode;
 use std::collections::HashMap;
 use std::iter::Peekable;
-
+use std::slice::Iter;
 
 
 fn tokenize(file_contents: String) -> String {
