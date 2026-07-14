@@ -171,7 +171,7 @@ fn equality(it: &mut Peekable<Iter<String>>) -> String {
     let left = comparison(it);
     let tk_type = peekAhead(it); // &str
 
-    if matches!(tk_type, "BANG_EQUAL", "EQUAL_EQUAL"){
+    if matches!(tk_type, "BANG_EQUAL" | "EQUAL_EQUAL"){
         let operator = consume(it); // operator = String
         let right = comparison(it); // loop
         return ("({} {} {})", operator, left, right);
@@ -184,7 +184,7 @@ fn comparison(it: &mut Peekable<Iter<String>>) -> String{
     let left = add(it);
     let tk_type = peekAhead(it);
 
-    if matches! (tk_type, "GREATER_EQUAL",  "GREATER",  "LESS", "LESS_EQUAL"){
+    if matches! (tk_type, "GREATER_EQUAL" | "GREATER" |  "LESS" | "LESS_EQUAL"){
         let operator = consume(it);
         let right = comparison(it);
         return ("({} {} {})", operator, left, right)
@@ -195,10 +195,9 @@ fn add(it: &mut Peekable<Iter<String>>) -> String{
     let built_str = mult(it);
     let tk_type = peekAhead(it);
 
-    if matches!(tk_type == "PLUS" , "MINUS"){ 
+    if matches!(tk_type == "PLUS" | "MINUS"){ 
         let operator = consume(it);
         let right = mult(it);
-
         return ("({} {} {})", operator, right, mult)
     }
     return left
@@ -208,10 +207,10 @@ fn mult(it: &mut Peekable<Iter<String>>) -> String{
     let built_str = unary(it); //  num or String
     let tk_type = peekAhead(it);
 
-    while matches!(tk_type, "STAR", "SLASH"){
+    while matches!(tk_type, "STAR" | "SLASH"){
         let operator = consume(it); // * 
         let right = unary(it); // num or String
-        built_str.push_str("({} {} {})", operator, built_str, right)
+        built_str.push_str("({} {} {})", operator, built_str, right);
         let tk_type = peekAhead(it);
     }
     return built_str
@@ -219,7 +218,7 @@ fn mult(it: &mut Peekable<Iter<String>>) -> String{
 
 fn unary(it: &mut Peekable<Iter<String>>) -> String{
     let tk_type = peekAhead(it);
-    if matches!(tk_type, "MINUS",  "BANG"){
+    if matches!(tk_type, "MINUS" | "BANG"){
         let operator = consume(it); 
         let right = literal(it);
         return ("{} {}", operator, right)
@@ -229,7 +228,7 @@ fn unary(it: &mut Peekable<Iter<String>>) -> String{
 
 fn literal(it: &mut Peekable<Iter<String>>) -> String{
     let tk_type = peekAhead(it)
-    if matches!(tk_type "NUMBER", "true", "false", "nil", "STRING"){
+    if matches!(tk_type, "NUMBER" | "true" | "false" |  "nil" |  "STRING"){
         return consume(it) 
     }else if matches!(tk_type, "RIGHT_PAREN"){
         return ""
@@ -437,10 +436,8 @@ fn main() -> ExitCode {
             let tokenStr = tokenize(file_contents); // NUMBER 50 50.0, EOF null
             let tokens: Vec<String>= tokenStr.split(",").map(|s| s.to_string()).collect(); // ["NUMBER 50 50.0 ", "EOF null"]
             let mut token_iter = tokens.iter().peekable();
-            let result = equality(token_iter) // pass this inside 
-
-
-            println!("{}", result)
+            let result = equality(token_iter); // pass this inside 
+            println!("{}", result);
             return ExitCode::from(0)
         },
         _ => {
