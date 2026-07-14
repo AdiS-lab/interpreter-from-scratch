@@ -336,10 +336,12 @@ fn main() -> ExitCode {
         },"parse" => { // iterator. 
             let tokenStr = tokenize(file_contents);  
             let tokens: Vec<String>= tokenStr.split(",").map(|s| s.to_string()).collect(); // ["NUMBER etc ", "BRACKET {{"]
-            let indTokens = tokens[0].split(" ").map(|s| s.to_string()).collect::<Vec<String>>(); // gets first val 
-            match &indTokens[0]{
-                "NUMBER" => println!("{}", indTokens[2]),
-                _ => println!("{}", indTokens[1])
+            let indTokens: Vec<&str> = tokens[0].split(" ").collect(); // gets first val 
+            if let Some(&indTokens) = indTokens.get(0){
+                match indTokens[0]{
+                    "NUMBER" => println!("{}", indTokens[2]),
+                    _ => println!("{}", indTokens[1])
+                }
             }
             return ExitCode::from(0)
         },
