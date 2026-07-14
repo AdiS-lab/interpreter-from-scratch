@@ -208,15 +208,15 @@ fn main() -> ExitCode {
     if !file_contents.is_empty() {
         while let Some(ch) = str_iter.next() { // Option<char>
             match ch {
-                '(' => println!("LEFT_PAREN ( null,"),
-                ')' => println!("RIGHT_PAREN ) null,"),
-                '{' => println!("LEFT_BRACE {{ null,"),
-                '}'=> println!("RIGHT_BRACE }} null,"),
-                '.' => println!("DOT . null,"),
-                ',' => println!("COMMA , null,"),
-                '+' => println!("PLUS + null,"),
-                '*'=> println!("STAR * null,"),
-                '-' => println!("MINUS - null,"),
+                '(' => println!("LEFT_PAREN ( null"),
+                ')' => println!("RIGHT_PAREN ) null"),
+                '{' => println!("LEFT_BRACE {{ null"),
+                '}'=> println!("RIGHT_BRACE }} null"),
+                '.' => println!("DOT . null"),
+                ',' => println!("COMMA , null"),
+                '+' => println!("PLUS + null"),
+                '*'=> println!("STAR * null"),
+                '-' => println!("MINUS - null"),
                 '/' => {
                     if str_iter.peek() == Some(&'/'){  
                         while let Some(new_ch) = str_iter.next(){
@@ -226,7 +226,7 @@ fn main() -> ExitCode {
                             }
                         };
                     }else{  
-                        println!("SLASH / null,");
+                        println!("SLASH / null");
                     }
                 },
                 '"' => {
@@ -243,42 +243,42 @@ fn main() -> ExitCode {
                     }; // once reaching None, will have the strings. 
                     if !lexeme.ends_with('"'){
                         err_exists = true;
-                        println!( "[line {}] Error: Unterminated string.,", new_line);
+                        println!( "[line {}] Error: Unterminated string.", new_line);
                     }else{
-                        println!( "STRING {} {},", lexeme, literal);
+                        println!( "STRING {} {}", lexeme, literal);
                     }
                 },
-                ';' => println!("SEMICOLON ; null,"),
+                ';' => println!("SEMICOLON ; null"),
                 '=' => {
                     if str_iter.peek() == Some(&'='){ // does NOT consume the next value. & finds address of equal, * refrences the address created by &
                         let _: Option<char> = str_iter.next();
-                        println!("EQUAL_EQUAL == null,");
+                        println!("EQUAL_EQUAL == null");
                     }else{  
-                        println!("EQUAL = null,");
+                        println!("EQUAL = null");
                     }
                 },
                 '!' => {
                     if str_iter.peek() == Some(&'='){ 
                         let _: Option<char> = str_iter.next();
-                        println!("BANG_EQUAL != null,");
+                        println!("BANG_EQUAL != null");
                     }else{  
-                        println!("BANG ! null,");
+                        println!("BANG ! null");
                     }
                 }
                 '>' => {
                     if str_iter.peek() == Some(&'='){ 
                         let _: Option<char> = str_iter.next();
-                        println!("GREATER_EQUAL >= null,");
+                        println!("GREATER_EQUAL >= null");
                     }else{  
-                        println!("GREATER > null,");
+                        println!("GREATER > null");
                     }
                 },
                 '<' => {
                     if str_iter.peek() == Some(&'='){ // automatically derefences equal, so chars are compared. 
                         let _: Option<char> = str_iter.next();
-                        println!("LESS_EQUAL <= null,");
+                        println!("LESS_EQUAL <= null");
                     }else{  
-                        println!("LESS < null,");
+                        println!("LESS < null");
                     }
                 },
                 ' ' | '\t' =>{},
@@ -297,7 +297,7 @@ fn main() -> ExitCode {
                             }
                         };
                         if let Ok(value) = literal.parse::<f64>(){
-                            println!( "NUMBER {} {:?},", literal, value);
+                            println!( "NUMBER {} {:?}", literal, value);
                         };
                         
                     }else if ch == '_' || ch.is_ascii_alphabetic(){ //creating identifiers
@@ -312,13 +312,13 @@ fn main() -> ExitCode {
 
                         if res_words.contains_key(&*identifier){
                             let reference = res_words[&*identifier];
-                            println!( "{} {} null,", reference, identifier);
+                            println!( "{} {} null", reference, identifier);
                         }else{
-                            println!( "IDENTIFIER {} null,", identifier);
+                            println!( "IDENTIFIER {} null", identifier);
                         }
                     }else{
                         err_exists = true;
-                        println!( "[line {}] Error: Unexpected character: {},", new_line, ch);
+                        println!( "[line {}] Error: Unexpected character: {}", new_line, ch);
                     }
                 }
             } // match ends. 
