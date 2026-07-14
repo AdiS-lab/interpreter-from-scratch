@@ -198,7 +198,7 @@ fn add(it: &mut Peekable<Iter<String>>) -> String{
     if matches!(tk_type, "PLUS" | "MINUS"){ 
         let operator = consume(it);
         let right = mult(it);
-        return ("({} {} {})", operator, right, mult)
+        return format!("({} {} {})", operator, right, mult)
     }
     return left
 }
@@ -208,7 +208,7 @@ fn mult(it: &mut Peekable<Iter<String>>) -> String{
     let tk_type = peekAhead(it);
 
     while matches!(tk_type, "STAR" | "SLASH"){
-        let operator: String = consume(it); // * 
+        let operator = consume(it); // * 
         let right = unary(it); // num or String
         built_str.push_str(format!("({} {} {})", operator, built_str, right));
         let tk_type = peekAhead(it);
@@ -221,7 +221,7 @@ fn unary(it: &mut Peekable<Iter<String>>) -> String{
     if matches!(tk_type, "MINUS" | "BANG"){
         let operator = consume(it); 
         let right = literal(it);
-        return ("{} {}", operator, right)
+        return format!("{} {}", operator, right)
     }
     return literal(it)
 }
@@ -237,7 +237,7 @@ fn literal(it: &mut Peekable<Iter<String>>) -> String{
         _ = consume(it); // consumes (
         let right = equality(it); // gets String, will throw inside if no ending
         _ = consume(it); // consume )
-        return ("{} {})", middle, right)
+        return format!("{} {})", middle, right)
     }else{
         return String::new()
     }
@@ -436,7 +436,7 @@ fn main() -> ExitCode {
             let tokenStr = tokenize(file_contents); // NUMBER 50 50.0, EOF null
             let tokens: Vec<String>= tokenStr.split(",").map(|s| s.to_string()).collect(); // ["NUMBER 50 50.0 ", "EOF null"]
             let mut token_iter = tokens.iter().peekable();
-            let result = equality(token_iter); // pass this inside 
+            let result = equality(&mut token_iter); // pass this inside 
             println!("{}", result);
             return ExitCode::from(0)
         },
