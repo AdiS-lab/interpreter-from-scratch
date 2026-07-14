@@ -341,7 +341,7 @@ fn main() -> ExitCode {
             while let Some(token) = token_iter.next(){ // [NUMBER 50 50.0]
                 let ind_tokens: Vec<&str> = token.split(" ").collect();
                 let mut fullStr = String::new();
-                if let Some(tk_type) = ind_tokens.get(0){
+                if ind_tokens.get(0){ // <String>.split(space) => Vec<&str>, so get(0) = <&str>
                  match tk_type{
                     "NUMBER" => fullStr.push_str("{}", ind_tokens.get(2).unwrap_or("")),
                     "STRING" => fullStr.push_str("{}", token.split('"').map(|s| s.to_string()).collect::<Vec<String>>()[1]),
