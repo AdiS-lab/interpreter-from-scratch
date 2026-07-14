@@ -189,6 +189,7 @@ fn comparison(it: &mut Peekable<Iter<String>>) -> String{
         let right = comparison(it);
         return format!("({} {} {})", operator, left, right)
     };
+    return left
 }
 
 fn add(it: &mut Peekable<Iter<String>>) -> String{
