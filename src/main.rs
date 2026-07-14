@@ -297,7 +297,7 @@ fn main() -> ExitCode {
                             }
                         };
                         if let Ok(value) = literal.parse::<f64>(){
-                            println!( "NUMBER {} {:?},", literal, value));
+                            println!( "NUMBER {} {:?},", literal, value);
                         };
                         
                     }else if ch == '_' || ch.is_ascii_alphabetic(){ //creating identifiers
