@@ -239,6 +239,7 @@ fn unary(it: &mut Peekable<Iter<String>>) -> String{
 
 fn literal(it: &mut Peekable<Iter<String>>) -> String{
     let tk_type = peekAhead(it);
+    println!("this is iterator inside literal {:?}", it);
     println!("this is peeking inside literal {}", tk_type);
     if matches!(tk_type, "NUMBER" | "TRUE" | "FALSE" |  "NIL" |  "STRING"){
         return consume(it)
