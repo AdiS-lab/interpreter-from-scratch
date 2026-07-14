@@ -223,8 +223,9 @@ fn unary(it: &mut Peekable<Iter<String>>) -> String{
     if matches!(tk_type, "MINUS" | "BANG"){
         let mut build_str = String::new();
         while matches!(tk_type, "MINUS" | "BANG"){
-            let operator = consume(it); 
-            build_str = literal(it); // should be true,
+            let operator = consume(it); // ! true
+            build_str = literal(it); 
+            println!("{}", build_str);
             build_str.push_str(&format!("({} {})", operator, build_str)); // should be ! then ! then true
             tk_type = peekAhead(it);
         } 
