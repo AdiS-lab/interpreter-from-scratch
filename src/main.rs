@@ -337,11 +337,11 @@ fn main() -> ExitCode {
             let tokenStr = tokenize(file_contents);  // NUMBER 50 50.0, EOF null
             let tokens: Vec<String>= tokenStr.split(",").map(|s| s.to_string()).collect(); // ["NUMBER 50 50.0 ", "EOF null"]
             let token_iter = tokens.iter().peekable();
+            let mut full_str = String::new();
 
             while let Some(token) = token_iter.next(){ // [NUMBER 50 50.0]
-                let ind_tokens: Vec<&str> = token.split(" ").collect();
-                let mut full_str = String::new();
-                if let Some(&tk_type) = ind_tokens.get(0){ // <String>.split(space) => Vec<&str>, so get(0) = Option<&&str> Some<&tk_type> = Option<&&str>
+                let ind_tokens: Vec<&str> = token.split(" ").collect()
+                if let Some(tk_type) = ind_token[0]{ // <String>.split(space) => Vec<&str>, so get(0) = Option<&&str> Some<&tk_type> = Option<&&str>
                  match tk_type{
                     "NUMBER" => full_str.push_str("{}", *ind_tokens.get(2).unwrap_or(&"")), // &&str
                     "STRING" => {
@@ -356,6 +356,7 @@ fn main() -> ExitCode {
                 };// end match
                 };
             };// end while loop
+            return full_str
             return ExitCode::from(0)
         },
         _ => {
