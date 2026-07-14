@@ -144,7 +144,7 @@ fn tokenize(file_contents: String) -> String {
                             result.push_str(&format!("{} {}", reference, identifier));
 
                         }else{
-                            println!("made it in identifier")
+                            println!("made it in identifier");
                             result.push_str(&format!("IDENTIFIER {} null,", identifier));
                         }
                     }else{
