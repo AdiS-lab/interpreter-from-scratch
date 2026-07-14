@@ -194,12 +194,13 @@ fn comparison(it: &mut Peekable<Iter<String>>) -> String{
 }
 
 fn add(it: &mut Peekable<Iter<String>>) -> String{
-    let mut built_str = mult(it);
+    let mut built_str = mult(it); // starts as left
     let tk_type = peekAhead(it);
-    if matches!(tk_type, "PLUS" | "MINUS"){ 
+    while matches!(tk_type, "PLUS" | "MINUS"){ 
         let operator = consume(it);
         let right = mult(it);
-        return format!("({} {} {})", operator, built_str, right)
+        built_str.push_str(format!("({} {} {})", operator, built_str, right)); // if mult (/ (* 3 2 ) 5)
+        tk_type = peekAhead(it);
     }
     return built_str
 }
@@ -212,7 +213,7 @@ fn mult(it: &mut Peekable<Iter<String>>) -> String{
         let operator = consume(it); // * 
         let right = unary(it); // num or String
         built_str.push_str(&format!("({} {} {})", operator, built_str, right));
-        let tk_type = peekAhead(it);
+        tk_type = peekAhead(it);
     }
     return built_str
 }
@@ -220,9 +221,14 @@ fn mult(it: &mut Peekable<Iter<String>>) -> String{
 fn unary(it: &mut Peekable<Iter<String>>) -> String{
     let tk_type = peekAhead(it);
     if matches!(tk_type, "MINUS" | "BANG"){
-        let operator = consume(it);
-        let right = literal(it); //  should be true
-        return format!("({} {})", operator, right) // should be ! then true
+        let build_str = String::new()
+        while matches!(tk_type, "MINUS" | "BANG"){
+            let operator = consume(it); 
+            build_str = literal(it); // should be true,
+            build_str.push_str(format!("({} {})", operator, build_str)); // should be ! then ! then true
+            tk_type = peekAhead(it);
+        } 
+        return build_str
     }
     return literal(it)
 }
@@ -239,7 +245,7 @@ fn literal(it: &mut Peekable<Iter<String>>) -> String{
         let right = equality(it); // gets String, will throw inside if no ending
         _ = consume(it); // consume )
         return format!("{} {})", middle, right)
-    }else if tk_type == "EOF"{
+    }else if !matches(tk_type, "EOF" | "BANG" | "MINUS"){
         return String::new()
     }else{
         return String::new()
