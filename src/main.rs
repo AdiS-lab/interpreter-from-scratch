@@ -237,7 +237,7 @@ fn literal(it: &mut Peekable<Iter<String>>) -> String{
     let tk_type = peekAhead(it);
     if matches!(tk_type, "NUMBER" | "TRUE" | "FALSE" |  "NIL" |  "STRING"){
         return consume(it)
-    }else if matches!("BANG" | "MINUS"){
+    }else if matches!(tk_type, "BANG" | "MINUS"){
         return unary(it)
     }else if matches!(tk_type, "RIGHT_PAREN"){
         return String::new()
