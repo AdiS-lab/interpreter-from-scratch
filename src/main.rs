@@ -169,7 +169,7 @@ fn tokenize(file_contents: String) -> String {
 }
 
 fn equality(it: &mut Peekable<Iter<String>>) -> String {
-    println!("this is iter {:?} ", it)
+    println!("this is iter {:?} ", it);
 
     let left = comparison(it);
     let tk_type = peekAhead(it); // &str
