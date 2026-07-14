@@ -225,13 +225,14 @@ fn unary(it: &mut Peekable<Iter<String>>) -> String{
         let operator = consume(it); 
         let right = literal(it); //  should be true
         println!("{}", right);
-        return format!("{} {}", operator, right) // should be ! then true
+        return format!("({} {})", operator, right) // should be ! then true
     }
     return literal(it)
 }
 
 fn literal(it: &mut Peekable<Iter<String>>) -> String{
     let tk_type = peekAhead(it);
+    println!("{}", tk_type)
     if matches!(tk_type, "NUMBER" | "true" | "false" |  "nil" |  "STRING"){
         println!("{}", consume(it));
         return consume(it)
