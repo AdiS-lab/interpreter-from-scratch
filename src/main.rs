@@ -346,7 +346,7 @@ fn main() -> ExitCode {
                     "NUMBER" => full_str.push_str(ind_tokens.get(2).unwrap_or(&"")), // &&str 
                     "STRING" => {
                         let str_tok: Vec<String> = token.split('"').map(|s| s.to_string()).collect();
-                        full_str.push_str(&str_tok[1].unwrap()_or("")); //Option<&String>
+                        full_str.push_str(&str_tok[1].unwrap_or("")); //Option<&String>
                     }
                     "LEFT_PAREN" => full_str.push_str("group"),
                     "RIGHT_PAREN" => {},
