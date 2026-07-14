@@ -72,7 +72,8 @@ fn tokenize(file_contents: String) -> String {
                         err_exists = true;
                         result.push_str(&format!("[line {}] Error: Unterminated string.,", new_line));
                     }else{
-                        result.push_str(&format!("STRING {} {},", lexeme, literal));
+                        // result.push_str(&format!("STRING {} {},", lexeme, literal));
+                         result.push_str(&format!("STRING {} {},", lexeme, literal)); // literal. 
                     }
                 },
                 ';' => result.push_str("SEMICOLON ; null,"),
@@ -139,9 +140,11 @@ fn tokenize(file_contents: String) -> String {
 
                         if res_words.contains_key(&*identifier){
                             let reference = res_words[&*identifier];
-                            result.push_str(&format!("{} {} null,", reference, identifier));
+                            // result.push_str(&format!("{} {} null,", reference, identifier));
+                            result.push_str(&format!("{} {}", reference, identifier));
+
                         }else{
-                            result.push_str(&format!("IDENTIFIER {} null,", identifier));
+                            result.push_str(&format!("IDENTIFIER {},", identifier));
                         }
                     }else{
                         err_exists = true;
@@ -335,14 +338,14 @@ fn main() -> ExitCode {
     return ExitCode::from(0);
         },"parse" => { // iterator. 
             let tokenStr = tokenize(file_contents);  
-            let tokens: Vec<String>= tokenStr.split(",").map(|s| s.to_string()).collect(); // ["NUMBER etc ", "BRACKET {{"]
-            let ind_tokens: Vec<&str> = tokens[0].split(" ").collect(); // gets first val 
-
-            if let Some(&tk_type) = ind_tokens.get(0){
+            let tokens: Vec<String>= tokenStr.split(",").map(|s| s.to_string()).collect(); // ["NUMBER etc ", "BRACKET {{"] 
+            let ind_tokens: Vec<&str> = tokens[0].split(" ").collect(); // gets first val, don't want to split by space
+            if let Some(&tk_type) = ind_tokens.get(0){// gets type
                 match tk_type{
                     "NUMBER" => println!("{}", ind_tokens.get(2).unwrap_or(&"")),
-                    _ => println!("{}", ind_tokens.get(1).unwrap_or(&""))
-                };
+                    "STRING" => println!("{}", tokens.split[0].split(" ").map(|s| s.to_string())collect::Vec<String>()[1]),
+                    _ => println!("{}", ind_tokens.get(1).unwrap_or(&"")) // get is for &str
+                }
             };
             return ExitCode::from(0)
         },
