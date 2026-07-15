@@ -212,7 +212,7 @@ fn mult(it: &mut Peekable<Iter<String>>) -> String{
     while matches!(tk_type, "STAR" | "SLASH"){
         let operator = consume(it); // * 
         let right = unary(it); // num or String
-        built_str.push_str(&format!("({} {} {})", operator, built_str, right));
+        built_str =  (&format!("({} {} {})", operator, built_str, right));
         tk_type = peekAhead(it);
     }
     return built_str
@@ -225,7 +225,7 @@ fn unary(it: &mut Peekable<Iter<String>>) -> String{
         while matches!(tk_type, "MINUS" | "BANG"){
             let operator = consume(it);    
             let right = literal(it);
-            build_str.push_str(&format!("({} {})", operator, right)); // should be ! then ! then true
+            build_str = (&format!("({} {})", operator, right)); // should be ! then ! then true
             tk_type = peekAhead(it);
         } 
         return build_str
