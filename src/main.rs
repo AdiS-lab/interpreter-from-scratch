@@ -182,8 +182,8 @@ fn equality(it: &mut Peekable<Iter<String>>) -> String {
 }
 
 fn comparison(it: &mut Peekable<Iter<String>>) -> String{
-    let built_str = add(it);
-    let tk_type = peekAhead(it);
+    let mut built_str = add(it);
+    let mut tk_type = peekAhead(it);
 
     while matches! (tk_type, "GREATER_EQUAL" | "GREATER" |  "LESS" | "LESS_EQUAL"){
         let operator = consume(it);
