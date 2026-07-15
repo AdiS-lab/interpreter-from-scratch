@@ -240,7 +240,7 @@ fn literal(it: &mut Peekable<Iter<String>>) -> String{
     }else if matches!(tk_type, "BANG" | "MINUS"){
         return unary(it)
     }else if matches!(tk_type, "LEFT_PAREN"){
-        let middle = "(group ";
+        let middle = "(group";
         _ = consume(it); // consumes (
         let right = equality(it); // gets String, will throw inside if no ending
         let curr = consume(it); // consume )
