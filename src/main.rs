@@ -239,13 +239,14 @@ fn literal(it: &mut Peekable<Iter<String>>) -> String{
         return consume(it)
     }else if matches!(tk_type, "BANG" | "MINUS"){
         return unary(it)
-    }else if matches!(tk_type, "RIGHT_PAREN"){
-        return String::new()
     }else if matches!(tk_type, "LEFT_PAREN"){
         let middle = "(group ";
         _ = consume(it); // consumes (
         let right = equality(it); // gets String, will throw inside if no ending
-        _ = consume(it); // consume )
+        let curr = consume(it); // consume )
+        if curr != ")"{
+            //error
+        }
         return format!("{} {})", middle, right)
     }else if matches!(tk_type, "EOF"){
         return String::new()
