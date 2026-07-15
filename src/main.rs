@@ -187,8 +187,9 @@ fn comparison(it: &mut Peekable<Iter<String>>) -> String{
 
     while matches! (tk_type, "GREATER_EQUAL" | "GREATER" |  "LESS" | "LESS_EQUAL"){
         let operator = consume(it);
-        let right = comparison(it);
-        built_str =  format!("({} {} {})", operator, built_str, right);
+        let right = add(it);
+
+        built_str = format!("({} {} {})", operator, built_str, right);
         tk_type = peekAhead(it);
     };
     return built_str
@@ -200,7 +201,7 @@ fn add(it: &mut Peekable<Iter<String>>) -> String{
     while matches!(tk_type, "PLUS" | "MINUS"){ 
         let operator = consume(it);
         let right = mult(it);
-        built_str = (format!("({} {} {})", operator, built_str, right)); // if mult (/ (* 3 2 ) 5)
+        built_str = format!("({} {} {})", operator, built_str, right); // if mult (/ (* 3 2 ) 5)
         tk_type = peekAhead(it);
     }
     return built_str
@@ -213,7 +214,7 @@ fn mult(it: &mut Peekable<Iter<String>>) -> String{
     while matches!(tk_type, "STAR" | "SLASH"){
         let operator = consume(it); // * 
         let right = unary(it); // num or String
-        built_str = (format!("({} {} {})", operator, built_str, right));
+        built_str = format!("({} {} {})", operator, built_str, right);
         tk_type = peekAhead(it);
     }
     return built_str
