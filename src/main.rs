@@ -182,15 +182,16 @@ fn equality(it: &mut Peekable<Iter<String>>) -> String {
 }
 
 fn comparison(it: &mut Peekable<Iter<String>>) -> String{
-    let left = add(it);
+    let built_str = add(it);
     let tk_type = peekAhead(it);
 
-    if matches! (tk_type, "GREATER_EQUAL" | "GREATER" |  "LESS" | "LESS_EQUAL"){
+    while matches! (tk_type, "GREATER_EQUAL" | "GREATER" |  "LESS" | "LESS_EQUAL"){
         let operator = consume(it);
         let right = comparison(it);
-        return format!("({} {} {})", operator, left, right)
+        built_str =  format!("({} {} {})", operator, built_str, right);
+        tk_type = peekAhead(it);
     };
-    return left
+    return built_str
 }
 
 fn add(it: &mut Peekable<Iter<String>>) -> String{
