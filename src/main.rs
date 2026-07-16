@@ -6,6 +6,9 @@ use std::collections::HashMap;
 use std::iter::Peekable;
 use std::slice::Iter;
 
+
+let mut length = 0;
+
 fn tokenize(file_contents: String) -> (String, String) {
     let mut result = String::new();
     let mut eresult = String::new();
@@ -158,6 +161,7 @@ fn tokenize(file_contents: String) -> (String, String) {
 }
 
 fn equality(it: &mut Peekable<Iter<String>>) -> Result<String, String> {
+    let length = it.len();
     let left = comparison(it)?;
     let tk_type = peekAhead(it); // &str
     if matches!(tk_type, "BANG_EQUAL" | "EQUAL_EQUAL"){
@@ -228,6 +232,9 @@ fn unary(it: &mut Peekable<Iter<String>>) -> Result<String, String>{
 fn literal(it: &mut Peekable<Iter<String>>) -> Result<String, String> { 
     let tk_type = peekAhead(it);
     if matches!(tk_type, "NUMBER" | "TRUE" | "FALSE" |  "NIL" |  "STRING"){
+        if it.len() == 2{
+
+        }
         let result = consume(it);
         return Ok(result)
     }else if matches!(tk_type, "BANG" | "MINUS"){
@@ -243,7 +250,7 @@ fn literal(it: &mut Peekable<Iter<String>>) -> Result<String, String> {
         //assuming that will never be PAST EOF
         return Err( format!("[line 1] Error at '{}': Expect expression.", consume(it) )) // when reaching end 
     }
-}  
+}  //index is 0 and next val is EOF
 
 fn consume(it: &mut Peekable<Iter<String>>) -> String {
     let current = it.next().unwrap(); // &String --> String
@@ -253,7 +260,7 @@ fn consume(it: &mut Peekable<Iter<String>>) -> String {
 
     if tk_type == "STRING"{
         return current.split('"').nth(1).unwrap().to_string() // &str --> String
-    }else if tk_type == "NUMBER" && peek == "EOF"{
+    }else if tk_type == "NUMBER" && length != 2{
         return tk_arr.get(2).unwrap_or(&"").to_string() // &str --> String
     }else{
         return tk_arr.get(1).unwrap_or(&"").to_string() // &str --> String
@@ -323,6 +330,7 @@ fn main() -> ExitCode {
             let (token_str, err_str) = tokenize(file_contents); // NUMBER 50 50.0, EOF null
             let tokens: Vec<String>= token_str.split(",").map(|s| s.to_string()).collect(); // ["NUMBER 50 50.0 ", "EOF null"]
             let mut token_iter = tokens.iter().peekable();
+            length = token_iter.len();
             let result = match equality(&mut token_iter){
                 Ok(val) => println!("{}", val),
                 Err(e) => {
