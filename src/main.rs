@@ -31,7 +31,7 @@ fn tokenize(file_contents: String) -> String {
     ]);
     let mut err_exists = false;
     let mut str_iter = file_contents.chars().peekable();
-    let mut new_line = 1;
+    let mut new_line = 1; //  have to do something with this that allows the next thing to see it
 
     if !file_contents.is_empty() {
         while let Some(ch) = str_iter.next() { // Option<char>
@@ -157,32 +157,29 @@ fn tokenize(file_contents: String) -> String {
         result.push_str("EOF  null");
         if err_exists{
             return result
-            // return ExitCode::from(65);
         }
     } else {
         result.push_str("EOF  null");
     }// marking the end of file
     // want to return the normal. 
-    
     return result;
-    // return ExitCode::from(0);
 }
 
-fn equality(it: &mut Peekable<Iter<String>>) -> String {
-    let left = comparison(it);
-    let tk_type = peekAhead(it); // &str
+fn equality(it: &mut Peekable<Iter<String>>) -> Result<String, String> {
+    let left = compairson(it)?;
 
+    let tk_type = peekAhead(it); // &str
     if matches!(tk_type, "BANG_EQUAL" | "EQUAL_EQUAL"){
         let operator = consume(it); // operator = String
-        let right = comparison(it); // loop
+        let right = comparison(it)?.unwrap(); // loop
         return format!("({} {} {})", operator, left, right);
     }else{
-        return left
+        return Ok(left)
     }
 }
 
-fn comparison(it: &mut Peekable<Iter<String>>) -> String{
-    let mut built_str = add(it);
+fn comparison(it: &mut Peekable<Iter<String>>) -> Result<String, String>{
+    let mut built_str = add(it)?;
     let mut tk_type = peekAhead(it);
 
     while matches! (tk_type, "GREATER_EQUAL" | "GREATER" |  "LESS" | "LESS_EQUAL"){
@@ -192,50 +189,55 @@ fn comparison(it: &mut Peekable<Iter<String>>) -> String{
         built_str = format!("({} {} {})", operator, built_str, right);
         tk_type = peekAhead(it);
     };
-    return built_str
+    return Ok(built_str)
 }
 
-fn add(it: &mut Peekable<Iter<String>>) -> String{
-    let mut built_str = mult(it); // starts as left
+fn add(it: &mut Peekable<Iter<String>>) -> Result<String, String>{
+    let mut built_str = mult(it)?; // starts as left
     let mut tk_type = peekAhead(it);
     while matches!(tk_type, "PLUS" | "MINUS"){ 
         let operator = consume(it);
-        let right = mult(it);
+        let right = mult(it)?;
+        if !right{  
+            let err = consume(it);
+            eprintln!("[line 1] Error at '{}': Expect expression.", err);
+        }
         built_str = format!("({} {} {})", operator, built_str, right); // if mult (/ (* 3 2 ) 5)
         tk_type = peekAhead(it);
     }
-    return built_str
+    return Ok(built_str)
 }
 
-fn mult(it: &mut Peekable<Iter<String>>) -> String{
-    let mut built_str = unary(it); //  num or String
+fn mult(it: &mut Peekable<Iter<String>>) -> Result<String, String>{
+    let mut built_str = unary(it)?; //  num or String
     let mut tk_type = peekAhead(it);
 
     while matches!(tk_type, "STAR" | "SLASH"){
         let operator = consume(it); // * 
-        let right = unary(it); // num or String
+        let right = unary(it)?; // num or String
         built_str = format!("({} {} {})", operator, built_str, right);
         tk_type = peekAhead(it);
     }
-    return built_str
+    return Ok(built_str)
 }
 
-fn unary(it: &mut Peekable<Iter<String>>) -> String{
+fn unary(it: &mut Peekable<Iter<String>>) -> Resutl<String, String>{
     let mut tk_type = peekAhead(it);
     if matches!(tk_type, "MINUS" | "BANG"){
         let mut build_str = String::new();
         while matches!(tk_type, "MINUS" | "BANG"){
             let operator = consume(it);    
-            let right = literal(it);
+            let right = literal(it)?;
             build_str.push_str(&format!("({} {})", operator, right)); // should be ! then ! then true
             tk_type = peekAhead(it);
         } 
-        return build_str
+        return Ok(build_str)
     }
-    return literal(it)
+    return literal(it)?
 }
 
-fn literal(it: &mut Peekable<Iter<String>>) -> String{
+// has to be a Result, and then unary will catch immediately through question mark. 
+fn literal(it: &mut Peekable<Iter<String>>) -> Result<String, String> { 
     let tk_type = peekAhead(it);
     if matches!(tk_type, "NUMBER" | "TRUE" | "FALSE" |  "NIL" |  "STRING"){
         return consume(it)
@@ -249,11 +251,9 @@ fn literal(it: &mut Peekable<Iter<String>>) -> String{
         if curr != ")"{
             //error
         }
-        return format!("{} {})", middle, right)
-    }else if matches!(tk_type, "EOF"){
-        return String::new()
+        return format!("{} {})", middle, right) 
     }else{
-        return String::new()
+        return Err(Box::new(io::Error::other("your message here"))) // when reaching end 
     }
 }  
 
@@ -450,8 +450,13 @@ fn main() -> ExitCode {
             let tokenStr = tokenize(file_contents); // NUMBER 50 50.0, EOF null
             let tokens: Vec<String>= tokenStr.split(",").map(|s| s.to_string()).collect(); // ["NUMBER 50 50.0 ", "EOF null"]
             let mut token_iter = tokens.iter().peekable();
-            let result = equality(&mut token_iter); // pass this inside 
-            println!("{}", result);
+            let result = match equality(&mut token_iter){
+                Ok(val) => println!("{}", val),
+                Err(e) => {
+                    eprintln!("{}", e);
+                    return ExitCode::from(65)
+                }; // pass this inside 
+            }
             return ExitCode::from(0)
         },
         _ => {
