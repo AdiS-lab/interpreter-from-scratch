@@ -9,7 +9,7 @@ use std::slice::Iter;
 
 struct Parser{
     tokens: Vec<String>,
-    current: i32
+    current: usize
 };
 // peek would look at current without incrementing
 // consuming would just iterate it
