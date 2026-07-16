@@ -228,7 +228,7 @@ fn unary(it: &mut Peekable<Iter<String>>) -> Result<String, String>{
         } 
         return Ok(build_str)
     }
-    let mut result = literal(it)?;
+    let result = literal(it)?;
     return Ok(result)
 }
 
@@ -236,7 +236,7 @@ fn unary(it: &mut Peekable<Iter<String>>) -> Result<String, String>{
 fn literal(it: &mut Peekable<Iter<String>>) -> Result<String, String> { 
     let tk_type = peekAhead(it);
     if matches!(tk_type, "NUMBER" | "TRUE" | "FALSE" |  "NIL" |  "STRING"){
-        let result = consume(it)?;
+        let result = consume(it);
         return Ok(result)
     }else if matches!(tk_type, "BANG" | "MINUS"){
         let result = unary(it)?;
@@ -244,7 +244,7 @@ fn literal(it: &mut Peekable<Iter<String>>) -> Result<String, String> {
     }else if matches!(tk_type, "LEFT_PAREN"){
         let middle = "(group";
         _ = consume(it); // consumes (
-        let right = equality(it); // gets String, will throw inside if no ending
+        let right = equality(it)?; // gets String, will throw inside if no ending
         let curr = consume(it); // consume )
         return Ok(format!("{} {})", middle, right))
     }else{
