@@ -106,7 +106,7 @@ impl Parser{
         let curr_tok = self.tokens[self.current].to_string();
         let tk_arr: Vec<&str> = curr_tok.split(" ").collect(); // Vec<&str>
         let &tk_type = tk_arr.get(0).unwrap();
-        let next_type = *self.tokens[self.current+1].split(" ").collect::Vec<&str>().get(0).unwrap();
+        let next_type = *self.tokens[self.current+1].split(" ").collect::<Vec<&str>>().get(0).unwrap();
 
         if tk_type == "STRING"{
             self.current += 1;
@@ -119,13 +119,13 @@ impl Parser{
             return tk_arr.get(1).unwrap_or(&"").to_string() // &str --> String
         }
     }
-    fn peek(&mut self) -> &str {
+    fn peek(&mut self) -> String {
         let curr_tok = self.tokens[self.current].to_string();
-        let words: Vec<&str> = curr_tok.split(" ").collect(); // splits String into &str
-        let curr_type = *words.get(0).unwrap_or(&""); // Option<&&str> --> &str
-        return curr_type // iterator   is Vec<String> Option<&String> compared to Some(&String)
+        let words: Vec<&str> = curr_tok.split(" ").collect();
+        let curr_type = *words.get(0).unwrap_or(&""); 
+        return curr_type.to_string()
     }
-};
+}
 
 
 
@@ -324,7 +324,7 @@ fn main() -> ExitCode {
         },"parse" => { // iterator. 
             let (token_str, err_str) = tokenize(file_contents); // NUMBER 50 50.0, EOF null
             let tokens: Vec<String>= token_str.split(",").map(|s| s.to_string()).collect(); // ["NUMBER 50 50.0 ", "EOF null"]
-            let parser = Parser{tokens, current: 0};
+            let mut parser = Parser{tokens, current: 0};
             let result = match parser.equality(){
                 Ok(val) => println!("{}", val),
                 Err(e) => {
@@ -336,7 +336,7 @@ fn main() -> ExitCode {
         }, "evaluate" =>{
             let (token_str, err_str) = tokenize(file_contents); // NUMBER 50 50.0, EOF null
             let tokens: Vec<String>= token_str.split(",").map(|s| s.to_string()).collect(); // ["NUMBER 50 50.0 ", "EOF null"]
-            let parser = Parser{tokens, current: 0};
+            let mut parser = Parser{tokens, current: 0};
             let result = match parser.equality(){
                 Ok(val) => println!("{}", val),
                 Err(e) => {
