@@ -254,10 +254,11 @@ fn consume(it: &mut Peekable<Iter<String>>) -> String {
     let tk_arr: Vec<&str> = current.split(" ").collect(); // Vec<&str>
     let &tk_type = tk_arr.get(0).unwrap(); // 
     let peek = peekAhead(it);
+    println!("{}", it.len());
 
     if tk_type == "STRING"{
         return current.split('"').nth(1).unwrap().to_string() // &str --> String
-    }else if tk_type == "NUMBER" && it.len() != 2{
+    }else if tk_type == "NUMBER" && it.len() != 2{ 
         return tk_arr.get(2).unwrap_or(&"").to_string() // &str --> String
     }else{
         return tk_arr.get(1).unwrap_or(&"").to_string() // &str --> String
