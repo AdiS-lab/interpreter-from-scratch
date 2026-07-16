@@ -6,10 +6,9 @@ use std::collections::HashMap;
 use std::iter::Peekable;
 use std::slice::Iter;
 
-
-fn tokenize(file_contents: String) -> String {
-        // You can use print statements as follows for debugging, they'll be visible when running tests.
+fn tokenize(file_contents: String) -> (String, String) {
     let mut result = String::new();
+    let mut eresult = String::new();
 
     let res_words = HashMap::from([
         ("and", "AND" ),
@@ -71,7 +70,7 @@ fn tokenize(file_contents: String) -> String {
                     }; // once reaching None, will have the strings. 
                     if !lexeme.ends_with('"'){
                         err_exists = true;
-                        result.push_str(&format!("[line {}] Error: Unterminated string.,", new_line));
+                        eresult.push_str(&format!("[line {}] Error: Unterminated string.,", new_line));
                     }else{
                         // result.push_str(&format!("STRING {} {},", lexeme, literal));
                          result.push_str(&format!("STRING {} {},", lexeme, literal)); // literal. 
@@ -149,20 +148,16 @@ fn tokenize(file_contents: String) -> String {
                         }
                     }else{
                         err_exists = true;
-                        result.push_str(&format!("[line {}] Error: Unexpected character: {},", new_line, ch));
+                        eresult.push_str(&format!("[line {}] Error: Unexpected character: {},", new_line, ch));
                     }
                 }
             } // match ends. 
-        }
-        result.push_str("EOF  null");
-        if err_exists{
-            return result
-        }
-    } else {
-        result.push_str("EOF  null");
-    }// marking the end of file
-    // want to return the normal. 
-    return result;
+        }// while ends
+        result.push_str("EOF  null"); 
+        return (result, eresult);
+    }// if ends
+    result.push_str("EOF null")
+    return result, eresult
 }
 
 fn equality(it: &mut Peekable<Iter<String>>) -> Result<String, String> {
@@ -293,155 +288,27 @@ fn main() -> ExitCode {
 
     match command.as_str() {
         "tokenize" =>{
-            let res_words = HashMap::from([
-                ("and", "AND" ),
-                ("class", "CLASS"),
-                ("else", "ELSE"),
-                ("false", "FALSE" ),
-                ("for", "FOR"),
-                ("fun", "FUN"),
-                ("if", "IF" ),
-                ("nil", "NIL"),
-                ("or", "OR" ),
-                ("print", "PRINT"),
-                ("return", "RETURN"), 
-                ("super", "SUPER"),
-                ("this", "THIS"),
-                ("true", "TRUE"),
-                ("var", "VAR"),
-                ("while", "WHILE"),
-            ]);
-            let mut err_exists = false;
-            let mut str_iter = file_contents.chars().peekable();
-            let mut new_line = 1;
+            let tokenStr, err = tokenize(file_contents);
+            let tokens: Vec<String>= tokenStr.split(",").map(|s| s.to_string()).collect(); 
+        
+            for i in &tokens{
+                println!("{}", i);
+            };
 
-            if !file_contents.is_empty() {
-                while let Some(ch) = str_iter.next() { // Option<char>
-                    match ch {
-                        '(' => println!("LEFT_PAREN ( null"),
-                        ')' => println!("RIGHT_PAREN ) null"),
-                        '{' => println!("LEFT_BRACE {{ null"),
-                        '}'=> println!("RIGHT_BRACE }} null"),
-                        '.' => println!("DOT . null"),
-                        ',' => println!("COMMA , null"),
-                        '+' => println!("PLUS + null"),
-                        '*'=> println!("STAR * null"),
-                        '-' => println!("MINUS - null"),
-                        '/' => {
-                            if str_iter.peek() == Some(&'/'){  
-                                while let Some(new_ch) = str_iter.next(){
-                                    if new_ch == '\n'{
-                                        new_line+=1;
-                                        break;
-                                    }
-                                };
-                            }else{  
-                                println!("SLASH / null");
-                            }
-                        },
-                        '"' => {
-                            let mut lexeme = '"'.to_string(); // takes &temp and creates new mem add with modifiable string
-                            let mut literal = String::new();
-                        
-                            while let Some(new_ch) = str_iter.next(){
-                                if new_ch == '"' {
-                                    lexeme.push(new_ch);
-                                    break;
-                                };
-                                lexeme.push(new_ch);// "abcd...
-                                literal.push(new_ch);//abcd... 
-                            }; // once reaching None, will have the strings. 
-                            if !lexeme.ends_with('"'){
-                                err_exists = true;
-                                eprintln!( "[line {}] Error: Unterminated string.", new_line);
-                            }else{
-                                println!( "STRING {} {}", lexeme, literal);
-                            }
-                        },
-                        ';' => println!("SEMICOLON ; null"),
-                        '=' => {
-                            if str_iter.peek() == Some(&'='){ // does NOT consume the next value. & finds address of equal, * refrences the address created by &
-                                let _: Option<char> = str_iter.next();
-                                println!("EQUAL_EQUAL == null");
-                            }else{  
-                                println!("EQUAL = null");
-                            }
-                        },
-                        '!' => {
-                            if str_iter.peek() == Some(&'='){ 
-                                let _: Option<char> = str_iter.next();
-                                println!("BANG_EQUAL != null");
-                            }else{  
-                                println!("BANG ! null");
-                            }
-                        }
-                        '>' => {
-                            if str_iter.peek() == Some(&'='){ 
-                                let _: Option<char> = str_iter.next();
-                                println!("GREATER_EQUAL >= null");
-                            }else{  
-                                println!("GREATER > null");
-                            }
-                        },
-                        '<' => {
-                            if str_iter.peek() == Some(&'='){ // automatically derefences equal, so chars are compared. 
-                                let _: Option<char> = str_iter.next();
-                                println!("LESS_EQUAL <= null");
-                            }else{  
-                                println!("LESS < null");
-                            }
-                        },
-                        ' ' | '\t' =>{},
-                        '\n' =>{
-                            new_line+=1;
-                        },
-                        _ => {
-                            if ch.is_digit(10){ // finding numbers
-                                let mut literal = ch.to_string();
-                                while let Some(new_ch) = str_iter.peek(){ //Option<&char>
-                                    if new_ch.is_digit(10) || *new_ch == '.'{
-                                        literal.push(*new_ch);
-                                        let _ : Option<char> = str_iter.next();
-                                    }else{
-                                        break;
-                                    }
-                                };
-                                if let Ok(value) = literal.parse::<f64>(){
-                                    println!( "NUMBER {} {:?}", literal, value);
-                                };
-                                
-                            }else if ch == '_' || ch.is_ascii_alphabetic(){ //creating identifiers
-                                let mut identifier = ch.to_string();
-                                while let Some(new_ch) = str_iter.peek(){
-                                    if !new_ch.is_digit(10) && !(*new_ch == '_') && !new_ch.is_ascii_alphabetic(){
-                                        break;
-                                    }
-                                    identifier.push(*new_ch);
-                                    let _ : Option<char> = str_iter.next();
-                                };
+            if !err.is_empty(){
+                let etoken: Vec<String>= tokenStr.split(",").map(|s| s.to_string()).collect();
+                for j in &err{
+                   eprintln!("{}", j);
+                };
+                return ExitCode::from(65)
+            };
 
-                                if res_words.contains_key(&*identifier){
-                                    let reference = res_words[&*identifier];
-                                    println!( "{} {} null", reference, identifier);
-                                }else{
-                                    println!( "IDENTIFIER {} null", identifier);
-                                }
-                            }else{
-                                err_exists = true;
-                                eprintln!( "[line {}] Error: Unexpected character: {}", new_line, ch);
-                            }
-                        }
-                    } // match ends. 
-                }
-                println!("EOF  null");
-                if err_exists{
-                    return ExitCode::from(65);
-                }
-            } else {
-                println!("EOF  null");
-            }// marking the end of file
-            // want to return the normal. 
-            return ExitCode::from(0);
+            if tokenStr.len() == 1{
+                return ExitCode::from(1)
+            }
+
+            return ExitCode::from(0)
+           
         },"parse" => { // iterator. 
             let tokenStr = tokenize(file_contents); // NUMBER 50 50.0, EOF null
             let tokens: Vec<String>= tokenStr.split(",").map(|s| s.to_string()).collect(); // ["NUMBER 50 50.0 ", "EOF null"]
@@ -473,3 +340,153 @@ fn main() -> ExitCode {
         }
     }
 }
+
+//  let res_words = HashMap::from([
+//                 ("and", "AND" ),
+//                 ("class", "CLASS"),
+//                 ("else", "ELSE"),
+//                 ("false", "FALSE" ),
+//                 ("for", "FOR"),
+//                 ("fun", "FUN"),
+//                 ("if", "IF" ),
+//                 ("nil", "NIL"),
+//                 ("or", "OR" ),
+//                 ("print", "PRINT"),
+//                 ("return", "RETURN"), 
+//                 ("super", "SUPER"),
+//                 ("this", "THIS"),
+//                 ("true", "TRUE"),
+//                 ("var", "VAR"),
+//                 ("while", "WHILE"),
+//             ]);
+//             let mut err_exists = false;
+//             let mut str_iter = file_contents.chars().peekable();
+//             let mut new_line = 1;
+
+//             if !file_contents.is_empty() {
+//                 while let Some(ch) = str_iter.next() { // Option<char>
+//                     match ch {
+//                         '(' => println!("LEFT_PAREN ( null"),
+//                         ')' => println!("RIGHT_PAREN ) null"),
+//                         '{' => println!("LEFT_BRACE {{ null"),
+//                         '}'=> println!("RIGHT_BRACE }} null"),
+//                         '.' => println!("DOT . null"),
+//                         ',' => println!("COMMA , null"),
+//                         '+' => println!("PLUS + null"),
+//                         '*'=> println!("STAR * null"),
+//                         '-' => println!("MINUS - null"),
+//                         '/' => {
+//                             if str_iter.peek() == Some(&'/'){  
+//                                 while let Some(new_ch) = str_iter.next(){
+//                                     if new_ch == '\n'{
+//                                         new_line+=1;
+//                                         break;
+//                                     }
+//                                 };
+//                             }else{  
+//                                 println!("SLASH / null");
+//                             }
+//                         },
+//                         '"' => {
+//                             let mut lexeme = '"'.to_string(); // takes &temp and creates new mem add with modifiable string
+//                             let mut literal = String::new();
+                        
+//                             while let Some(new_ch) = str_iter.next(){
+//                                 if new_ch == '"' {
+//                                     lexeme.push(new_ch);
+//                                     break;
+//                                 };
+//                                 lexeme.push(new_ch);// "abcd...
+//                                 literal.push(new_ch);//abcd... 
+//                             }; // once reaching None, will have the strings. 
+//                             if !lexeme.ends_with('"'){
+//                                 err_exists = true;
+//                                 eprintln!( "[line {}] Error: Unterminated string.", new_line);
+//                             }else{
+//                                 println!( "STRING {} {}", lexeme, literal);
+//                             }
+//                         },
+//                         ';' => println!("SEMICOLON ; null"),
+//                         '=' => {
+//                             if str_iter.peek() == Some(&'='){ // does NOT consume the next value. & finds address of equal, * refrences the address created by &
+//                                 let _: Option<char> = str_iter.next();
+//                                 println!("EQUAL_EQUAL == null");
+//                             }else{  
+//                                 println!("EQUAL = null");
+//                             }
+//                         },
+//                         '!' => {
+//                             if str_iter.peek() == Some(&'='){ 
+//                                 let _: Option<char> = str_iter.next();
+//                                 println!("BANG_EQUAL != null");
+//                             }else{  
+//                                 println!("BANG ! null");
+//                             }
+//                         }
+//                         '>' => {
+//                             if str_iter.peek() == Some(&'='){ 
+//                                 let _: Option<char> = str_iter.next();
+//                                 println!("GREATER_EQUAL >= null");
+//                             }else{  
+//                                 println!("GREATER > null");
+//                             }
+//                         },
+//                         '<' => {
+//                             if str_iter.peek() == Some(&'='){ // automatically derefences equal, so chars are compared. 
+//                                 let _: Option<char> = str_iter.next();
+//                                 println!("LESS_EQUAL <= null");
+//                             }else{  
+//                                 println!("LESS < null");
+//                             }
+//                         },
+//                         ' ' | '\t' =>{},
+//                         '\n' =>{
+//                             new_line+=1;
+//                         },
+//                         _ => {
+//                             if ch.is_digit(10){ // finding numbers
+//                                 let mut literal = ch.to_string();
+//                                 while let Some(new_ch) = str_iter.peek(){ //Option<&char>
+//                                     if new_ch.is_digit(10) || *new_ch == '.'{
+//                                         literal.push(*new_ch);
+//                                         let _ : Option<char> = str_iter.next();
+//                                     }else{
+//                                         break;
+//                                     }
+//                                 };
+//                                 if let Ok(value) = literal.parse::<f64>(){
+//                                     println!( "NUMBER {} {:?}", literal, value);
+//                                 };
+                                
+//                             }else if ch == '_' || ch.is_ascii_alphabetic(){ //creating identifiers
+//                                 let mut identifier = ch.to_string();
+//                                 while let Some(new_ch) = str_iter.peek(){
+//                                     if !new_ch.is_digit(10) && !(*new_ch == '_') && !new_ch.is_ascii_alphabetic(){
+//                                         break;
+//                                     }
+//                                     identifier.push(*new_ch);
+//                                     let _ : Option<char> = str_iter.next();
+//                                 };
+
+//                                 if res_words.contains_key(&*identifier){
+//                                     let reference = res_words[&*identifier];
+//                                     println!( "{} {} null", reference, identifier);
+//                                 }else{
+//                                     println!( "IDENTIFIER {} null", identifier);
+//                                 }
+//                             }else{
+//                                 err_exists = true;
+//                                 eprintln!( "[line {}] Error: Unexpected character: {}", new_line, ch);
+//                             }
+//                         }
+//                     } // match ends. 
+//                 }
+//                 println!("EOF  null");
+//                 if err_exists{
+//                     return ExitCode::from(65);
+//                 }
+//             } else {
+//                 println!("EOF  null");
+//             }// marking the end of file
+//             // want to return the normal. 
+//             return ExitCode::from(0);
