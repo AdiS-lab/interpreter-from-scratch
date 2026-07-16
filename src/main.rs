@@ -115,7 +115,7 @@ impl Parser{
             self.current += 1;
             return tk_arr.get(2).unwrap_or(&"").to_string() // &str --> String
         }else{
-            println!("{:?}", self.tokens)
+            println!("{:?}", self.tokens);
             self.current += 1;
             return tk_arr.get(1).unwrap_or(&"").to_string() // &str --> String
         }
