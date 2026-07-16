@@ -171,7 +171,7 @@ fn equality(it: &mut Peekable<Iter<String>>) -> Result<String, String> {
     let tk_type = peekAhead(it); // &str
     if matches!(tk_type, "BANG_EQUAL" | "EQUAL_EQUAL"){
         let operator = consume(it); // operator = String
-        let right = comparison(it)?.unwrap(); // loop
+        let right = comparison(it)?; // loop
         return format!("({} {} {})", operator, left, right);
     }else{
         return Ok(left)
@@ -198,10 +198,6 @@ fn add(it: &mut Peekable<Iter<String>>) -> Result<String, String>{
     while matches!(tk_type, "PLUS" | "MINUS"){ 
         let operator = consume(it);
         let right = mult(it)?;
-        if !right{  
-            let err = consume(it);
-            eprintln!("[line 1] Error at '{}': Expect expression.", err);
-        }
         built_str = format!("({} {} {})", operator, built_str, right); // if mult (/ (* 3 2 ) 5)
         tk_type = peekAhead(it);
     }
@@ -226,14 +222,15 @@ fn unary(it: &mut Peekable<Iter<String>>) -> Resutl<String, String>{
     if matches!(tk_type, "MINUS" | "BANG"){
         let mut build_str = String::new();
         while matches!(tk_type, "MINUS" | "BANG"){
-            let operator = consume(it);    
-            let right = literal(it)?;
+            let operator = consume(it);     
+            let right = literal(it)?.unwrap(); // if error will just propogate up. if not then return an OK. so can unwrap right. 
             build_str.push_str(&format!("({} {})", operator, right)); // should be ! then ! then true
             tk_type = peekAhead(it);
         } 
         return Ok(build_str)
     }
-    return literal(it)?
+    let mut result = literal(it)?;
+    return Ok(result)
 }
 
 // has to be a Result, and then unary will catch immediately through question mark. 
@@ -253,7 +250,7 @@ fn literal(it: &mut Peekable<Iter<String>>) -> Result<String, String> {
         }
         return format!("{} {})", middle, right) 
     }else{
-        return Err(Box::new(io::Error::other("your message here"))) // when reaching end 
+        return Err(Box::new(io::Error::other(  format!("[line 1] Error at '{}': Expect expression.", consume(it))     ))) // when reaching end 
     }
 }  
 
