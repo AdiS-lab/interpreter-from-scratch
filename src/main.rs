@@ -5,7 +5,6 @@ use std::process::ExitCode;
 use std::collections::HashMap;
 use std::iter::Peekable;
 use std::slice::Iter;
-use std::io;
 
 
 fn tokenize(file_contents: String) -> String {
@@ -184,7 +183,7 @@ fn comparison(it: &mut Peekable<Iter<String>>) -> Result<String, String>{
 
     while matches! (tk_type, "GREATER_EQUAL" | "GREATER" |  "LESS" | "LESS_EQUAL"){
         let operator = consume(it);
-        let right = add(it);
+        let right = add(it)?;
 
         built_str = format!("({} {} {})", operator, built_str, right);
         tk_type = peekAhead(it);
@@ -223,7 +222,7 @@ fn unary(it: &mut Peekable<Iter<String>>) -> Result<String, String>{
         let mut build_str = String::new();
         while matches!(tk_type, "MINUS" | "BANG"){
             let operator = consume(it);     
-            let right = literal(it)?.unwrap(); // if error will just propogate up. if not then return an OK. so can unwrap right. 
+            let right = literal(it)?; // if error will just propogate up. if not then return an OK. so can unwrap right. 
             build_str.push_str(&format!("({} {})", operator, right)); // should be ! then ! then true
             tk_type = peekAhead(it);
         } 
@@ -237,17 +236,17 @@ fn unary(it: &mut Peekable<Iter<String>>) -> Result<String, String>{
 fn literal(it: &mut Peekable<Iter<String>>) -> Result<String, String> { 
     let tk_type = peekAhead(it);
     if matches!(tk_type, "NUMBER" | "TRUE" | "FALSE" |  "NIL" |  "STRING"){
-        const result = consume(it)?
+        let result = consume(it)?;
         return Ok(result)
     }else if matches!(tk_type, "BANG" | "MINUS"){
-        const result = unary(it)?;
+        let result = unary(it)?;
         return Ok(result)
     }else if matches!(tk_type, "LEFT_PAREN"){
         let middle = "(group";
         _ = consume(it); // consumes (
         let right = equality(it); // gets String, will throw inside if no ending
         let curr = consume(it); // consume )
-        return format!("{} {})", middle, right) 
+        return Ok(format!("{} {})", middle, right))
     }else{
         //assuming that will never be PAST EOF
         return Err( format!("[line 1] Error at '{}': Expect expression.", consume(it) )) // when reaching end 
@@ -452,7 +451,7 @@ fn main() -> ExitCode {
                 Err(e) => {
                     eprintln!("{}", e);
                     return ExitCode::from(65)
-                }; // pass this inside 
+                } // pass this inside 
             };
             return ExitCode::from(0)
         },
