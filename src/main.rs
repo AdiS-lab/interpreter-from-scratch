@@ -252,11 +252,12 @@ fn consume(it: &mut Peekable<Iter<String>>) -> String {
 
     if tk_type == "STRING"{
         return current.split('"').nth(1).unwrap().to_string() // &str --> String
-    }else if tk_type == "NUMBER"{
-        return tk_arr.get(2).unwrap_or(&"").to_string() // &str --> String
     }else{
         return tk_arr.get(1).unwrap_or(&"").to_string() // &str --> String
     }
+    
+    // else if tk_type == "NUMBER"{
+    //     return tk_arr.get(2).unwrap_or(&"").to_string() // &str --> String
 }
 
 fn peekAhead<'a>(it: &mut Peekable<Iter<'a, String>>) -> &'a str {
