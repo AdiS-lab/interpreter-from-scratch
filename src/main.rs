@@ -292,22 +292,22 @@ fn main() -> ExitCode {
                 println!("{}", i);
             };
 
-            if !err.is_empty(){
-                let etoken: Vec<String>= err_str.split(",").map(|s| s.to_string()).collect();
-                for j in &err{
+            if !err_str.is_empty() {
+                let etokens: Vec<String>= err_str.split(",").map(|s| s.to_string()).collect();
+                for j in &etokens{
                    eprintln!("{}", j);
                 };
                 return ExitCode::from(65)
             };
 
-            if tokenStr.len() == 1{
+            if token_str.len() == 1{
                 return ExitCode::from(1)
             }
 
             return ExitCode::from(0)
            
         },"parse" => { // iterator. 
-            let token_str = tokenize(file_contents); // NUMBER 50 50.0, EOF null
+            let (token_str, err_str) = tokenize(file_contents); // NUMBER 50 50.0, EOF null
             let tokens: Vec<String>= token_str.split(",").map(|s| s.to_string()).collect(); // ["NUMBER 50 50.0 ", "EOF null"]
             let mut token_iter = tokens.iter().peekable();
             let result = match equality(&mut token_iter){
@@ -319,8 +319,8 @@ fn main() -> ExitCode {
             };
             return ExitCode::from(0)
         }, "evaluate" =>{
-            let tokenStr = tokenize(file_contents); // NUMBER 50 50.0, EOF null
-            let tokens: Vec<String>= tokenStr.split(",").map(|s| s.to_string()).collect(); // ["NUMBER 50 50.0 ", "EOF null"]
+            let (token_str, err_str) = tokenize(file_contents); // NUMBER 50 50.0, EOF null
+            let tokens: Vec<String>= token_str.split(",").map(|s| s.to_string()).collect(); // ["NUMBER 50 50.0 ", "EOF null"]
             let mut token_iter = tokens.iter().peekable();
             let result = match equality(&mut token_iter){
                 Ok(val) => println!("{}", val),
