@@ -154,10 +154,10 @@ fn tokenize(file_contents: String) -> (String, String) {
             } // match ends. 
         }// while ends
         result.push_str("EOF  null"); 
-        return (result, eresult);
+        return (result, eresult)
     }// if ends
-    result.push_str("EOF null")
-    return result, eresult
+    result.push_str("EOF null");
+    return (result, eresult)
 }
 
 fn equality(it: &mut Peekable<Iter<String>>) -> Result<String, String> {
@@ -288,15 +288,15 @@ fn main() -> ExitCode {
 
     match command.as_str() {
         "tokenize" =>{
-            let tokenStr, err = tokenize(file_contents);
-            let tokens: Vec<String>= tokenStr.split(",").map(|s| s.to_string()).collect(); 
+            let (token_str, err_str) = tokenize(file_contents);
+            let tokens: Vec<String>= token_str.split(",").map(|s| s.to_string()).collect(); 
         
             for i in &tokens{
                 println!("{}", i);
             };
 
             if !err.is_empty(){
-                let etoken: Vec<String>= tokenStr.split(",").map(|s| s.to_string()).collect();
+                let etoken: Vec<String>= err_str.split(",").map(|s| s.to_string()).collect();
                 for j in &err{
                    eprintln!("{}", j);
                 };
@@ -310,8 +310,8 @@ fn main() -> ExitCode {
             return ExitCode::from(0)
            
         },"parse" => { // iterator. 
-            let tokenStr = tokenize(file_contents); // NUMBER 50 50.0, EOF null
-            let tokens: Vec<String>= tokenStr.split(",").map(|s| s.to_string()).collect(); // ["NUMBER 50 50.0 ", "EOF null"]
+            let token_str = tokenize(file_contents); // NUMBER 50 50.0, EOF null
+            let tokens: Vec<String>= token_str.split(",").map(|s| s.to_string()).collect(); // ["NUMBER 50 50.0 ", "EOF null"]
             let mut token_iter = tokens.iter().peekable();
             let result = match equality(&mut token_iter){
                 Ok(val) => println!("{}", val),
