@@ -28,7 +28,6 @@ fn tokenize(file_contents: String) -> (String, String) {
         ("var", "VAR"),
         ("while", "WHILE"),
     ]);
-    let mut err_exists = false;
     let mut str_iter = file_contents.chars().peekable();
     let mut new_line = 1; //  have to do something with this that allows the next thing to see it
 
@@ -69,7 +68,6 @@ fn tokenize(file_contents: String) -> (String, String) {
                         literal.push(new_ch);//abcd... 
                     }; // once reaching None, will have the strings. 
                     if !lexeme.ends_with('"'){
-                        err_exists = true;
                         eresult.push_str(&format!("[line {}] Error: Unterminated string.,", new_line));
                     }else{
                         // result.push_str(&format!("STRING {} {},", lexeme, literal));
@@ -147,7 +145,6 @@ fn tokenize(file_contents: String) -> (String, String) {
                             result.push_str(&format!("IDENTIFIER {} null,", identifier));
                         }
                     }else{
-                        err_exists = true;
                         eresult.push_str(&format!("[line {}] Error: Unexpected character: {},", new_line, ch));
                     }
                 }
