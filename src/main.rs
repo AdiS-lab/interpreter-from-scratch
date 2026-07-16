@@ -69,7 +69,7 @@ impl Parser{
         let mut tk_type = self.peek();
         if matches!(tk_type.as_str(), "MINUS" | "BANG"){
             let mut build_str = String::new();
-            while matches!(tk_type, "MINUS" | "BANG"){
+            while matches!(tk_type.as_str(), "MINUS" | "BANG"){
                 let operator = self.consume();     
                 let right = self.literal()?; // if error will just propogate up. if not then return an OK. so can unwrap right. 
                 build_str.push_str(&format!("({} {})", operator, right)); // should be ! then ! then true
