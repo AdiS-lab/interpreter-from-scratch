@@ -123,7 +123,7 @@ impl Parser{
         let curr_tok = self.tokens[self.current].to_string(); 
         let words: Vec<&str> = curr_tok.split(" ").collect();
         let curr_type = *words.get(0).unwrap_or(&"").to_string(); 
-        return curr_type().as_str()
+        return curr_type.as_str()
     }
 }
 
