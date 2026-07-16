@@ -5,6 +5,7 @@ use std::process::ExitCode;
 use std::collections::HashMap;
 use std::iter::Peekable;
 use std::slice::Iter;
+use std::io;
 
 
 fn tokenize(file_contents: String) -> String {
@@ -166,16 +167,15 @@ fn tokenize(file_contents: String) -> String {
 }
 
 fn equality(it: &mut Peekable<Iter<String>>) -> Result<String, String> {
-    let left = compairson(it)?;
-
+    let left = comparison(it)?;
     let tk_type = peekAhead(it); // &str
     if matches!(tk_type, "BANG_EQUAL" | "EQUAL_EQUAL"){
         let operator = consume(it); // operator = String
         let right = comparison(it)?; // loop
-        return format!("({} {} {})", operator, left, right);
+        return Ok(format!("({} {} {})", operator, left, right));
     }else{
         return Ok(left)
-    }
+    };
 }
 
 fn comparison(it: &mut Peekable<Iter<String>>) -> Result<String, String>{
@@ -197,7 +197,7 @@ fn add(it: &mut Peekable<Iter<String>>) -> Result<String, String>{
     let mut tk_type = peekAhead(it);
     while matches!(tk_type, "PLUS" | "MINUS"){ 
         let operator = consume(it);
-        let right = mult(it)?;
+        let right = mult(it)?; 
         built_str = format!("({} {} {})", operator, built_str, right); // if mult (/ (* 3 2 ) 5)
         tk_type = peekAhead(it);
     }
@@ -217,7 +217,7 @@ fn mult(it: &mut Peekable<Iter<String>>) -> Result<String, String>{
     return Ok(built_str)
 }
 
-fn unary(it: &mut Peekable<Iter<String>>) -> Resutl<String, String>{
+fn unary(it: &mut Peekable<Iter<String>>) -> Result<String, String>{
     let mut tk_type = peekAhead(it);
     if matches!(tk_type, "MINUS" | "BANG"){
         let mut build_str = String::new();
@@ -237,20 +237,20 @@ fn unary(it: &mut Peekable<Iter<String>>) -> Resutl<String, String>{
 fn literal(it: &mut Peekable<Iter<String>>) -> Result<String, String> { 
     let tk_type = peekAhead(it);
     if matches!(tk_type, "NUMBER" | "TRUE" | "FALSE" |  "NIL" |  "STRING"){
-        return consume(it)
+        const result = consume(it)?
+        return Ok(result)
     }else if matches!(tk_type, "BANG" | "MINUS"){
-        return unary(it)
+        const result = unary(it)?;
+        return Ok(result)
     }else if matches!(tk_type, "LEFT_PAREN"){
         let middle = "(group";
         _ = consume(it); // consumes (
         let right = equality(it); // gets String, will throw inside if no ending
         let curr = consume(it); // consume )
-        if curr != ")"{
-            //error
-        }
         return format!("{} {})", middle, right) 
     }else{
-        return Err(Box::new(io::Error::other(  format!("[line 1] Error at '{}': Expect expression.", consume(it))     ))) // when reaching end 
+        //assuming that will never be PAST EOF
+        return Err( format!("[line 1] Error at '{}': Expect expression.", consume(it) )) // when reaching end 
     }
 }  
 
@@ -453,7 +453,7 @@ fn main() -> ExitCode {
                     eprintln!("{}", e);
                     return ExitCode::from(65)
                 }; // pass this inside 
-            }
+            };
             return ExitCode::from(0)
         },
         _ => {
