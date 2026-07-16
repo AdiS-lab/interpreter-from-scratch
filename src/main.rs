@@ -119,7 +119,7 @@ impl Parser{
             return tk_arr.get(1).unwrap_or(&"").to_string() // &str --> String
         }
     }
-    fn peek(&mut self) -> &str {
+    fn peek(&mut self) -> String {
         let curr_tok = self.tokens[self.current].to_string(); 
         let words: Vec<&str> = curr_tok.split(" ").collect();
         let curr_type = words.get(0).unwrap_or(&"").to_string(); 
