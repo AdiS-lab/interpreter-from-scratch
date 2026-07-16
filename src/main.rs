@@ -324,7 +324,7 @@ fn main() -> ExitCode {
         },"parse" => { // iterator. 
             let (token_str, err_str) = tokenize(file_contents); // NUMBER 50 50.0, EOF null
             let tokens: Vec<String>= token_str.split(",").map(|s| s.to_string()).collect(); // ["NUMBER 50 50.0 ", "EOF null"]
-            let parser = Parser{tokens, 0};
+            let parser = Parser{tokens, current: 0};
             let result = match equality(){
                 Ok(val) => println!("{}", val),
                 Err(e) => {
@@ -336,7 +336,7 @@ fn main() -> ExitCode {
         }, "evaluate" =>{
             let (token_str, err_str) = tokenize(file_contents); // NUMBER 50 50.0, EOF null
             let tokens: Vec<String>= token_str.split(",").map(|s| s.to_string()).collect(); // ["NUMBER 50 50.0 ", "EOF null"]
-            let parser = Parser{tokens, 0};
+            let parser = Parser{tokens, current: 0};
             let result = match parser.equality(){
                 Ok(val) => println!("{}", val),
                 Err(e) => {
