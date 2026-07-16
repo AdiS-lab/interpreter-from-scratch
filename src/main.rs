@@ -83,7 +83,7 @@ impl Parser{
 
     // has to be a Result, and then unary will catch immediately through question mark. 
     fn literal(&mut self) -> Result<String, String> { 
-        let tk_type = peek();
+        let tk_type = self.peek();
         if matches!(tk_type, "NUMBER" | "TRUE" | "FALSE" |  "NIL" |  "STRING"){
             let result = self.consume();
             return Ok(result)
@@ -106,12 +106,12 @@ impl Parser{
         let curr_tok = self.tokens[self.current].to_string();
         let tk_arr: Vec<&str> = curr_tok.split(" ").collect(); // Vec<&str>
         let &tk_type = tk_arr.get(0).unwrap();
-        let next_type = *self.tokens[self.current+1].split(" ").collect().get(0).unwrap();
+        let next_type = *self.tokens[self.current+1].split(" ").collect::Vec<&str>().get(0).unwrap();
 
         if tk_type == "STRING"{
             self.current += 1;
             return curr_tok.split('"').nth(1).unwrap().to_string() // &str --> String
-        }else if tk_type == "NUMBER" && ((self.current = 0 && next_type != "EOF") || self.current > 0) {  
+        }else if tk_type == "NUMBER" && ((self.current == 0 && next_type != "EOF") || self.current > 0) {  
             self.current += 1;
             return tk_arr.get(2).unwrap_or(&"").to_string() // &str --> String
         }else{
@@ -325,7 +325,7 @@ fn main() -> ExitCode {
             let (token_str, err_str) = tokenize(file_contents); // NUMBER 50 50.0, EOF null
             let tokens: Vec<String>= token_str.split(",").map(|s| s.to_string()).collect(); // ["NUMBER 50 50.0 ", "EOF null"]
             let parser = Parser{tokens, current: 0};
-            let result = match equality(){
+            let result = match parser.equality(){
                 Ok(val) => println!("{}", val),
                 Err(e) => {
                     eprintln!("{}", e);
