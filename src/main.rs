@@ -6,9 +6,6 @@ use std::collections::HashMap;
 use std::iter::Peekable;
 use std::slice::Iter;
 
-
-static mut length: i32 = 0;
-
 fn tokenize(file_contents: String) -> (String, String) {
     let mut result = String::new();
     let mut eresult = String::new();
@@ -260,7 +257,7 @@ fn consume(it: &mut Peekable<Iter<String>>) -> String {
 
     if tk_type == "STRING"{
         return current.split('"').nth(1).unwrap().to_string() // &str --> String
-    }else if tk_type == "NUMBER" && length != 2{
+    }else if tk_type == "NUMBER" && it.len() != 2{
         return tk_arr.get(2).unwrap_or(&"").to_string() // &str --> String
     }else{
         return tk_arr.get(1).unwrap_or(&"").to_string() // &str --> String
@@ -330,7 +327,6 @@ fn main() -> ExitCode {
             let (token_str, err_str) = tokenize(file_contents); // NUMBER 50 50.0, EOF null
             let tokens: Vec<String>= token_str.split(",").map(|s| s.to_string()).collect(); // ["NUMBER 50 50.0 ", "EOF null"]
             let mut token_iter = tokens.iter().peekable();
-            length = token_iter.len();
             let result = match equality(&mut token_iter){
                 Ok(val) => println!("{}", val),
                 Err(e) => {
