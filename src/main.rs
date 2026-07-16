@@ -7,7 +7,7 @@ use std::iter::Peekable;
 use std::slice::Iter;
 
 
-static mut length: int = 0
+static mut length: i32 = 0;
 
 fn tokenize(file_contents: String) -> (String, String) {
     let mut result = String::new();
