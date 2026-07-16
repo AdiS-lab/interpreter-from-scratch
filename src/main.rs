@@ -17,7 +17,7 @@ impl Parser{
     fn equality(&mut self) -> Result<String, String> {
         let left = self.comparison()?;
         let tk_type = self.peek(); // &str
-        if matches!(tk_type, "BANG_EQUAL" | "EQUAL_EQUAL"){
+        if matches!(tk_type.as_str(), "BANG_EQUAL" | "EQUAL_EQUAL"){
             let operator = self.consume(); // operator = String
             let right = self.comparison()?; // loop
             return Ok(format!("({} {} {})", operator, left, right));
@@ -30,7 +30,7 @@ impl Parser{
         let mut built_str = self.add()?;
         let mut tk_type = self.peek();
 
-        while matches! (tk_type, "GREATER_EQUAL" | "GREATER" |  "LESS" | "LESS_EQUAL"){
+        while matches! (tk_type.as_str(), "GREATER_EQUAL" | "GREATER" |  "LESS" | "LESS_EQUAL"){
             let operator = self.consume();
             let right = self.add()?;
 
@@ -43,7 +43,7 @@ impl Parser{
     fn add(&mut self) -> Result<String, String>{
         let mut built_str = self.mult()?; // starts as left
         let mut tk_type = self.peek();
-        while matches!(tk_type, "PLUS" | "MINUS"){ 
+        while matches!(tk_type.as_str(), "PLUS" | "MINUS"){ 
             let operator = self.consume();
             let right = self.mult()?; 
             built_str = format!("({} {} {})", operator, built_str, right); // if mult (/ (* 3 2 ) 5)
@@ -56,7 +56,7 @@ impl Parser{
         let mut built_str = self.unary()?; //  num or String
         let mut tk_type = self.peek();
 
-        while matches!(tk_type, "STAR" | "SLASH"){
+        while matches!(tk_type.as_str(), "STAR" | "SLASH"){
             let operator = self.consume(); // * 
             let right = self.unary()?; // num or String
             built_str = format!("({} {} {})", operator, built_str, right);
@@ -67,7 +67,7 @@ impl Parser{
 
     fn unary(&mut self) -> Result<String, String>{
         let mut tk_type = self.peek();
-        if matches!(tk_type, "MINUS" | "BANG"){
+        if matches!(tk_type.as_str(), "MINUS" | "BANG"){
             let mut build_str = String::new();
             while matches!(tk_type, "MINUS" | "BANG"){
                 let operator = self.consume();     
@@ -84,13 +84,13 @@ impl Parser{
     // has to be a Result, and then unary will catch immediately through question mark. 
     fn literal(&mut self) -> Result<String, String> { 
         let tk_type = self.peek();
-        if matches!(tk_type, "NUMBER" | "TRUE" | "FALSE" |  "NIL" |  "STRING"){
+        if matches!(tk_type.as_str(), "NUMBER" | "TRUE" | "FALSE" |  "NIL" |  "STRING"){
             let result = self.consume();
             return Ok(result)
-        }else if matches!(tk_type, "BANG" | "MINUS"){
+        }else if matches!(tk_type.as_str(), "BANG" | "MINUS"){
             let result = self.unary()?;
             return Ok(result)
-        }else if matches!(tk_type, "LEFT_PAREN"){
+        }else if matches!(tk_type.as_str(), "LEFT_PAREN"){
             let middle = "(group";
             _ = self.consume(); // consumes (
             let right = self.equality()?; // gets String, will throw inside if no ending
@@ -123,7 +123,7 @@ impl Parser{
         let curr_tok = self.tokens[self.current].to_string(); 
         let words: Vec<&str> = curr_tok.split(" ").collect();
         let curr_type = words.get(0).unwrap_or(&"").to_string(); 
-        return curr_type.as_str()
+        return curr_type
     }
 }
 
