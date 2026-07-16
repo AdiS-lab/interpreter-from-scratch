@@ -454,6 +454,18 @@ fn main() -> ExitCode {
                 } // pass this inside 
             };
             return ExitCode::from(0)
+        }, "evaluate" =>{
+            let tokenStr = tokenize(file_contents); // NUMBER 50 50.0, EOF null
+            let tokens: Vec<String>= tokenStr.split(",").map(|s| s.to_string()).collect(); // ["NUMBER 50 50.0 ", "EOF null"]
+            let mut token_iter = tokens.iter().peekable();
+            let result = match equality(&mut token_iter){
+                Ok(val) => println!("{}", val),
+                Err(e) => {
+                    eprintln!("{}", e);
+                    return ExitCode::from(65)
+                } // pass this inside 
+            };
+            return ExitCode::from(0)
         },
         _ => {
             eprintln!("Unknown command: {}", command);
