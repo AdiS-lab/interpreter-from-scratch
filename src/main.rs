@@ -106,11 +106,11 @@ impl Parser{
         let curr_tok = self.tokens[self.current].to_string();
         let tk_arr: Vec<&str> = curr_tok.split(" ").collect(); // Vec<&str>
         let &tk_type = tk_arr.get(0).unwrap();
-        
+
         if tk_type == "STRING"{
             self.current += 1;
             return curr_tok.split('"').nth(1).unwrap().to_string() // &str --> String
-        }else if tk_type == "NUMBER" && !self.tokens.len() == 2 {  
+        }else if tk_type == "NUMBER" && self.tokens.len() > 2 { 
             self.current += 1;
             return tk_arr.get(2).unwrap_or(&"").to_string() // &str --> String
         }else{
