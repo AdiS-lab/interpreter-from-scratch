@@ -250,6 +250,7 @@ fn literal(it: &mut Peekable<Iter<String>>) -> Result<String, String> {
 }  //index is 0 and next val is EOF
 
 fn consume(it: &mut Peekable<Iter<String>>) -> String {
+    println!("{}", it.len());
     let current = it.next().unwrap(); // &String --> String
     let tk_arr: Vec<&str> = current.split(" ").collect(); // Vec<&str>
     let &tk_type = tk_arr.get(0).unwrap(); // 
