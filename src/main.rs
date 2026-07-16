@@ -100,7 +100,7 @@ impl Parser{
             //assuming that will never be PAST EOF
             return Err( format!("[line 1] Error at '{}': Expect expression.", self.consume() )) // when reaching end 
         }
-    }  //index is 0 and next val is EOF
+    } 
 
     fn consume(&mut self) -> String {
         let curr_tok = self.tokens[self.current].to_string();
@@ -120,10 +120,10 @@ impl Parser{
         }
     }
     fn peek(&mut self) -> String {
-        let curr_tok = self.tokens[self.current].to_string();
+        let curr_tok = self.tokens[self.current].to_string(); 
         let words: Vec<&str> = curr_tok.split(" ").collect();
         let curr_type = *words.get(0).unwrap_or(&""); 
-        return &curr_type.to_string()
+        return curr_type().to_string().as_str()
     }
 }
 
