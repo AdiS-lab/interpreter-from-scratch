@@ -246,18 +246,18 @@ fn literal(it: &mut Peekable<Iter<String>>) -> Result<String, String> {
 }  
 
 fn consume(it: &mut Peekable<Iter<String>>) -> String {
-    let current = it.next().unwrap(); // &String
+    let current = it.next().unwrap(); // &String --> String
     let tk_arr: Vec<&str> = current.split(" ").collect(); // Vec<&str>
-    let &tk_type = tk_arr.get(0).unwrap();
+    let &tk_type = tk_arr.get(0).unwrap(); // 
+    let peek = peekAhead(it);
 
     if tk_type == "STRING"{
         return current.split('"').nth(1).unwrap().to_string() // &str --> String
+    }else if tk_type == "NUMBER" && peek == "EOF"{
+        return tk_arr.get(2).unwrap_or(&"").to_string() // &str --> String
     }else{
         return tk_arr.get(1).unwrap_or(&"").to_string() // &str --> String
     }
-    
-    // else if tk_type == "NUMBER"{
-    //     return tk_arr.get(2).unwrap_or(&"").to_string() // &str --> String
 }
 
 fn peekAhead<'a>(it: &mut Peekable<Iter<'a, String>>) -> &'a str {
