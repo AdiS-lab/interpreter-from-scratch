@@ -3,8 +3,6 @@ use std::env;
 use std::fs;
 use std::process::ExitCode;
 use std::collections::HashMap;
-use std::iter::Peekable;
-use std::slice::Iter;
 
 
 struct Parser{
@@ -46,7 +44,7 @@ impl Parser{
         let mut built_str = self.mult()?; // starts as left
         let mut tk_type = self.peek();
         while matches!(tk_type, "PLUS" | "MINUS"){ 
-            let operator = consume();
+            let operator = self.consume();
             let right = self.mult()?; 
             built_str = format!("({} {} {})", operator, built_str, right); // if mult (/ (* 3 2 ) 5)
             tk_type = self.peek();
@@ -111,13 +109,15 @@ impl Parser{
         let next_type = *self.tokens[self.current+1].split(" ").collect().get(0).unwrap();
 
         if tk_type == "STRING"{
+            self.current += 1;
             return curr_tok.split('"').nth(1).unwrap().to_string() // &str --> String
         }else if tk_type == "NUMBER" && ((self.current = 0 && next_type != "EOF") || self.current > 0) {  
+            self.current += 1;
             return tk_arr.get(2).unwrap_or(&"").to_string() // &str --> String
         }else{
+            self.current += 1;
             return tk_arr.get(1).unwrap_or(&"").to_string() // &str --> String
         }
-        self.current += 1;
     }
     fn peek(&mut self) -> &str {
         let curr_tok = self.tokens[self.current].to_string();
