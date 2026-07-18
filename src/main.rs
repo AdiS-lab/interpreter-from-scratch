@@ -113,14 +113,10 @@ impl Parser{
         let tk_arr: Vec<&str> = curr_tok.split(" ").collect(); // Vec<&str>
 
         if matches!(tk_type.as_str(), "NUMBER" | "NIL"){
-            // if self.tokens.len() > 2 {  
-            //     let f: f64 = tk_arr.get(2).unwrap_or(&"").to_string().parse().unwrap();
-            //     self.current += 1;
-            //     return Ok(Expr::Literal(Lit::F64(f)))
-            // }else{
             let f: f64 = self.consume().parse().unwrap();
             return Ok(Expr::Literal(Lit::F64(f)))
         }else if matches!(tk_type.as_str(), "STRING"){
+            println!("{:?}", curr_tok);
             let s =  curr_tok.split('"').nth(1).unwrap().to_string(); // &str --> String
             self.current += 1;
             return Ok(Expr::Literal(Lit::String(s)))
@@ -377,6 +373,10 @@ fn main() -> ExitCode {
                         Expr::Literal(lit) => {
                             if let Lit::F64(f) = lit { 
                                 println!("{}", f);
+                            }else if let Lit::String(s) = lit{
+                                println!("{}", s);
+                            }else if let Lit::Bool(b) = lit{
+                                println!("{}", b);
                             }
                         },
                         Expr::Binary(l, o, r) => println!("{:?}", l),
