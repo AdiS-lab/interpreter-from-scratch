@@ -26,6 +26,7 @@ enum Lit{
     Bool(bool),
     Nil,
     F64(f64),
+    I32(i32)
 }
 
 
@@ -117,18 +118,26 @@ impl Parser{
     // has to be a Result, and then unary will catch immediately through question mark. 
     fn literal(&mut self) -> Result<Expr, String> { 
         let tk_type = self.peek();
-        if matches!(tk_type.as_str(), "NUMBER" | "NIL"){
-            let result = self.consume();
-            let n: f64= result.parse().unwrap();
-            return Ok(Expr::Literal(Lit::F64(n)))
 
+        let curr_tok = self.tokens[self.current].to_string();
+        let tk_arr: Vec<&str> = curr_tok.split(" ").collect(); // Vec<&str>
+
+        if matches!(tk_type.as_str(), "NUMBER" | "NIL"){
+            if self.tokens.len() > 2 {  
+                let f: f64 = tk_arr.get(2).unwrap_or(&"").to_string().parse().unwrap();
+                self.current += 1;
+                return Ok(Expr::Literal(Lit::F64(f)))
+            }else{
+                let i: i32 = self.consume().parse().unwrap();
+                return Ok(Expr::Literal(Lit::I32(i)))
+            };
         }else if matches!(tk_type.as_str(), "STRING"){
-            let result = self.consume();
-            return Ok(Expr::Literal(Lit::String(result)))
+            let s =  curr_tok.split('"').nth(1).unwrap().to_string(); // &str --> String
+            self.current += 1;
+            return Ok(Expr::Literal(Lit::String(s)))
 
         }else if matches!(tk_type.as_str(), "TRUE" | "FALSE"){
-            let result = self.consume();
-            let b: bool = result.parse().unwrap();
+            let b: bool = self.consume().parse().unwrap();
             return Ok(Expr::Literal(Lit::Bool(b)))
 
         }else if matches!(tk_type.as_str(), "BANG" | "MINUS"){
@@ -151,17 +160,8 @@ impl Parser{
         let curr_tok = self.tokens[self.current].to_string();
         let tk_arr: Vec<&str> = curr_tok.split(" ").collect(); // Vec<&str>
         let &tk_type = tk_arr.get(0).unwrap();
-
-        if tk_type == "STRING"{
-            self.current += 1;
-            return curr_tok.split('"').nth(1).unwrap().to_string() // &str --> String
-        }else if tk_type == "NUMBER" && self.tokens.len() > 2 { 
-            self.current += 1;
-            return tk_arr.get(2).unwrap_or(&"").to_string() // &str --> String
-        }else{
-            self.current += 1;
-            return tk_arr.get(1).unwrap_or(&"").to_string() // &str --> String
-        }
+        self.current += 1;
+        return tk_arr.get(1).unwrap_or(&"").to_string() // &str --> String
     }
     fn peek(&mut self) -> String {
         let curr_tok = self.tokens[self.current].to_string(); 
@@ -388,9 +388,11 @@ fn main() -> ExitCode {
                 Ok(val) => { // what is a moved value, w
                     match val{
                         Expr::Literal(lit) => {
-                            if let Lit::F64(n) = lit {
-                                println!("{:?}", n);
-                            };
+                            if let Lit::F64(f) = lit {
+                                println!("{:?}", f);
+                            }else if let Lit::I32(i) = lit {
+                                println!("{}", i);
+                            }
                         },
                         Expr::Binary(l, o, r) => println!("{:?}", l),
                         Expr::Unary(l, o) => println!("{:?}", l),
