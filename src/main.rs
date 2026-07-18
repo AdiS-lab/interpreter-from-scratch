@@ -300,7 +300,7 @@ fn tokenize(file_contents: String) -> (Vec<String>, Vec<String>) {
         result.push("EOF  null".to_string()); 
         return (result, eresult)
     }// if ends
-    result.push("EOF null".to_string());
+    result.push("EOF  null".to_string());
     return (result, eresult)
 }
 
