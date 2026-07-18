@@ -328,14 +328,16 @@ fn parse(val: Expr) -> String {
     };    
     return "".to_string()
 }
-
+// numbers have arithmetic + all bool operations
+// bools have only equating operations
+// strings only have equations and + operations
 fn evaluate(val: Expr) -> Lit { 
     match val{
         Expr::Literal(lit) => return lit,
         Expr::Binary(l , o, r) =>{
-            let left: Lit = evaluate(*l);
+            let left: Lit = evaluate(*l); // always unpack
             let right: Lit = evaluate(*r);
-            if let Lit::F64(n) = left && let Lit::F64(n2) = right{
+            if let Lit::F64(n) = left && let Lit::F64(n2) = right{ // arithmetic, but have to check if == as well
                 match o.as_str() {
                     "*" => return Lit::F64(n*n2),
                     "/"=> return Lit::F64(n/n2), 
@@ -345,7 +347,8 @@ fn evaluate(val: Expr) -> Lit {
                     "<"=>  return Lit::Bool(n<n2),
                     ">="=>  return Lit::Bool(n>=n2), 
                     "<="=>   return Lit::Bool(n<=n2),
-
+                    "==" => return Lit::Bool(n==n2),
+                    "!="=>  return Lit::Bool(n!=n2),   
                     _=> return Lit::Nil
                 }
             }else if let Lit::Bool(b) = left && let Lit::Bool(b2) = right{
@@ -356,9 +359,9 @@ fn evaluate(val: Expr) -> Lit {
                 }                
             }else if let Lit::String(s) = left && let Lit::String(s2) = right{
                 match o.as_str() {
-                    "+" => {
-                        return Lit::String(format!("{}{}", s, s2))
-                    },
+                    "+" => return Lit::String(format!("{}{}", s, s2)),
+                    "==" => return Lit::Bool(s==s2),
+                    "!="=>  return Lit::Bool(s!=s2),  
                     _=> return Lit::Nil
                 }
             }else{
