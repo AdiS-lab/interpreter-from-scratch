@@ -112,24 +112,22 @@ impl Parser{
         let curr_tok = self.tokens[self.current].to_string();
         let tk_arr: Vec<&str> = curr_tok.split(" ").collect(); // Vec<&str>
 
-        if matches!(tk_type.as_str(), "NUMBER" | "NIL"){
-            if let Ok(f) = self.consume().parse::<f64>(){
-                return Ok(Expr::Literal(Lit::F64(f)))
-            }else{
-                return Err( format!("[line 1] Error at '{}': Expect expression.", self.consume() )) 
-            }
+        if matches!(tk_type.as_str(), "NUMBER"){
+            let f: f64 =  self.consume().parse().unwrap();
+            return Ok(Expr::Literal(Lit::F64(f)))
         }else if matches!(tk_type.as_str(), "STRING"){
-            let s =  curr_tok.split('"').nth(1).unwrap().to_string(); // &str --> String
+            let s: String =  curr_tok.split('"').nth(1).unwrap().to_string(); // &str --> String
             self.current += 1;
             return Ok(Expr::Literal(Lit::String(s)))
-
         }else if matches!(tk_type.as_str(), "TRUE" | "FALSE"){
             let b: bool = self.consume().parse().unwrap();
             return Ok(Expr::Literal(Lit::Bool(b)))
-
+        }else if matches!(tk_type.as_str(), "NIL"){
+            let s: String= self.consume();
+            return Ok(Expr::Literal(Lit::String(s)))
         }else if matches!(tk_type.as_str(), "BANG" | "MINUS"){
-            let result = self.unary()?;
-            return Ok(result) // will  be a Unary expr
+            let result: Expr = self.unary()?;
+            return Ok(result)
         }else if matches!(tk_type.as_str(), "LEFT_PAREN"){
             _ = self.consume(); // consumes (
             let right = self.equality()?;
