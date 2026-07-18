@@ -445,17 +445,23 @@ fn main() -> ExitCode {
             let mut parser = Parser{tokens, current: 0};
             let result = match parser.equality(){ 
                 Ok(val) => { 
-                    let res = evaluate(val);
-
-                    if let Lit::F64(n) = res{
-                        println!("{}", n);                    
-                    }else if let Lit::Bool(b) = res{
-                        println!("{}", b);                     
-                    }else if let Lit::String(s) = res{
-                        println!("{}", s);
-                    }else{
-                        println!("nil")
-                    }
+                    let res = match evaluate(val){
+                        Ok(val)=>{
+                            if let Lit::F64(n) = val{
+                                println!("{}", n);                    
+                            }else if let Lit::Bool(b) = val{
+                                println!("{}", b);                     
+                            }else if let Lit::String(s) = val{
+                                println!("{}", s);
+                            }else{
+                                println!("nil")
+                            }
+                        }
+                        Err(err) =>{
+                            eprintln!("{}", err);
+                            return ExitCode::from(75)
+                        }
+                    };
                 },
                 Err(e) => {
                     eprintln!("{}", e);
