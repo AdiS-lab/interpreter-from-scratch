@@ -12,18 +12,20 @@ struct Parser{
 // enum is saying anything of this defined type is allowed. 
 // when populating 
 
+
+#[derive(Debug)]                                                                                                                                                   
 enum Expr{
     Binary(Box<Expr>, String, Box<Expr>),
     Unary(String, Box<Expr>),
     Grouping(Box<Expr>),
     Literal(Lit),
 }
-
+#[derive(Debug)]                                                                                             
 enum Lit{
     String(String),
-    Bool,
+    Bool(bool),
     Nil,
-    F64,
+    F64(f64),
 }
 
 
@@ -106,7 +108,7 @@ impl Parser{
         //     left = Expr::Unary(operator, new(right))
         //     tk_type = self.peek();
         // } 
-        // // return build_str)
+        // // return build_str
         // return left
         let result = self.literal()?;
         return Ok(result)
