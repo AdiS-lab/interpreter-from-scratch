@@ -388,9 +388,9 @@ fn main() -> ExitCode {
                 Ok(val) => { // what is a moved value, w
                     match val{
                         Expr::Literal(lit) => {
-                            if matches!(lit, Lit::F64(n)) {
-                                println!("{:?}", lit)
-                            }
+                            if let Lit::F64(n) = lit {
+                                println!("{:?}", n);
+                            };
                         },
                         Expr::Binary(l, o, r) => println!("{:?}", l),
                         Expr::Unary(l, o) => println!("{:?}", l),
