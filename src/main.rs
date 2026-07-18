@@ -381,6 +381,7 @@ fn main() -> ExitCode {
                         Expr::Binary(l, o, r) => println!("{:?}", l),
                         Expr::Unary(l, o) => println!("{:?}", l),
                         Expr::Grouping(l) => println!("{:?}", l),
+                        _ => println!("other")
                     };
                 },
                 Err(e) => {
