@@ -20,7 +20,7 @@ enum Expr{
 }
 
 enum Lit{
-    String,
+    String(String),
     Bool,
     Nil,
     F64,
@@ -115,10 +115,20 @@ impl Parser{
     // has to be a Result, and then unary will catch immediately through question mark. 
     fn literal(&mut self) -> Result<Expr, String> { 
         let tk_type = self.peek();
-        if matches!(tk_type.as_str(), "NUMBER" | "TRUE" | "FALSE" |  "NIL" |  "STRING"){
+        if matches!(tk_type.as_str(), "NUMBER" | "NIL"){
             let result = self.consume();
-            // return Ok(result)
-            return Ok(Expr::Literal(Lit(result)))
+            let num = result.unwrap().parse();
+            return Ok(Expr::Literal(Lit::F64(result)))
+
+        }else if matches!(tk_type.as_str(), "STRING"){
+            let result = self.consume();
+            return Ok(Expr::Literal(Lit::String(result)))   
+
+        }else if matches!(tk_type.as_str(), "TRUE" | "FALSE"){
+            let result = self.consume();
+            let num = result.unwrap().parse();
+            return Ok(Expr::Literal(Lit::Bool(result)))
+
         }else if matches!(tk_type.as_str(), "BANG" | "MINUS"){
             let result = self.unary()?;
             return Ok(result) // will  be a Unary expr
@@ -128,20 +138,20 @@ impl Parser{
             let right = self.equality()?;
             let curr = self.consume(); 
             // return Ok(format!("{} {})", middle, right))
-            return Ok(right)
+            return Ok(right)    
         }else{
             //assuming that will never be PAST EOF
             return Err( format!("[line 1] Error at '{}': Expect expression.", self.consume() )) // when reaching end 
         }
     } 
 
-    fn consume(&mut self) -> String {
+    fn consume(&mut self) -> Expr {
         let curr_tok = self.tokens[self.current].to_string();
         let tk_arr: Vec<&str> = curr_tok.split(" ").collect(); // Vec<&str>
         let &tk_type = tk_arr.get(0).unwrap();
 
         if tk_type == "STRING"{
-            self.current += 1;
+            self.current += 1
             return curr_tok.split('"').nth(1).unwrap().to_string() // &str --> String
         }else if tk_type == "NUMBER" && self.tokens.len() > 2 { 
             self.current += 1;
@@ -361,7 +371,7 @@ fn main() -> ExitCode {
             }
             let mut parser = Parser{tokens, current: 0};
             let result = match parser.equality(){
-                Ok(val) => println!("{}", val),
+                Ok(val) => println!("{:?}", val),
                 Err(e) => {
                     eprintln!("{}", e);
                     return ExitCode::from(65)
