@@ -222,7 +222,7 @@ fn tokenize(file_contents: String) -> (Vec<String>, Vec<String>) {
                          result.push(format!("STRING {} {}", lexeme, literal)); 
                     }
                 },
-                ';' => result.push("SEMICOLON ; null,".to_string()),
+                ';' => result.push("SEMICOLON ; null".to_string()),
                 '=' => {
                     if str_iter.peek() == Some(&'='){ // does NOT consume the next value. & finds address of equal, * refrences the address created by &
                         let _: Option<char> = str_iter.next();
