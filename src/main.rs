@@ -319,14 +319,12 @@ fn parse(val: Expr) -> String {
                return format!("{}", b);
             }
         },
-        Expr::Binary(l , o, r) =>return format!("({} {:?} {})", o, parse(*l), parse(*r)),
+        Expr::Binary(l , o, r) =>return format!("({} {} {})", o, parse(*l), parse(*r)),
         Expr::Unary(l, r) =>return format!("({}, {})", l, parse(*r)),
-        Expr::Grouping(l) =>return format!("(group {:?})", parse(*l)),
-        _ =>return "other".to_string()
+        Expr::Grouping(l) =>return format!("(group {})", parse(*l)),
     };    
     return "".to_string()
 }
-
 
 fn main() -> ExitCode {
     let args: Vec<String> = env::args().collect();
@@ -361,7 +359,7 @@ fn main() -> ExitCode {
 
             if token_str.len() == 1{
                 return ExitCode::from(1)
-            }
+            };
 
             return ExitCode::from(0)
            
@@ -402,7 +400,6 @@ fn main() -> ExitCode {
                         Expr::Binary(l, o, r) => println!("{:?}", l),
                         Expr::Unary(l, o) => println!("{:?}", l),
                         Expr::Grouping(l) => println!("{:?}", l),
-                        _ => println!("other")
                     };
                 },
                 Err(e) => {
