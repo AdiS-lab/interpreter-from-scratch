@@ -365,7 +365,7 @@ fn evaluate(val: Expr) -> Lit {
                     _=> return Lit::Nil
                 }
             }else{
-                return Lit::Nil
+                return Lit::Bool(false)
             }
         },
         Expr::Unary(l, r) => {
