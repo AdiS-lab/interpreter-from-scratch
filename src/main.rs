@@ -362,7 +362,7 @@ fn main() -> ExitCode {
                 }  
             };
             return ExitCode::from(0)
-        }, "evaluate" =>{
+        }, "evaluate" => {
             let (token_str, err_str) = tokenize(file_contents); // NUMBER 50 50.0, EOF null
             let tokens: Vec<String>= token_str.split(",").map(|s| s.to_string()).collect(); // ["NUMBER 50 50.0 ", "EOF null"]
             let mut parser = Parser{tokens, current: 0};
