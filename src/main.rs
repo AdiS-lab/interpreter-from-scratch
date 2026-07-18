@@ -341,14 +341,15 @@ fn evaluate(val: Expr) -> Lit {
                     "/"=> return Lit::F64(n/n2), 
                     "+" =>return Lit::F64(n+n2) ,
                     "-" =>return Lit::F64(n-n2),
+                    ">" => return Lit::Bool(n>n2),
+                    "<"=>  return Lit::Bool(n<n2),
+                    ">="=>  return Lit::Bool(n>=n2), 
+                    "<="=>   return Lit::Bool(n<=n2),
+
                     _=> return Lit::Nil
                 }
             }else if let Lit::Bool(b) = left && let Lit::Bool(b2) = right{
                 match o.as_str() {
-                    ">" => return Lit::Bool(b>b2),
-                    "<"=>  return Lit::Bool(b<b2),
-                    ">="=>  return Lit::Bool(b>=b2), 
-                    "<="=>   return Lit::Bool(b<=b2),
                     "==" => return Lit::Bool(b==b2),
                     "!="=>  return Lit::Bool(b!=b2),   
                     _=> return Lit::Nil
