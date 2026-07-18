@@ -26,7 +26,6 @@ enum Lit{
     Bool(bool),
     Nil,
     F64(f64),
-    I32(i32)
 }
 
 
@@ -102,15 +101,6 @@ impl Parser{
             let unary = Expr::Unary(operator, Box::new(right));
             return Ok(unary)
         }
-        // while matches!(tk_type.as_str(), "MINUS" | "BANG"){
-        //     let operator = self.consume();     
-        //     let right = self.literal()?; // if error will just propogate up. if not then return an  so can unwrap right. 
-        //     // build_str.push_str(&format!("({} {})", operator, right)); // should be ! then ! then true
-        //     left = Expr::Unary(operator, new(right))
-        //     tk_type = self.peek();
-        // } 
-        // // return build_str
-        // return left
         let result = self.literal()?;
         return Ok(result)
     }
@@ -123,14 +113,13 @@ impl Parser{
         let tk_arr: Vec<&str> = curr_tok.split(" ").collect(); // Vec<&str>
 
         if matches!(tk_type.as_str(), "NUMBER" | "NIL"){
-            if self.tokens.len() > 2 {  
-                let f: f64 = tk_arr.get(2).unwrap_or(&"").to_string().parse().unwrap();
-                self.current += 1;
-                return Ok(Expr::Literal(Lit::F64(f)))
-            }else{
-                let i: i32 = self.consume().parse().unwrap();
-                return Ok(Expr::Literal(Lit::I32(i)))
-            };
+            // if self.tokens.len() > 2 {  
+            //     let f: f64 = tk_arr.get(2).unwrap_or(&"").to_string().parse().unwrap();
+            //     self.current += 1;
+            //     return Ok(Expr::Literal(Lit::F64(f)))
+            // }else{
+            let f: f64 = self.consume().parse().unwrap();
+            return Ok(Expr::Literal(Lit::F64(f)))
         }else if matches!(tk_type.as_str(), "STRING"){
             let s =  curr_tok.split('"').nth(1).unwrap().to_string(); // &str --> String
             self.current += 1;
@@ -144,11 +133,9 @@ impl Parser{
             let result = self.unary()?;
             return Ok(result) // will  be a Unary expr
         }else if matches!(tk_type.as_str(), "LEFT_PAREN"){
-            // let middle = "(group";
             _ = self.consume(); // consumes (
             let right = self.equality()?;
             let curr = self.consume(); 
-            // return Ok(format!("{} {})", middle, right))
             return Ok(Expr::Grouping(Box::new(right)))    
         }else{
             //assuming that will never be PAST EOF
@@ -388,10 +375,8 @@ fn main() -> ExitCode {
                 Ok(val) => { // what is a moved value, w
                     match val{
                         Expr::Literal(lit) => {
-                            if let Lit::F64(f) = lit {
-                                println!("{:?}", f);
-                            }else if let Lit::I32(i) = lit {
-                                println!("{}", i);
+                            if let Lit::F64(f) = lit { 
+                                println!("{}", f);
                             }
                         },
                         Expr::Binary(l, o, r) => println!("{:?}", l),
