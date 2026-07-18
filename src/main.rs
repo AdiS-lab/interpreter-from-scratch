@@ -337,7 +337,7 @@ fn evaluate(val: Expr) -> Result<Lit, String> {
         Expr::Binary(l , o, r) =>{
             let left: Lit = evaluate(*l)?; // always unpack
             let right: Lit = evaluate(*r)?;
-            if matches!(o.as_str() | "*" | "/" |"-" |">" | "<" | ">=" | "<=" ){
+            if matches!(o.as_str(), | "*" | "/" |"-" |">" | "<" | ">=" | "<="){
                 if let Lit::F64(n) = left && let Lit::F64(n2) = right{ 
                     match o.as_str(){
                         "*" => return Ok(Lit::F64(n*n2)),
@@ -347,6 +347,7 @@ fn evaluate(val: Expr) -> Result<Lit, String> {
                         "<"=>  return Ok(Lit::Bool(n<n2)),
                         ">="=>  return Ok(Lit::Bool(n>=n2)),
                         "<=" =>  return Ok(Lit::Bool(n<=n2)),
+                        _ => return Ok(Lit::Nil)
                     }
                 }else{
                     return Err("Operands must be numbers".to_string())
@@ -381,6 +382,7 @@ fn evaluate(val: Expr) -> Result<Lit, String> {
                         }
                         return Ok(Lit::Bool(true))
                     },
+                    _ => return Ok(Lit::Nil)
                 }
             }
         },
