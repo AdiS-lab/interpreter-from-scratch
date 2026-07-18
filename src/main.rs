@@ -217,9 +217,9 @@ fn tokenize(file_contents: String) -> (Vec<String>, Vec<String>) {
                         literal.push(new_ch);//abcd... 
                     }; 
                     if !lexeme.ends_with('"'){
-                        eresult.push(format!("[line {}] Error: Unterminated string.,", new_line));
+                        eresult.push(format!("[line {}] Error: Unterminated string.", new_line));
                     }else{
-                         result.push(format!("STRING {} {},", lexeme, literal)); 
+                         result.push(format!("STRING {} {}", lexeme, literal)); 
                     }
                 },
                 ';' => result.push("SEMICOLON ; null,".to_string()),
@@ -271,7 +271,7 @@ fn tokenize(file_contents: String) -> (Vec<String>, Vec<String>) {
                             }
                         };
                         if let Ok(value) = literal.parse::<f64>(){
-                            result.push(format!("NUMBER {} {:?},", literal, value));
+                            result.push(format!("NUMBER {} {:?}", literal, value));
                         };
                         
                     }else if ch == '_' || ch.is_ascii_alphabetic(){ //creating identifiers
@@ -286,13 +286,13 @@ fn tokenize(file_contents: String) -> (Vec<String>, Vec<String>) {
 
                         if res_words.contains_key(&*identifier){
                             let reference = res_words[&*identifier];
-                            result.push(format!("{} {} null,", reference, identifier));
+                            result.push(format!("{} {} null", reference, identifier));
 
                         }else{
-                            result.push(format!("IDENTIFIER {} null,", identifier));
+                            result.push(format!("IDENTIFIER {} null", identifier));
                         }
                     }else{
-                        eresult.push(format!("[line {}] Error: Unexpected character: {},", new_line, ch));
+                        eresult.push(format!("[line {}] Error: Unexpected character: {}", new_line, ch));
                     }
                 }
             } // match ends. 
