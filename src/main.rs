@@ -9,9 +9,27 @@ struct Parser{
     tokens: Vec<String>,
     current: usize
 }
-// peek would look at current without incrementing
-// consuming would just iterate it
-// can reference current + 1 and current - 1
+// enum is saying anything of this defined type is allowed. 
+// when populating 
+
+enum Expr{
+    Binary(Box<Expr>, String, Box<Expr>),
+    Unary(String, Box<Expr>),
+    Grouping(Box<Expr>),
+    Literal(Lit),
+}
+
+type Lit{
+    String,
+    Bool,
+    nil,
+    f64,
+}
+
+
+// Some v None => wrapping data in an an enum such that one can discern if that data is there or not. if not there 
+// would manifest in...
+// Ok v Err
 
 impl Parser{
     fn equality(&mut self) -> Result<String, String> {
@@ -20,24 +38,29 @@ impl Parser{
         if matches!(tk_type.as_str(), "BANG_EQUAL" | "EQUAL_EQUAL"){
             let operator = self.consume(); // operator = String
             let right = self.comparison()?; // loop
-            return Ok(format!("({} {} {})", operator, left, right));
+            // return Ok(format!("({} {} {})", operator, left, right));
+            return Ok(Expr::Binary(Box::new(left), operator, Box::new(right)))
         }else{
+            // return Ok(left)
             return Ok(left)
         };
     }
 
     fn comparison(&mut self) -> Result<String, String>{
-        let mut built_str = self.add()?;
+        let mut left = self.add()?;
         let mut tk_type = self.peek();
 
         while matches! (tk_type.as_str(), "GREATER_EQUAL" | "GREATER" |  "LESS" | "LESS_EQUAL"){
             let operator = self.consume();
             let right = self.add()?;
-
-            built_str = format!("({} {} {})", operator, built_str, right);
+            // built_str = format!("({} {} {})", operator, built_str, right);
+            left = Expr::Binary(Box::new(left), operator, Box::new(right))
             tk_type = self.peek();
         };
-        return Ok(built_str)
+        // return Ok(built_str)
+        return Ok(left)
+        
+        
     }
 
     fn add(&mut self) -> Result<String, String>{
@@ -46,20 +69,22 @@ impl Parser{
         while matches!(tk_type.as_str(), "PLUS" | "MINUS"){ 
             let operator = self.consume();
             let right = self.mult()?; 
-            built_str = format!("({} {} {})", operator, built_str, right); // if mult (/ (* 3 2 ) 5)
+            // built_str = format!("({} {} {})", operator, built_str, right); // if mult (/ (* 3 2 ) 5)
+            left = Expr::Binary(Box::new(left), operator, Box::new(right))
             tk_type = self.peek();
         }
         return Ok(built_str)
     }
 
     fn mult(&mut self) -> Result<String, String>{
-        let mut built_str = self.unary()?; //  num or String
+        let mut left = self.unary()?; //  num or String
         let mut tk_type = self.peek();
 
         while matches!(tk_type.as_str(), "STAR" | "SLASH"){
             let operator = self.consume(); // * 
             let right = self.unary()?; // num or String
-            built_str = format!("({} {} {})", operator, built_str, right);
+            // built_str = format!("({} {} {})", operator, built_str, right);
+            left = Expr::Binary(Box::new(left), operator, Box::new(right))
             tk_type = self.peek();
         }
         return Ok(built_str)
@@ -68,15 +93,21 @@ impl Parser{
     fn unary(&mut self) -> Result<String, String>{
         let mut tk_type = self.peek();
         if matches!(tk_type.as_str(), "MINUS" | "BANG"){
-            let mut build_str = String::new();
-            while matches!(tk_type.as_str(), "MINUS" | "BANG"){
-                let operator = self.consume();     
-                let right = self.literal()?; // if error will just propogate up. if not then return an OK. so can unwrap right. 
-                build_str.push_str(&format!("({} {})", operator, right)); // should be ! then ! then true
-                tk_type = self.peek();
-            } 
-            return Ok(build_str)
+            let operator = self.consume();
+            let right = self.literal()?;
+            // let mut build_str = String::new();
+            let mut unary = Expr::Unary(operator, Box::new(right))
+            return Ok(unary)
         }
+        // while matches!(tk_type.as_str(), "MINUS" | "BANG"){
+        //     let operator = self.consume();     
+        //     let right = self.literal()?; // if error will just propogate up. if not then return an OK. so can unwrap right. 
+        //     // build_str.push_str(&format!("({} {})", operator, right)); // should be ! then ! then true
+        //     left = Expr::Unary(operator, new(right))
+        //     tk_type = self.peek();
+        // } 
+        // // return Ok(build_str)
+        // return left
         let result = self.literal()?;
         return Ok(result)
     }
@@ -86,16 +117,18 @@ impl Parser{
         let tk_type = self.peek();
         if matches!(tk_type.as_str(), "NUMBER" | "TRUE" | "FALSE" |  "NIL" |  "STRING"){
             let result = self.consume();
-            return Ok(result)
+            // return Ok(result)
+            return Ok(Expr::Literal(result))
         }else if matches!(tk_type.as_str(), "BANG" | "MINUS"){
             let result = self.unary()?;
-            return Ok(result)
+            return Ok(result) // will  be a Unary expr
         }else if matches!(tk_type.as_str(), "LEFT_PAREN"){
-            let middle = "(group";
+            // let middle = "(group";
             _ = self.consume(); // consumes (
-            let right = self.equality()?; // gets String, will throw inside if no ending
-            let curr = self.consume(); // consume )
-            return Ok(format!("{} {})", middle, right))
+            let right = self.equality()?;
+            let curr = self.consume(); 
+            // return Ok(format!("{} {})", middle, right))
+            return Ok(right)
         }else{
             //assuming that will never be PAST EOF
             return Err( format!("[line 1] Error at '{}': Expect expression.", self.consume() )) // when reaching end 
@@ -320,9 +353,9 @@ fn main() -> ExitCode {
 
             return ExitCode::from(0)
            
-        },"parse" => { // iterator. 
-            let (token_str, err_str) = tokenize(file_contents); // NUMBER 50 50.0, EOF null
-            let tokens: Vec<String>= token_str.split(",").map(|s| s.to_string()).collect(); // ["NUMBER 50 50.0 ", "EOF null"]
+        },"parse" => {
+            let (token_str, err_str) = tokenize(file_contents); 
+            let tokens: Vec<String>= token_str.split(",").map(|s| s.to_string()).collect(); 
             if token_str.len() == 1{
                 return ExitCode::from(65)
             }
@@ -332,19 +365,21 @@ fn main() -> ExitCode {
                 Err(e) => {
                     eprintln!("{}", e);
                     return ExitCode::from(65)
-                } // pass this inside 
+                }  
             };
             return ExitCode::from(0)
         }, "evaluate" =>{
             let (token_str, err_str) = tokenize(file_contents); // NUMBER 50 50.0, EOF null
             let tokens: Vec<String>= token_str.split(",").map(|s| s.to_string()).collect(); // ["NUMBER 50 50.0 ", "EOF null"]
             let mut parser = Parser{tokens, current: 0};
-            let result = match parser.equality(){
-                Ok(val) => println!("{}", val),
+            let result = match parser.equality(){ 
+                Ok(val) => {
+                    println!("{}", val)
+                },
                 Err(e) => {
                     eprintln!("{}", e);
                     return ExitCode::from(65)
-                } // pass this inside 
+                } 
             };
             return ExitCode::from(0)
         },
