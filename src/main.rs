@@ -459,7 +459,7 @@ fn main() -> ExitCode {
                         }
                         Err(err) =>{
                             eprintln!("{}", err);
-                            return ExitCode::from(75)
+                            return ExitCode::from(70)
                         }
                     };
                 },
