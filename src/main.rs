@@ -31,10 +31,6 @@ enum Lit{
 // would manifest in...
 // Ok v Errs
 
-impl Debug for Expr{
-    println!("hello");
-}
-
 impl Parser{
     fn equality(&mut self) -> Result<Expr, String> {
         let left = self.comparison()?;
@@ -122,16 +118,16 @@ impl Parser{
         if matches!(tk_type.as_str(), "NUMBER" | "NIL"){
             let result = self.consume();
             let n: f64= result.parse().unwrap();
-            return Ok(Expr::Literal::Lit::F64(result))
+            return Ok(Expr::Literal(Lit::F64(result)))
 
         }else if matches!(tk_type.as_str(), "STRING"){
             let result = self.consume();
-            return Ok(Expr::Literal::Lit::String(result))
+            return Ok(Expr::Literal(Lit::String(result)))
 
         }else if matches!(tk_type.as_str(), "TRUE" | "FALSE"){
             let result = self.consume();
             let b: bool = result.parse().unwrap();
-            return Ok(Expr::Literal::Lit::Bool(result))
+            return Ok(Expr::Literal(Lit::Bool(result)))
 
         }else if matches!(tk_type.as_str(), "BANG" | "MINUS"){
             let result = self.unary()?;
