@@ -32,7 +32,7 @@ enum Lit{
 // Ok v Err
 
 impl Parser{
-    fn equality(&mut self) -> Result<String, String> {
+    fn equality(&mut self) -> Result<Expr, String> {
         let left = self.comparison()?;
         let tk_type = self.peek(); // &str
         if matches!(tk_type.as_str(), "BANG_EQUAL" | "EQUAL_EQUAL"){
@@ -42,11 +42,11 @@ impl Parser{
             return Ok(Expr::Binary(Box::new(left), operator, Box::new(right)))
         }else{
             // return Ok(left)
-            return left
+            return Ok(left)
         };
     }
 
-    fn comparison(&mut self) -> Result<String, String>{
+    fn comparison(&mut self) -> Result<Expr, String>{
         let mut left = self.add()?;
         let mut tk_type = self.peek();
 
@@ -63,7 +63,7 @@ impl Parser{
         
     }
 
-    fn add(&mut self) -> Result<String, String>{
+    fn add(&mut self) -> Result<Expr, String>{
         let mut built_str = self.mult()?; // starts as left
         let mut tk_type = self.peek();
         while matches!(tk_type.as_str(), "PLUS" | "MINUS"){ 
@@ -76,7 +76,7 @@ impl Parser{
         return Ok(built_str)
     }
 
-    fn mult(&mut self) -> Result<String, String>{
+    fn mult(&mut self) -> Result<Expr, String>{
         let mut left = self.unary()?; //  num or String
         let mut tk_type = self.peek();
 
@@ -90,14 +90,14 @@ impl Parser{
         return Ok(left)
     }
 
-    fn unary(&mut self) -> Result<String, String>{
+    fn unary(&mut self) -> Result<Expr, String>{
         let mut tk_type = self.peek();
         if matches!(tk_type.as_str(), "MINUS" | "BANG"){
             let operator = self.consume();
             let right = self.literal()?;
             // let mut build_str = String::new();
             let mut unary = Expr::Unary(operator, Box::new(right));
-            return unary
+            return Ok(unary)
         }
         // while matches!(tk_type.as_str(), "MINUS" | "BANG"){
         //     let operator = self.consume();     
@@ -109,11 +109,11 @@ impl Parser{
         // // return build_str)
         // return left
         let result = self.literal()?;
-        return result
+        return OK(result)
     }
 
     // has to be a Result, and then unary will catch immediately through question mark. 
-    fn literal(&mut self) -> Result<String, String> { 
+    fn literal(&mut self) -> Result<Expr, String> { 
         let tk_type = self.peek();
         if matches!(tk_type.as_str(), "NUMBER" | "TRUE" | "FALSE" |  "NIL" |  "STRING"){
             let result = self.consume();
