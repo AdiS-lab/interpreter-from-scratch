@@ -116,7 +116,6 @@ impl Parser{
             let f: f64 = self.consume().parse().unwrap();
             return Ok(Expr::Literal(Lit::F64(f)))
         }else if matches!(tk_type.as_str(), "STRING"){
-            println!("{:?}", curr_tok);
             let s =  curr_tok.split('"').nth(1).unwrap().to_string(); // &str --> String
             self.current += 1;
             return Ok(Expr::Literal(Lit::String(s)))
