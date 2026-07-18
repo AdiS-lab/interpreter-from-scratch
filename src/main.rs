@@ -155,8 +155,6 @@ impl Parser{
 }
 
 
-
-
 fn tokenize(file_contents: String) -> (String, String) {
     let mut result = String::new();
     let mut eresult = String::new();
@@ -310,6 +308,25 @@ fn tokenize(file_contents: String) -> (String, String) {
 
 
 
+fn parse(val: Expr) -> String {
+    match val{
+        Expr::Literal(lit) => {
+            if let Lit::F64(f) = lit { 
+               return format!("{:?}", f);
+            }else if let Lit::String(s) = lit{
+               return format!("{}", s);
+            }else if let Lit::Bool(b) = lit{
+               return format!("{}", b);
+            }
+        },
+        Expr::Binary(l , o, r) =>return format!("({} {:?} {})", o, parse(*l), parse(*r)),
+        Expr::Unary(l, r) =>return format!("({}, {})", l, parse(*r)),
+        Expr::Grouping(l) =>return format!("(group {:?})", parse(*l)),
+        _ =>return "other".to_string()
+    };    
+    return "".to_string()
+}
+
 
 fn main() -> ExitCode {
     let args: Vec<String> = env::args().collect();
@@ -356,7 +373,10 @@ fn main() -> ExitCode {
             }
             let mut parser = Parser{tokens, current: 0};
             let result = match parser.equality(){
-                Ok(val) => println!("{:?}", val),
+                Ok(val) => {
+                    let tree_str: String = parse(val);
+                    println!("{}", tree_str);
+                }
                 Err(e) => {
                     eprintln!("{}", e);
                     return ExitCode::from(65)
