@@ -118,7 +118,7 @@ impl Parser{
         if matches!(tk_type.as_str(), "NUMBER" | "TRUE" | "FALSE" |  "NIL" |  "STRING"){
             let result = self.consume();
             // return Ok(result)
-            return Ok(Expr::Literal(Lit::(result)))
+            return Ok(Expr::Literal(Lit(result)))
         }else if matches!(tk_type.as_str(), "BANG" | "MINUS"){
             let result = self.unary()?;
             return Ok(result) // will  be a Unary expr
@@ -374,7 +374,7 @@ fn main() -> ExitCode {
             let mut parser = Parser{tokens, current: 0};
             let result = match parser.equality(){ 
                 Ok(val) => {
-                    println!("{}", val)
+                    println!("{:?}", val)
                 },
                 Err(e) => {
                     eprintln!("{}", e);
