@@ -333,39 +333,39 @@ fn parse(val: Expr) -> String {
 // strings only have equations and + operations
 fn evaluate(val: Expr) -> Result<Lit, String> { 
     match val{
-        Expr::Literal(lit) => return lit,
+        Expr::Literal(lit) => return Ok(lit),
         Expr::Binary(l , o, r) =>{
             let left: Lit = evaluate(*l)?; // always unpack
             let right: Lit = evaluate(*r)?;
             if let Lit::F64(n) = left && let Lit::F64(n2) = right{ // arithmetic, but have to check if == as well
                 match o.as_str() {
-                    "*" => return Lit::F64(n*n2),
-                    "/"=> return Lit::F64(n/n2), 
-                    "+" =>return Lit::F64(n+n2) ,
-                    "-" =>return Lit::F64(n-n2),
-                    ">" => return Lit::Bool(n>n2),
-                    "<"=>  return Lit::Bool(n<n2),
-                    ">="=>  return Lit::Bool(n>=n2), 
-                    "<="=>   return Lit::Bool(n<=n2),
-                    "==" => return Lit::Bool(n==n2),
-                    "!="=>  return Lit::Bool(n!=n2),   
-                    _=> return Lit::Nil
+                    "*" => return Ok(Lit::F64(n*n2)),
+                    "/"=> return Ok(Lit::F64(n/n2)), 
+                    "+" =>return Ok(Lit::F64(n+n2)),
+                    "-" =>return Ok(Lit::F64(n-n2)),
+                    ">" => return Ok(Lit::Bool(n>n2)),
+                    "<"=>  return Ok(Lit::Bool(n<n2)),
+                    ">="=>  return Ok(Lit::Bool(n>=n2)), 
+                    "<="=>   return Ok(Lit::Bool(n<=n2)),
+                    "==" => return Ok(Lit::Bool(n==n2)),
+                    "!="=>  return Ok(Lit::Bool(n!=n2)),   
+                    _=> return Ok(Lit::Nil)
                 }
             }else if let Lit::Bool(b) = left && let Lit::Bool(b2) = right{
                 match o.as_str() {
-                    "==" => return Lit::Bool(b==b2),
-                    "!="=>  return Lit::Bool(b!=b2),   
-                    _=> return Lit::Nil
+                    "==" => return Ok(Lit::Bool(b==b2)),
+                    "!="=>  return Ok(Lit::Bool(b!=b2)),   
+                    _=> return Ok(Lit::Nil)
                 }                
             }else if let Lit::String(s) = left && let Lit::String(s2) = right{
                 match o.as_str() {
-                    "+" => return Lit::String(format!("{}{}", s, s2)),
-                    "==" => return Lit::Bool(s==s2),
-                    "!="=>  return Lit::Bool(s!=s2),  
-                    _=> return Lit::Nil
+                    "+" => return Ok(Lit::String(format!("{}{}", s, s2))),
+                    "==" => return Ok(Lit::Bool(s==s2)),
+                    "!="=>  return Ok(Lit::Bool(s!=s2)),  
+                    _=> return Ok(Lit::Nil)
                 }
             }else{
-                return Lit::Bool(false)
+                return Ok(Lit::Bool(false))
             }
         },
         Expr::Unary(l, r) => {
@@ -373,19 +373,19 @@ fn evaluate(val: Expr) -> Result<Lit, String> {
             match l.as_str(){
                 "!"=> {
                     if let Lit::Bool(b) = right{
-                        return Lit::Bool(!b)
-                    }else if let Lit::Nil = right   {
-                        return Lit::Bool(true)
+                        return Ok(Lit::Bool(!b))
+                    }else if let Lit::Nil = right{
+                        return Ok(Lit::Bool(true))
                     }
                     return Err("line[1] operand must be a something".to_string())
                 },
                 "-" => {
                     if let Lit::F64(f) = right{
-                        return Lit::F64(-1.0 * f)
+                        return Ok(Lit::F64(-1.0 * f))
                     }
                     return Err("line[1] Operand must be a number.".to_string())
                 },
-                _=> return Lit::Nil
+                _=> return Ok(Lit::Nil)
             }
         }
         Expr::Grouping(l) => {
