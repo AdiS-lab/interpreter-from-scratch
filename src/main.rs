@@ -29,7 +29,11 @@ enum Lit{
 
 // Some v None => wrapping data in an an enum such that one can discern if that data is there or not. if not there 
 // would manifest in...
-// Ok v Err
+// Ok v Errs
+
+impl Debug for Expr{
+    println!("hello");
+}
 
 impl Parser{
     fn equality(&mut self) -> Result<Expr, String> {
@@ -117,17 +121,17 @@ impl Parser{
         let tk_type = self.peek();
         if matches!(tk_type.as_str(), "NUMBER" | "NIL"){
             let result = self.consume();
-            let num = result.unwrap().parse();
-            return Ok(Expr::Literal(Lit::F64(result)))
+            let n: f64= result.parse().unwrap();
+            return Ok(Expr::Literal::Lit::F64(result))
 
         }else if matches!(tk_type.as_str(), "STRING"){
             let result = self.consume();
-            return Ok(Expr::Literal(Lit::String(result)))   
+            return Ok(Expr::Literal::Lit::String(result))
 
         }else if matches!(tk_type.as_str(), "TRUE" | "FALSE"){
             let result = self.consume();
-            let num = result.unwrap().parse();
-            return Ok(Expr::Literal(Lit::Bool(result)))
+            let b: bool = result.parse().unwrap();
+            return Ok(Expr::Literal::Lit::Bool(result))
 
         }else if matches!(tk_type.as_str(), "BANG" | "MINUS"){
             let result = self.unary()?;
@@ -151,7 +155,7 @@ impl Parser{
         let &tk_type = tk_arr.get(0).unwrap();
 
         if tk_type == "STRING"{
-            self.current += 1
+            self.current += 1;
             return curr_tok.split('"').nth(1).unwrap().to_string() // &str --> String
         }else if tk_type == "NUMBER" && self.tokens.len() > 2 { 
             self.current += 1;
