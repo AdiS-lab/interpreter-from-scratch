@@ -145,7 +145,7 @@ impl Parser{
         }
     } 
 
-    fn consume(&mut self) -> Expr {
+    fn consume(&mut self) -> String {
         let curr_tok = self.tokens[self.current].to_string();
         let tk_arr: Vec<&str> = curr_tok.split(" ").collect(); // Vec<&str>
         let &tk_type = tk_arr.get(0).unwrap();
