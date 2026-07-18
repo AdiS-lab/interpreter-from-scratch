@@ -98,7 +98,7 @@ impl Parser{
             let operator = self.consume();
             let right = self.literal()?;
             // let mut build_str = String::new();
-            let mut unary = Expr::Unary(operator, Box::new(right));
+            let unary = Expr::Unary(operator, Box::new(right));
             return Ok(unary)
         }
         // while matches!(tk_type.as_str(), "MINUS" | "BANG"){
@@ -385,12 +385,15 @@ fn main() -> ExitCode {
             let tokens: Vec<String>= token_str.split(",").map(|s| s.to_string()).collect(); // ["NUMBER 50 50.0 ", "EOF null"]
             let mut parser = Parser{tokens, current: 0};
             let result = match parser.equality(){ 
-                Ok(val) => {
-                    println!("{:?}", val)
+                Ok(val) => { // what is a moved value, w
+                    match val{
+                        Expr::Literal(lit) => println!("{:?}", lit),
+                        _ => println!("other")
+                    };
                 },
                 Err(e) => {
                     eprintln!("{}", e);
-                    return ExitCode::from(65)
+                    return ExitCode::from(65) 
                 } 
             };
             return ExitCode::from(0)
