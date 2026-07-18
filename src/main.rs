@@ -115,7 +115,6 @@ impl Parser{
 
         let curr_tok = self.tokens[self.current].to_string();
         let tk_arr: Vec<&str> = curr_tok.split(" ").collect(); // Vec<&str>
-
         if matches!(tk_type.as_str(), "NUMBER"){
             let f: f64 =  self.consume().parse().unwrap();
             return Ok(Expr::Literal(Lit::F64(f)))
@@ -128,7 +127,7 @@ impl Parser{
             return Ok(Expr::Literal(Lit::Bool(b)))
         }else if matches!(tk_type.as_str(), "NIL"){
             let s: String= self.consume();
-            return Ok(Expr::Literal(Lit::String(s)))
+            return Ok(Expr::Literal(Lit::Nil))
         }else if matches!(tk_type.as_str(), "BANG" | "MINUS"){
             let result: Expr = self.unary()?;
             return Ok(result)
@@ -319,6 +318,8 @@ fn parse(val: Expr) -> String {
                return format!("{}", s);
             }else if let Lit::Bool(b) = lit{
                return format!("{}", b);
+            }else if let Lit::Nil = lit{
+                return "nil".to_string()
             }
         },
         Expr::Binary(l , o, r) =>return format!("({} {} {})", o, parse(*l), parse(*r)),
@@ -369,6 +370,8 @@ fn evaluate(val: Expr) -> Lit {
                 "!"=> {
                     if let Lit::Bool(b) = right{
                         return Lit::Bool(!b)
+                    }else if let Lit::Nil = right   {
+                        return Lit::Bool(true)
                     }
                     return Lit::Nil
                 },
@@ -385,7 +388,6 @@ fn evaluate(val: Expr) -> Lit {
             return evaluate(*l)
         }
     };    
-    return Lit::Nil
 }
 
 fn main() -> ExitCode {
