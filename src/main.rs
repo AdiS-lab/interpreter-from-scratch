@@ -387,7 +387,11 @@ fn main() -> ExitCode {
             let result = match parser.equality(){ 
                 Ok(val) => { // what is a moved value, w
                     match val{
-                        Expr::Literal(lit) => println!("{:?}", lit),
+                        Expr::Literal(lit) => {
+                            if matches!(lit, Lit::F64(n)) {
+                                println!("{:?}", lit)
+                            }
+                        },
                         _ => println!("other")
                     };
                 },
