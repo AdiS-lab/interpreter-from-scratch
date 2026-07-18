@@ -155,10 +155,7 @@ impl Parser{
 }
 
 
-fn tokenize(file_contents: String) -> (String, String) {
-    let mut result = String::new();
-    let mut eresult = String::new();
-
+fn tokenize(file_contents: String) -> (Vec<String>, Vec<String>) {
     let res_words = HashMap::from([
         ("and", "AND" ),
         ("class", "CLASS"),
@@ -178,22 +175,25 @@ fn tokenize(file_contents: String) -> (String, String) {
         ("while", "WHILE"),
     ]);
     let mut str_iter = file_contents.chars().peekable();
-    let mut new_line = 1; //  have to do something with this that allows the next thing to see it
+    let mut new_line: i32 = 1; //  have to do something with this that allows the next thing to see it
+    let mut result:Vec<String> = Vec::new();
+    let mut eresult:Vec<String> = Vec::new();
+
 
     if !file_contents.is_empty() {
         while let Some(ch) = str_iter.next() { // Option<char>
             match ch {
-                '(' => result.push_str("LEFT_PAREN ( null,"),
-                ')' => result.push_str("RIGHT_PAREN ) null,"),
-                '{' => result.push_str( "LEFT_BRACE { null,"),
-                '}'=> result.push_str("RIGHT_BRACE } null,"),
-                '.' => result.push_str("DOT . null,"),
-                ',' => result.push_str("COMMA , null,"),
-                '+' => result.push_str("PLUS + null,"),
-                '*'=> result.push_str("STAR * null,"),
-                '-' => result.push_str("MINUS - null,"),
+                '(' => result.push("LEFT_PAREN ( null".to_string()),
+                ')' => result.push("RIGHT_PAREN ) null".to_string()),
+                '{' => result.push( "LEFT_BRACE { null".to_string()),
+                '}'=> result.push("RIGHT_BRACE } null".to_string()),
+                '.' => result.push("DOT . null".to_string()),
+                ',' => result.push("COMMA , null".to_string()),
+                '+' => result.push("PLUS + null".to_string()),
+                '*'=> result.push("STAR * null".to_string()),
+                '-' => result.push("MINUS - null".to_string()),
                 '/' => {
-                    if str_iter.peek() == Some(&'/'){  
+                    if str_iter.peek() == Some(&'/'){
                         while let Some(new_ch) = str_iter.next(){
                             if new_ch == '\n'{
                                 new_line+=1;
@@ -201,7 +201,7 @@ fn tokenize(file_contents: String) -> (String, String) {
                             }
                         };
                     }else{  
-                        result.push_str("SLASH / null,");
+                        result.push("SLASH / null".to_string());
                     }
                 },
                 '"' => {
@@ -215,45 +215,44 @@ fn tokenize(file_contents: String) -> (String, String) {
                         };
                         lexeme.push(new_ch);// "abcd...
                         literal.push(new_ch);//abcd... 
-                    }; // once reaching None, will have the strings. 
+                    }; 
                     if !lexeme.ends_with('"'){
-                        eresult.push_str(&format!("[line {}] Error: Unterminated string.,", new_line));
+                        eresult.push(format!("[line {}] Error: Unterminated string.,", new_line));
                     }else{
-                        // result.push_str(&format!("STRING {} {},", lexeme, literal));
-                         result.push_str(&format!("STRING {} {},", lexeme, literal)); // literal. 
+                         result.push(format!("STRING {} {},", lexeme, literal)); 
                     }
                 },
-                ';' => result.push_str("SEMICOLON ; null,"),
+                ';' => result.push("SEMICOLON ; null,".to_string()),
                 '=' => {
                     if str_iter.peek() == Some(&'='){ // does NOT consume the next value. & finds address of equal, * refrences the address created by &
                         let _: Option<char> = str_iter.next();
-                        result.push_str("EQUAL_EQUAL == null,");
+                        result.push("EQUAL_EQUAL == null".to_string());
                     }else{  
-                        result.push_str("EQUAL = null,");
+                        result.push("EQUAL = null".to_string());
                     }
                 },
                 '!' => {
                     if str_iter.peek() == Some(&'='){ 
                         let _: Option<char> = str_iter.next();
-                        result.push_str("BANG_EQUAL != null,");
+                        result.push("BANG_EQUAL != null".to_string());
                     }else{  
-                        result.push_str("BANG ! null,");
+                        result.push("BANG ! null".to_string());
                     }
                 }
                 '>' => {
                     if str_iter.peek() == Some(&'='){ 
                         let _: Option<char> = str_iter.next();
-                        result.push_str("GREATER_EQUAL >= null,");
+                        result.push("GREATER_EQUAL >= null".to_string());
                     }else{  
-                        result.push_str("GREATER > null,");
+                        result.push("GREATER > null".to_string());
                     }
                 },
                 '<' => {
                     if str_iter.peek() == Some(&'='){ // automatically derefences equal, so chars are compared. 
                         let _: Option<char> = str_iter.next();
-                        result.push_str("LESS_EQUAL <= null,");
+                        result.push("LESS_EQUAL <= null".to_string());
                     }else{  
-                        result.push_str("LESS < null,");
+                        result.push("LESS < null".to_string());
                     }
                 },
                 ' ' | '\t' =>{},
@@ -272,7 +271,7 @@ fn tokenize(file_contents: String) -> (String, String) {
                             }
                         };
                         if let Ok(value) = literal.parse::<f64>(){
-                            result.push_str(&format!("NUMBER {} {:?},", literal, value));
+                            result.push(format!("NUMBER {} {:?},", literal, value));
                         };
                         
                     }else if ch == '_' || ch.is_ascii_alphabetic(){ //creating identifiers
@@ -287,22 +286,21 @@ fn tokenize(file_contents: String) -> (String, String) {
 
                         if res_words.contains_key(&*identifier){
                             let reference = res_words[&*identifier];
-                            // result.push_str(&format!("{} {} null,", reference, identifier));
-                            result.push_str(&format!("{} {} null,", reference, identifier));
+                            result.push(format!("{} {} null,", reference, identifier));
 
                         }else{
-                            result.push_str(&format!("IDENTIFIER {} null,", identifier));
+                            result.push(format!("IDENTIFIER {} null,", identifier));
                         }
                     }else{
-                        eresult.push_str(&format!("[line {}] Error: Unexpected character: {},", new_line, ch));
+                        eresult.push(format!("[line {}] Error: Unexpected character: {},", new_line, ch));
                     }
                 }
             } // match ends. 
         }// while ends
-        result.push_str("EOF  null"); 
+        result.push("EOF  null".to_string()); 
         return (result, eresult)
     }// if ends
-    result.push_str("EOF null");
+    result.push("EOF null".to_string());
     return (result, eresult)
 }
 
@@ -360,31 +358,26 @@ fn main() -> ExitCode {
 
     match command.as_str() {
         "tokenize" =>{
-            let (token_str, err_str) = tokenize(file_contents);
-            let tokens: Vec<String>= token_str.split(",").map(|s| s.to_string()).collect(); 
-        
-            for i in &tokens{
+            let (tokens , err) = tokenize(file_contents);
+            for i in &tokens{ // reference rather than borrowing it
                 println!("{}", i);
             };
-
-            if !err_str.is_empty() {
-                let etokens: Vec<String>= err_str.split(",").map(|s| s.to_string()).collect();
-                for j in &etokens{
+            if !err.is_empty() {
+                for j in err{
                    eprintln!("{}", j);
                 };
                 return ExitCode::from(65)
             };
 
-            if token_str.len() == 1{
+            if tokens.len() == 1{
                 return ExitCode::from(1)
             };
 
             return ExitCode::from(0)
            
         },"parse" => {
-            let (token_str, err_str) = tokenize(file_contents); 
-            let tokens: Vec<String>= token_str.split(",").map(|s| s.to_string()).collect(); 
-            if token_str.len() == 1{
+            let (tokens, err_str) = tokenize(file_contents); 
+            if tokens.len() == 1{
                 return ExitCode::from(65)
             }
 
@@ -401,8 +394,7 @@ fn main() -> ExitCode {
             };
             return ExitCode::from(0)
         }, "evaluate" => {
-            let (token_str, err_str) = tokenize(file_contents); // NUMBER 50 50.0, EOF null
-            let tokens: Vec<String>= token_str.split(",").map(|s| s.to_string()).collect(); // ["NUMBER 50 50.0 ", "EOF null"]
+            let (tokens, err_str) = tokenize(file_contents); // NUMBER 50 50.0, EOF null
             let mut parser = Parser{tokens, current: 0};
             let result = match parser.equality(){ 
                 Ok(val) => { // what is a moved value, w
