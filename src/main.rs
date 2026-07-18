@@ -185,8 +185,8 @@ fn tokenize(file_contents: String) -> (String, String) {
             match ch {
                 '(' => result.push_str("LEFT_PAREN ( null,"),
                 ')' => result.push_str("RIGHT_PAREN ) null,"),
-                '{' => result.push_str("LEFT_BRACE {{ null,"),
-                '}'=> result.push_str("RIGHT_BRACE }} null,"),
+                '{' => result.push_str( "LEFT_BRACE { null,"),
+                '}'=> result.push_str("RIGHT_BRACE } null,"),
                 '.' => result.push_str("DOT . null,"),
                 ',' => result.push_str("COMMA , null,"),
                 '+' => result.push_str("PLUS + null,"),
@@ -326,6 +326,24 @@ fn parse(val: Expr) -> String {
     return "".to_string()
 }
 
+// fn evaluate(val: Expr) -> String { 
+//     match val{
+//         Expr::Literal(lit) => {
+//             if let Lit::F64(f) = lit { 
+//                return format!("{:?}", f);
+//             }else if let Lit::String(s) = lit{
+//                return format!("{}", s);
+//             }else if let Lit::Bool(b) = lit{
+//                return format!("{}", b);
+//             }
+//         },
+//         Expr::Binary(l , o, r) =>return format!("({} {} {})", o, parse(*l), parse(*r)),
+//         Expr::Unary(l, r) =>return format!("({} {})", l, parse(*r)),
+//         Expr::Grouping(l) =>return format!("(group {})", parse(*l)),
+//     };    
+//     return "".to_string()
+// }
+
 fn main() -> ExitCode {
     let args: Vec<String> = env::args().collect();
     if args.len() < 3 {
@@ -369,6 +387,7 @@ fn main() -> ExitCode {
             if token_str.len() == 1{
                 return ExitCode::from(65)
             }
+
             let mut parser = Parser{tokens, current: 0};
             let result = match parser.equality(){
                 Ok(val) => {
