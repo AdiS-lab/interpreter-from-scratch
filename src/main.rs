@@ -28,6 +28,10 @@ enum Lit{
     F64(f64),
 }
 
+enum Eval {
+    
+}
+
 
 // Some v None => wrapping data in an an enum such that one can discern if that data is there or not. if not there 
 // would manifest in...
@@ -324,23 +328,65 @@ fn parse(val: Expr) -> String {
     return "".to_string()
 }
 
-// fn evaluate(val: Expr) -> String { 
-//     match val{
-//         Expr::Literal(lit) => {
-//             if let Lit::F64(f) = lit { 
-//                return format!("{:?}", f);
-//             }else if let Lit::String(s) = lit{
-//                return format!("{}", s);
-//             }else if let Lit::Bool(b) = lit{
-//                return format!("{}", b);
-//             }
-//         },
-//         Expr::Binary(l , o, r) =>return format!("({} {} {})", o, parse(*l), parse(*r)),
-//         Expr::Unary(l, r) =>return format!("({} {})", l, parse(*r)),
-//         Expr::Grouping(l) =>return format!("(group {})", parse(*l)),
-//     };    
-//     return "".to_string()
-// }
+fn evaluate(val: Expr) -> Lit { 
+    match val{
+        Expr::Literal(lit) => lit,
+        Expr::Binary(l , o, r) =>{
+            let left: Lit = evaluate(*l);
+            let right: Lit = evaluate(*r);
+            if let Lit::F64(n) = left && let Lit::F64(n2) = right{
+                match o.as_str() {
+                    "*" => return Lit::F64(n*n2),
+                    "/"=> return Lit::F64(n/n2), 
+                    "+" =>return Lit::F64(n+n2) ,
+                    "-" =>return Lit::F64(n-n2),
+                    _=> return Lit::Nil
+                }
+            }else if let Lit::Bool(b) = left && let Lit::Bool(b2) = right{
+                match o.as_str() {
+                    ">" => return Lit::Bool(b>b2),
+                    "<"=>  return Lit::Bool(b<b2),
+                    ">="=>  return Lit::Bool(b>=b2), 
+                    "<="=>   return Lit::Bool(b<=b2),
+                    "==" => return Lit::Bool(b==b2),
+                    "!="=>  return Lit::Bool(b!=b2),   
+                    _=> return Lit::Nil
+                }                
+            }else if let Lit::String(s) = left && let Lit::String(s2) = right{
+                match o.as_str() {
+                    "+" => {
+                        return Lit::String(format!("{}{}", s, s2))
+                    },
+                    _=> return Lit::Nil
+                }
+            }else{
+                return Lit::Nil
+            }
+        },
+        Expr::Unary(l, r) => {
+            let right = evaluate(*r);
+            match l.as_str(){
+                "!"=> {
+                    if let Lit::Bool(b) = right{
+                        return Lit::Bool(!b)
+                    }
+                    return Lit::Nil
+                },
+                "-" => {
+                    if let Lit::F64(f) = right{
+                        return Lit::F64(-1.0*f)
+                    }
+                    return Lit::Nil
+                },
+                _=> return Lit::Nil
+            }
+        }
+        Expr::Grouping(l) => {
+            return evaluate(*l)
+        }
+    };    
+    return Lit::Nil
+}
 
 fn main() -> ExitCode {
     let args: Vec<String> = env::args().collect();
@@ -392,21 +438,18 @@ fn main() -> ExitCode {
             let (tokens, err_str) = tokenize(file_contents); // NUMBER 50 50.0, EOF null
             let mut parser = Parser{tokens, current: 0};
             let result = match parser.equality(){ 
-                Ok(val) => { // what is a moved value, w
-                    match val{
-                        Expr::Literal(lit) => {
-                            if let Lit::F64(f) = lit { 
-                                println!("{}", f);
-                            }else if let Lit::String(s) = lit{
-                                println!("{}", s);
-                            }else if let Lit::Bool(b) = lit{
-                                println!("{}", b);
-                            }
-                        },
-                        Expr::Binary(l, o, r) => println!("{:?}", l),
-                        Expr::Unary(l, o) => println!("{:?}", l),
-                        Expr::Grouping(l) => println!("{:?}", l),
-                    };
+                Ok(val) => { 
+                    let res = evaluate(val);
+
+                    if let Lit::F64(n) = res{
+                        println!("{}", n);                    
+                    }else if let Lit::Bool(b) = res{
+                        println!("{}", b);                     
+                    }else if let Lit::String(s) = res{
+                        println!("{}", s);
+                    }else{
+                        println!("nil")
+                    }
                 },
                 Err(e) => {
                     eprintln!("{}", e);
