@@ -120,7 +120,7 @@ impl Parser{
         if matches!(tk_type.as_str(), "NUMBER" | "NIL"){
             let result = self.consume();
             let n: f64= result.parse().unwrap();
-            return Ok(Expr::Literal(Lit::F64(result)))
+            return Ok(Expr::Literal(Lit::F64(n)))
 
         }else if matches!(tk_type.as_str(), "STRING"){
             let result = self.consume();
@@ -129,7 +129,7 @@ impl Parser{
         }else if matches!(tk_type.as_str(), "TRUE" | "FALSE"){
             let result = self.consume();
             let b: bool = result.parse().unwrap();
-            return Ok(Expr::Literal(Lit::Bool(result)))
+            return Ok(Expr::Literal(Lit::Bool(b)))
 
         }else if matches!(tk_type.as_str(), "BANG" | "MINUS"){
             let result = self.unary()?;
@@ -140,7 +140,7 @@ impl Parser{
             let right = self.equality()?;
             let curr = self.consume(); 
             // return Ok(format!("{} {})", middle, right))
-            return Ok(right)    
+            return Ok(Expr::Grouping(Box::new(right)))    
         }else{
             //assuming that will never be PAST EOF
             return Err( format!("[line 1] Error at '{}': Expect expression.", self.consume() )) // when reaching end 
