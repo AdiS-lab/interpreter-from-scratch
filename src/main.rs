@@ -113,8 +113,11 @@ impl Parser{
         let tk_arr: Vec<&str> = curr_tok.split(" ").collect(); // Vec<&str>
 
         if matches!(tk_type.as_str(), "NUMBER" | "NIL"){
-            let f: f64 = self.consume().parse().unwrap();
-            return Ok(Expr::Literal(Lit::F64(f)))
+            if let Ok(f) = self.consume().parse::<f64>(){
+                return Ok(Expr::Literal(Lit::F64(f)))
+            }else{
+                return Err( format!("[line 1] Error at '{}': Expect expression.", self.consume() )) 
+            }
         }else if matches!(tk_type.as_str(), "STRING"){
             let s =  curr_tok.split('"').nth(1).unwrap().to_string(); // &str --> String
             self.current += 1;
