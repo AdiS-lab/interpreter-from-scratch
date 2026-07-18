@@ -328,44 +328,60 @@ fn parse(val: Expr) -> String {
     };    
     return "".to_string()
 }
-// numbers have arithmetic + all bool operations
-// bools have only equating operations
-// strings only have equations and + operations
+
+// have to check if it's string, f64, or bool
+
 fn evaluate(val: Expr) -> Result<Lit, String> { 
     match val{
         Expr::Literal(lit) => return Ok(lit),
         Expr::Binary(l , o, r) =>{
             let left: Lit = evaluate(*l)?; // always unpack
             let right: Lit = evaluate(*r)?;
-            if let Lit::F64(n) = left && let Lit::F64(n2) = right{ // arithmetic, but have to check if == as well
-                match o.as_str() {
-                    "*" => return Ok(Lit::F64(n*n2)),
-                    "/"=> return Ok(Lit::F64(n/n2)), 
-                    "+" =>return Ok(Lit::F64(n+n2)),
-                    "-" =>return Ok(Lit::F64(n-n2)),
-                    ">" => return Ok(Lit::Bool(n>n2)),
-                    "<"=>  return Ok(Lit::Bool(n<n2)),
-                    ">="=>  return Ok(Lit::Bool(n>=n2)), 
-                    "<="=>   return Ok(Lit::Bool(n<=n2)),
-                    "==" => return Ok(Lit::Bool(n==n2)),
-                    "!="=>  return Ok(Lit::Bool(n!=n2)),   
-                    _=> return Ok(Lit::Nil)
-                }
-            }else if let Lit::Bool(b) = left && let Lit::Bool(b2) = right{
-                match o.as_str() {
-                    "==" => return Ok(Lit::Bool(b==b2)),
-                    "!="=>  return Ok(Lit::Bool(b!=b2)),   
-                    _=> return Ok(Lit::Nil)
-                }                
-            }else if let Lit::String(s) = left && let Lit::String(s2) = right{
-                match o.as_str() {
-                    "+" => return Ok(Lit::String(format!("{}{}", s, s2))),
-                    "==" => return Ok(Lit::Bool(s==s2)),
-                    "!="=>  return Ok(Lit::Bool(s!=s2)),  
-                    _=> return Ok(Lit::Nil)
+            if matches!(o.as_str() | "*" | "/" |"-" |">" | "<" | ">=" | "<=" ){
+                if let Lit::F64(n) = left && let Lit::F64(n2) = right{ 
+                    match o.as_str(){
+                        "*" => return Ok(Lit::F64(n*n2)),
+                        "/"=> return Ok(Lit::F64(n/n2)),
+                        "-" => return Ok(Lit::F64(n-n2)),
+                        ">" => return Ok(Lit::Bool(n>n2)),
+                        "<"=>  return Ok(Lit::Bool(n<n2)),
+                        ">="=>  return Ok(Lit::Bool(n>=n2)),
+                        "<=" =>  return Ok(Lit::Bool(n<=n2)),
+                    }
+                }else{
+                    return Err("Operands must be numbers".to_string())
                 }
             }else{
-                return Ok(Lit::Bool(false))
+                match o.as_str(){
+                    "+" => {
+                        if let Lit::F64(n) = left && let Lit::F64(n2) = right{ 
+                            return Ok(Lit::F64(n+n2))
+                        }else if let Lit::String(s) = left && let Lit::String(s2) = right{
+                            return Ok(Lit::String(format!("{}{}",s,s2)))
+                        }
+                        return Err("Operands must be strings/numbers".to_string())
+                    },
+                    "==" => { // case would be anything
+                        if let Lit::F64(n) = left && let Lit::F64(n2) = right{
+                            return Ok(Lit::Bool(n==n2))
+                        }else if let Lit::Bool(b) = left && let Lit::Bool(b2) = right{
+                            return Ok(Lit::Bool(b==b2))
+                        }else if let Lit::String(s) = left && let Lit::String(s2) = right{
+                            return Ok(Lit::Bool(s==s2))
+                        }
+                        return Ok(Lit::Bool(false))
+                    },
+                    "!="=>  {
+                        if let Lit::F64(n) = left && let Lit::F64(n2) = right{
+                            return Ok(Lit::Bool(n!=n2))
+                        }else if let Lit::Bool(b) = left && let Lit::Bool(b2) = right{
+                            return Ok(Lit::Bool(b!=b2))
+                        }else if let Lit::String(s) = left && let Lit::String(s2) = right{
+                            return Ok(Lit::Bool(s!=s2))
+                        }
+                        return Ok(Lit::Bool(true))
+                    },
+                }
             }
         },
         Expr::Unary(l, r) => {
