@@ -22,8 +22,8 @@ enum Expr{
 enum Lit{
     String,
     Bool,
-    nil,
-    f64,
+    Nil,
+    F64,
 }
 
 
@@ -42,7 +42,7 @@ impl Parser{
             return Ok(Expr::Binary(Box::new(left), operator, Box::new(right)))
         }else{
             // return Ok(left)
-            return Ok(left)
+            return left
         };
     }
 
@@ -54,7 +54,7 @@ impl Parser{
             let operator = self.consume();
             let right = self.add()?;
             // built_str = format!("({} {} {})", operator, built_str, right);
-            left = Expr::Binary(Box::new(left), operator, Box::new(right))
+            left = Expr::Binary(Box::new(left), operator, Box::new(right));
             tk_type = self.peek();
         };
         // return Ok(built_str)
@@ -70,7 +70,7 @@ impl Parser{
             let operator = self.consume();
             let right = self.mult()?; 
             // built_str = format!("({} {} {})", operator, built_str, right); // if mult (/ (* 3 2 ) 5)
-            left = Expr::Binary(Box::new(left), operator, Box::new(right))
+            left = Expr::Binary(Box::new(left), operator, Box::new(right));
             tk_type = self.peek();
         }
         return Ok(built_str)
@@ -84,10 +84,10 @@ impl Parser{
             let operator = self.consume(); // * 
             let right = self.unary()?; // num or String
             // built_str = format!("({} {} {})", operator, built_str, right);
-            left = Expr::Binary(Box::new(left), operator, Box::new(right))
+            left = Expr::Binary(Box::new(left), operator, Box::new(right));
             tk_type = self.peek();
         }
-        return Ok(built_str)
+        return Ok(left)
     }
 
     fn unary(&mut self) -> Result<String, String>{
@@ -96,7 +96,7 @@ impl Parser{
             let operator = self.consume();
             let right = self.literal()?;
             // let mut build_str = String::new();
-            let mut unary = Expr::Unary(operator, Box::new(right))
+            let mut unary = Expr::Unary(operator, Box::new(right));
             return Ok(unary)
         }
         // while matches!(tk_type.as_str(), "MINUS" | "BANG"){
