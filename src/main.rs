@@ -97,19 +97,19 @@ impl Parser{
             let right = self.literal()?;
             // let mut build_str = String::new();
             let mut unary = Expr::Unary(operator, Box::new(right));
-            return Ok(unary)
+            return unary
         }
         // while matches!(tk_type.as_str(), "MINUS" | "BANG"){
         //     let operator = self.consume();     
-        //     let right = self.literal()?; // if error will just propogate up. if not then return an OK. so can unwrap right. 
+        //     let right = self.literal()?; // if error will just propogate up. if not then return an  so can unwrap right. 
         //     // build_str.push_str(&format!("({} {})", operator, right)); // should be ! then ! then true
         //     left = Expr::Unary(operator, new(right))
         //     tk_type = self.peek();
         // } 
-        // // return Ok(build_str)
+        // // return build_str)
         // return left
         let result = self.literal()?;
-        return Ok(result)
+        return result
     }
 
     // has to be a Result, and then unary will catch immediately through question mark. 
