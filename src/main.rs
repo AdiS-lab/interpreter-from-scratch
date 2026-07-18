@@ -64,7 +64,7 @@ impl Parser{
     }
 
     fn add(&mut self) -> Result<Expr, String>{
-        let mut built_str = self.mult()?; // starts as left
+        let mut left = self.mult()?; // starts as left
         let mut tk_type = self.peek();
         while matches!(tk_type.as_str(), "PLUS" | "MINUS"){ 
             let operator = self.consume();
@@ -73,7 +73,7 @@ impl Parser{
             left = Expr::Binary(Box::new(left), operator, Box::new(right));
             tk_type = self.peek();
         }
-        return Ok(built_str)
+        return Ok(left)
     }
 
     fn mult(&mut self) -> Result<Expr, String>{
@@ -109,7 +109,7 @@ impl Parser{
         // // return build_str)
         // return left
         let result = self.literal()?;
-        return OK(result)
+        return Ok(result)
     }
 
     // has to be a Result, and then unary will catch immediately through question mark. 
@@ -118,7 +118,7 @@ impl Parser{
         if matches!(tk_type.as_str(), "NUMBER" | "TRUE" | "FALSE" |  "NIL" |  "STRING"){
             let result = self.consume();
             // return Ok(result)
-            return Ok(Expr::Literal::Lit(result))
+            return Ok(Expr::Literal(result))
         }else if matches!(tk_type.as_str(), "BANG" | "MINUS"){
             let result = self.unary()?;
             return Ok(result) // will  be a Unary expr
