@@ -91,7 +91,7 @@ impl Parser{
     }
 
     fn unary(&mut self) -> Result<Expr, String>{
-        let mut tk_type = self.peek();
+        let tk_type = self.peek();
         if matches!(tk_type.as_str(), "MINUS" | "BANG"){
             let operator = self.consume();
             let right = self.literal()?;
@@ -118,7 +118,7 @@ impl Parser{
         if matches!(tk_type.as_str(), "NUMBER" | "TRUE" | "FALSE" |  "NIL" |  "STRING"){
             let result = self.consume();
             // return Ok(result)
-            return Ok(Expr::Literal(result))
+            return Ok(Expr::Literal(Lit::(result)))
         }else if matches!(tk_type.as_str(), "BANG" | "MINUS"){
             let result = self.unary()?;
             return Ok(result) // will  be a Unary expr
