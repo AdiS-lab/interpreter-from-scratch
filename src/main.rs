@@ -366,13 +366,8 @@ fn main() -> ExitCode {
                 for j in err{
                    eprintln!("{}", j);
                 };
-                return ExitCode::from(65)
-            };
-
-            if tokens.len() == 1{
                 return ExitCode::from(1)
             };
-
             return ExitCode::from(0)
            
         },"parse" => {
