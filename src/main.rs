@@ -331,12 +331,12 @@ fn parse(val: Expr) -> String {
 // numbers have arithmetic + all bool operations
 // bools have only equating operations
 // strings only have equations and + operations
-fn evaluate(val: Expr) -> Lit { 
+fn evaluate(val: Expr) -> Result<Lit, String> { 
     match val{
         Expr::Literal(lit) => return lit,
         Expr::Binary(l , o, r) =>{
-            let left: Lit = evaluate(*l); // always unpack
-            let right: Lit = evaluate(*r);
+            let left: Lit = evaluate(*l)?; // always unpack
+            let right: Lit = evaluate(*r)?;
             if let Lit::F64(n) = left && let Lit::F64(n2) = right{ // arithmetic, but have to check if == as well
                 match o.as_str() {
                     "*" => return Lit::F64(n*n2),
@@ -369,7 +369,7 @@ fn evaluate(val: Expr) -> Lit {
             }
         },
         Expr::Unary(l, r) => {
-            let right = evaluate(*r);
+            let right = evaluate(*r)?;
             match l.as_str(){
                 "!"=> {
                     if let Lit::Bool(b) = right{
@@ -377,13 +377,13 @@ fn evaluate(val: Expr) -> Lit {
                     }else if let Lit::Nil = right   {
                         return Lit::Bool(true)
                     }
-                    return Lit::Nil
+                    return Err("line[1] operand must be a something".to_string())
                 },
                 "-" => {
                     if let Lit::F64(f) = right{
-                        return Lit::F64(-1.0*f)
+                        return Lit::F64(-1.0 * f)
                     }
-                    return Lit::Nil
+                    return Err("line[1] Operand must be a number.".to_string())
                 },
                 _=> return Lit::Nil
             }
