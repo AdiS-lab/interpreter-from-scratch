@@ -377,7 +377,7 @@ fn evaluate(val: Expr) -> Result<Lit, String> {
                     }else if let Lit::Nil = right{
                         return Ok(Lit::Bool(true))
                     }
-                    return Err("line[1] operand must be a something".to_string())
+                    return Ok(Lit::Nil)
                 },
                 "-" => {
                     if let Lit::F64(f) = right{
