@@ -19,7 +19,7 @@ enum Expr{
     Literal(Lit),
 }
 
-type Lit{
+enum Lit{
     String,
     Bool,
     nil,
