@@ -330,7 +330,7 @@ fn parse(val: Expr) -> String {
 
 fn evaluate(val: Expr) -> Lit { 
     match val{
-        Expr::Literal(lit) => lit,
+        Expr::Literal(lit) => return lit,
         Expr::Binary(l , o, r) =>{
             let left: Lit = evaluate(*l);
             let right: Lit = evaluate(*r);
