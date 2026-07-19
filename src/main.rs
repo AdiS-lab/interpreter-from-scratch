@@ -59,7 +59,7 @@ impl Parser{
     fn block(&mut self) -> Result<Vec<Declr>, String>{
         let res: Vec<Declr> = self.declaration()?;
         let tk_type: String = self.peek();
-        if tk_type != "RIGHT_PAREN"{
+        if tk_type != "RIGHT_BRACE"{
             return Err("make sure to close block".to_string())
         }
         let p: String = self.consume();
@@ -97,7 +97,7 @@ impl Parser{
                 return Err("line [1] make sure to include semicolon!".to_string()) 
             }
             return Ok(Stmt::Print(res));
-        }else if matches!(tk_type.as_str(), "LEFT_PAREN") {
+        }else if matches!(tk_type.as_str(), "LEFT_BRACE") {
             let p: String = self.consume(); // consume { 
             let res: Vec<Declr> = self.block()?; // call back 
             return Ok(Stmt::Block(res))
