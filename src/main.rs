@@ -12,6 +12,12 @@ struct Parser{
 // enum is saying anything of this defined type is allowed. 
 // when populating 
 
+#[derive(Debug)]
+enum Stmt{
+    Print(Expr),
+    Other(Expr)
+}
+
 
 #[derive(Debug)]                                                                                                                                                   
 enum Expr{
@@ -28,16 +34,31 @@ enum Lit{
     F64(f64),
 }
 
-enum Eval {
-    
-}
-
-
-// Some v None => wrapping data in an an enum such that one can discern if that data is there or not. if not there 
-// would manifest in...
-// Ok v Errs
+// want to first unwrap stmt, if print then wrap with this
 
 impl Parser{
+    fn statement(&mut self) -> Result<Vec<Stmt>, String>{
+        let tk_type = self.peek();
+        let mut statement: Vec<Stmt> = Vec::<Stmt>::new(); // has to be able to check for semi colon
+        while tk_type != "EOF"{
+            if matches!(tk_type.as_str(), "PRINT"){
+                let p: String = self.consume();
+                let res: Expr = self.equality()?;
+                if self.consume() != ";"{
+                    return Err("line [1] make sure to include semicolon!".to_string()) 
+                }
+                statement.push(Stmt::Print(res));
+            }else{
+                let result: Expr = self.equality()?;
+                if self.consume() != ";"{
+                    return Err("line [1] make sure to include semicolon!".to_string()) 
+                }
+                statement.push(Stmt::Other(result));
+            }
+        }
+        return Ok(statement)
+    }
+
     fn equality(&mut self) -> Result<Expr, String> {
         let left = self.comparison()?;
         let tk_type = self.peek(); // &str
@@ -112,13 +133,14 @@ impl Parser{
     // has to be a Result, and then unary will catch immediately through question mark. 
     fn literal(&mut self) -> Result<Expr, String> { 
         let tk_type = self.peek();
-
         let curr_tok = self.tokens[self.current].to_string();
         let tk_arr: Vec<&str> = curr_tok.split(" ").collect(); // Vec<&str>
-        if matches!(tk_type.as_str(), "NUMBER"){
+        if matches!(tk_type.as_str(), "SEMICOLON"){
+            return Ok(Expr::Literal(Lit::Nil))
+        }if matches!(tk_type.as_str(), "NUMBER"){
             let f: f64 =  self.consume().parse().unwrap();
             return Ok(Expr::Literal(Lit::F64(f)))
-        }else if matches!(tk_type.as_str(), "STRING"){
+        }else if matches!(tk_type.as_str(), "STRING" | "PRINT"){
             let s: String =  curr_tok.split('"').nth(1).unwrap().to_string(); // &str --> String
             self.current += 1;
             return Ok(Expr::Literal(Lit::String(s)))
@@ -137,8 +159,7 @@ impl Parser{
             let curr = self.consume(); 
             return Ok(Expr::Grouping(Box::new(right)))    
         }else{
-            //assuming that will never be PAST EOF
-            return Err( format!("[line 1] Error at '{}': Expect expression.", self.consume() )) // when reaching end 
+            return Err( format!("[line 1] Error at '{}': Expect expression.", self.consume() )) 
         }
     } 
 
@@ -176,6 +197,7 @@ fn tokenize(file_contents: String) -> (Vec<String>, Vec<String>) {
         ("true", "TRUE"),
         ("var", "VAR"),
         ("while", "WHILE"),
+        ("print", "PRINT"),
     ]);
     let mut str_iter = file_contents.chars().peekable();
     let mut new_line: i32 = 1; //  have to do something with this that allows the next thing to see it
@@ -277,7 +299,7 @@ fn tokenize(file_contents: String) -> (Vec<String>, Vec<String>) {
                             result.push(format!("NUMBER {} {:?}", literal, value));
                         };
                         
-                    }else if ch == '_' || ch.is_ascii_alphabetic(){ //creating identifiers
+                    }else if ch == '_' || ch.is_ascii_alphabetic(){ //strings
                         let mut identifier = ch.to_string();
                         while let Some(new_ch) = str_iter.peek(){
                             if !new_ch.is_digit(10) && !(*new_ch == '_') && !new_ch.is_ascii_alphabetic(){
@@ -285,12 +307,15 @@ fn tokenize(file_contents: String) -> (Vec<String>, Vec<String>) {
                             }
                             identifier.push(*new_ch);
                             let _ : Option<char> = str_iter.next();
-                        };
+                        }; // typically pushes identifer in, but if we want print then want to get our string afger 
+
 
                         if res_words.contains_key(&*identifier){
                             let reference = res_words[&*identifier];
                             result.push(format!("{} {} null", reference, identifier));
 
+                        }else if (identifier == "print".to_string()){
+                            
                         }else{
                             result.push(format!("IDENTIFIER {} null", identifier));
                         }
@@ -487,8 +512,22 @@ fn main() -> ExitCode {
                 } 
             };
             return ExitCode::from(0)
-        },
-        _ => {
+        },"run"=>{
+            let (tokens, err_str) = tokenize(file_contents); // NUMBER 50 50.0, EOF null
+            let mut parser = Parser{tokens, current: 0};
+            let result = match parser.statement(){
+                Ok(val)=>{
+                    for i in &val{
+                        println!("{:?}", i);
+                    };
+                },
+                Err(e)=>{
+                    eprintln!("{}", e);
+                    return ExitCode::from(65)
+                }
+            }
+            return ExitCode::from(0)
+        }, _ => {
             eprintln!("Unknown command: {}", command);
             return ExitCode::from(1)
         }
