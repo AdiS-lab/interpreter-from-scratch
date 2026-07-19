@@ -519,46 +519,28 @@ impl Interpreter {
     }    
 }
 
+// on good cases should print out everything and return good. 
 
-
-fn execute(val: Vec<Declr>) -> Result<ExitCode, String> {
+fn execute(val: Vec<Declr>) -> Result<(), String> {
     let mut interpreter: Interpreter = Interpreter{vars: HashMap::new()}; // create new instance
     for i in val{
         if let Declr::VarDeclr(id, stmt) = i { // whether declaration for now HAS to be a simple expr
             if let Stmt::Other(expr) = stmt{ 
-                match interpreter.evaluate(expr){
-                    Ok(val)=> {
-                        interpreter.vars.insert(id, val); // insert var
-                    },
-                    Err(e)=>{
-                        eprintln!("{}", e);
-                        return Ok(ExitCode::from(70))
-                    }
-                }
+                let val: Lit = interpreter.evaluate(expr)?;
+                interpreter.vars.insert(id, val);
             }
         }else if let Declr::Reg(stmt) = i{
             if let Stmt::Print(expr) = stmt{
-                match interpreter.evaluate(expr){ 
-                    Ok(val)=> println!("{}", val),
-                    Err(e)=>{
-                        eprintln!("{}", e);
-                        return Ok(ExitCode::from(70))
-                    }
-                }
+                let val: Lit = interpreter.evaluate(expr)?;
+                println!("{}", val);
             }else if let Stmt::Other(expr) = stmt{ 
-                match interpreter.evaluate(expr){
-                    Ok(val)=>{},
-                    Err(e) => {
-                        eprintln!("{}", e);
-                        return Ok(ExitCode::from(70))
-                    }
-                }
+                let val: Lit = interpreter.evaluate(expr)?;
             }else if let Stmt::Block(vecD) = stmt{
                 execute(vecD)?;
             }
         }
     };
-    return Ok(ExitCode::from(0))
+    return Ok(())
 }
 
 
@@ -635,7 +617,7 @@ fn main() -> ExitCode {
             match parser.declaration(){
                 Ok(val)=>{ 
                     match execute(val){
-                        Ok(val) => return val,
+                        Ok(val) => {},
                         Err(e) => return e
                     }
                 },
