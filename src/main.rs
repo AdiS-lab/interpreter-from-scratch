@@ -12,13 +12,19 @@ struct Parser{
 // enum is saying anything of this defined type is allowed. 
 // when populating 
 
+
+// fn declaration -- 
+// var = denoted by an identifier now
+// needs to be accessed, so becomes identifier
+// inside evaluate have to update the value of the identifier
+// peek at semicolon and then do somethign there 
+
+
 #[derive(Debug)]
 enum Declr{
     VarDeclr(Stmt),
     Reg(Stmt)
 }
-
-
 
 #[derive(Debug)]
 enum Stmt{
@@ -43,11 +49,31 @@ enum Lit{
 }
 
 impl Parser{
-    fn statement(&mut self) -> Result<Vec<Stmt>, String>{
+    fn declaration(&mut self)-> Result<Vec<Declr>, String> {
         let mut tk_type = self.peek();
-        let mut statement: Vec<Stmt> = Vec::<Stmt>::new();
-        while tk_type != "EOF"{
-            if matches!(tk_type.as_str(), "PRINT"){
+        let mut d: Vec<Declr> = Vec::<Declr>::new();
+        while tk_type!= "EOF"{
+            if matches!(tk_type.as_str(), "VAR"){
+                let v: String = self.consume();
+                let id: String = self.consume();
+                let o: String = self.consume();
+                if o != "="{
+                    return Err("need = sign on var".to_string())
+                }
+                let right: Stmt = self.statement()?;
+                d.push(Declr::VarDeclr(right))
+            }else{
+                let right: Stmt = self.statement()?; // statements should go until semicolons
+                d.push(Declr::Reg(right))
+            }
+            tk_type = self.peek()
+        }
+        return Ok(d)
+    }
+
+    fn statement(&mut self) -> Result<Stmt, String>{
+        let tk_type = self.peek();
+        if matches!(tk_type.as_str(), "PRINT"){
                 let p: String = self.consume();
                 let res: Expr = self.equality()?;
                 if self.consume() != ";"{
@@ -55,18 +81,15 @@ impl Parser{
                 }
                 if let Expr::Literal(Lit::Nil) = res{
                     return Err("line [1] include other stuff".to_string()) 
-                }
-                statement.push(Stmt::Print(res));
-            }else if{
+                } // handles print; case
+                return Ok(Stmt::Print(res));
+        }else {
                 let result: Expr = self.equality()?;
                 if self.consume() != ";"{
                     return Err("line [1] make sure to include semicolon!".to_string()) 
                 }
-                statement.push(Stmt::Other(result));
+                return Ok(Stmt::Other(result));
             }
-            tk_type = self.peek();
-        }
-        return Ok(statement)
     }
 
     fn equality(&mut self) -> Result<Expr, String> {
@@ -142,7 +165,7 @@ impl Parser{
         }if matches!(tk_type.as_str(), "NUMBER"){
             let f: f64 =  self.consume().parse().unwrap();
             return Ok(Expr::Literal(Lit::F64(f)))
-        }else if matches!(tk_type.as_str(), "STRING" | "PRINT"){
+        }else if matches!(tk_type.as_str(), "STRING"){
             let s: String =  curr_tok.split('"').nth(1).unwrap().to_string(); 
             self.current += 1;
             return Ok(Expr::Literal(Lit::String(s)))
@@ -515,36 +538,42 @@ fn main() -> ExitCode {
         },"run"=>{
             let (tokens, err_str) = tokenize(file_contents); // NUMBER 50 50.0, EOF null
             let mut parser = Parser{tokens, current: 0};
-            match parser.statement(){ 
+            match parser.declaration(){ 
                 Ok(val)=>{
                     for i in val{
-                        if let Stmt::Print(expr) = i{
-                            match evaluate(expr){
-                                Ok(val)=>{
-                                    if let Lit::F64(n) = val{
-                                        println!("{}", n);                    
-                                    }else if let Lit::Bool(b) = val{
-                                        println!("{}", b);                     
-                                    }else if let Lit::String(s) = val{
-                                        println!("{}", s);
-                                    }else{
-                                        println!("nil")
+                        if let Declr::VarDeclr(d) = i {
+                            if let Stmt::Other(expr) = d{
+                                // do something about var
+                            }
+                        }else if let Declr::Reg(e) = i{
+                            if let Stmt::Print(expr) = e{
+                                match evaluate(expr){
+                                    Ok(val)=>{
+                                        if let Lit::F64(n) = val{
+                                            println!("{}", n);                    
+                                        }else if let Lit::Bool(b) = val{
+                                            println!("{}", b);                     
+                                        }else if let Lit::String(s) = val{
+                                            println!("{}", s);
+                                        }else{
+                                            println!("nil")
+                                        }
+                                    }
+                                    Err(e)=>{
+                                        eprintln!("{}", e);
+                                        return ExitCode::from(70)
                                     }
                                 }
-                                Err(e)=>{
-                                    eprintln!("{}", e);
-                                    return ExitCode::from(70)
+                            }else if let Stmt::Other(expr) = e{
+                                match evaluate(expr){
+                                    Ok(val)=>{},
+                                    Err(e) => {
+                                        eprintln!("{}", e);
+                                        return ExitCode::from(70)
+                                    }
                                 }
                             }
-                        }else if let Stmt::Other(expr) = i{
-                            match evaluate(expr){
-                                Ok(val)=>{},
-                                Err(e) => {
-                                    eprintln!("{}", e);
-                                    return ExitCode::from(70)
-                                }
-                            }
-                        }
+                     }
                     };
                 },
                 Err(e)=>{
