@@ -91,6 +91,7 @@ impl Parser{
 
     fn statement(&mut self) -> Result<Stmt, String>{
         let tk_type = self.peek();
+        println!("this is tk type in statement {}", tk_type);
         if matches!(tk_type.as_str(), "PRINT"){
             let p: String = self.consume();
             let res: Expr = self.assignment()?;
