@@ -25,13 +25,13 @@ enum Stmt{
     Other(Expr)
 }
 
-
 #[derive(Debug)]                                                                                                                                                   
 enum Expr{
     Binary(Box<Expr>, String, Box<Expr>),
     Unary(String, Box<Expr>),
     Grouping(Box<Expr>),
     Literal(Lit),
+    Assign(String, Box<Expr>)
 }
 #[derive(Debug, Clone)]                                                                                             
 enum Lit{
@@ -98,6 +98,22 @@ impl Parser{
             }
     }
 
+    fn assignment(&mut self) -> Result<Expr, String> {
+        let left = self.equality()?; 
+        let tk_type = self.peek(); 
+
+        while matches!(tk_type.as_str(), "EQUAL"){ // check if the previous was leftentifier
+            let operator = self.consume(); 
+            if let Expr::Literal(Lit:: Id(s)) = left{
+                let right = self.equality()?;
+                return Ok(Expr::Assign(s, Box::new(right))) // left and expr
+            }else{
+                return Err("make sure to include equal if re-defining identifier".to_string())
+            }
+        }
+        return Ok(left); // if not id then will just be expr
+    }
+
     fn equality(&mut self) -> Result<Expr, String> {
         let left = self.comparison()?;
         let tk_type = self.peek(); 
@@ -105,9 +121,8 @@ impl Parser{
             let operator = self.consume(); 
             let right = self.comparison()?; 
             return Ok(Expr::Binary(Box::new(left), operator, Box::new(right)))
-        }else{
-            return Ok(left)
-        };
+        }
+        return Ok(left)
     }
 
     fn comparison(&mut self) -> Result<Expr, String>{
@@ -381,6 +396,7 @@ fn parse(val: Expr) -> String {
         Expr::Binary(l , o, r) =>return format!("({} {} {})", o, parse(*l), parse(*r)),
         Expr::Unary(l, r) =>return format!("({} {})", l, parse(*r)),
         Expr::Grouping(l) =>return format!("(group {})", parse(*l)),
+        Expr::Assign(s, expr) => return format!("({}{})",s, parse(*expr))
     };    
     return "".to_string()
 }
@@ -476,10 +492,20 @@ impl Interpreter {
             }
             Expr::Grouping(l) => {
                 return self.evaluate(*l)
-            }
-        };    
-    }
+            },
+            Expr::Assign(s, expr) => {
+                if self.vars.contains_key(&s){ // give reference 
+                    let res = self.evaluate(*expr)?; // dereference box to get expr
+                    self.vars.insert(s, res.clone()); // find key/val and 
+                    return Ok(res) 
+                }
+                return Err(format!("{} not found", s))
+            },
+                
+        }   
+    }    
 }
+
 
 
 fn main() -> ExitCode {
@@ -552,10 +578,10 @@ fn main() -> ExitCode {
             let (tokens, err_str) = tokenize(file_contents); // NUMBER 50 50.0, EOF null
             let mut parser = Parser{tokens, current: 0};
             match parser.declaration(){ 
-                Ok(val)=>{
+                Ok(val)=>{ 
                     let mut interpreter: Interpreter = Interpreter{vars: HashMap::new()};
                     for i in val{
-                        if let Declr::VarDeclr(id, d) = i {
+                        if let Declr::VarDeclr(id, d) = i { // whether declaration
                             if let Stmt::Other(expr) = d{ 
                                 match interpreter.evaluate(expr){
                                     Ok(val)=> {
@@ -570,7 +596,7 @@ fn main() -> ExitCode {
                         }else if let Declr::Reg(e) = i{
                             if let Stmt::Print(expr) = e{
                                 //______________________ have to change ___________________________
-                                match interpreter.evaluate(expr){
+                                match interpreter.evaluate(expr){ // check if expression is assignment or equality
                                     Ok(val)=> println!("{}", val),
                                     Err(e)=>{
                                         eprintln!("{}", e);
