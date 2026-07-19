@@ -62,6 +62,7 @@ impl Parser{
         if p.as_str() != "RIGHT_BRACE"{
             return Err("make sure to close block".to_string())
         }
+        self.consume();
         return Ok(res);
     }
 
@@ -89,6 +90,7 @@ impl Parser{
 
     fn statement(&mut self) -> Result<Stmt, String>{
         let tk_type = self.peek();
+        let mut count = 0;
         if matches!(tk_type.as_str(), "PRINT"){
             let p: String = self.consume();
             let res: Expr = self.assignment()?;
@@ -97,6 +99,8 @@ impl Parser{
             }
             return Ok(Stmt::Print(res));
         }else if matches!(tk_type.as_str(), "LEFT_BRACE") {
+            count += 1;
+            println!("{}", count);
             let p: String = self.consume(); // consume { 
             let res: Vec<Declr> = self.block()?; // call back 
             return Ok(Stmt::Block(res))

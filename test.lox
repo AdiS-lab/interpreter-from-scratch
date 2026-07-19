@@ -1,2 +1,8 @@
-var a = "hello";
-print a;
+{
+    var quz = "before";
+    print quz;
+}
+{
+    var quz = "after";
+    print quz;
+}
