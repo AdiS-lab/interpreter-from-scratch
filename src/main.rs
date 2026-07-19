@@ -527,6 +527,14 @@ fn main() -> ExitCode {
                                     return ExitCode::from(70)
                                 }
                             }
+                        }else if let Stmt::Other(expr) = i{
+                            match evaluate(expr){
+                                Ok(val)=>{},
+                                Err(e) => {
+                                    eprintln!("{}", e);
+                                    return ExitCode::from(70)
+                                }
+                            }
                         }
                     };
                 },
