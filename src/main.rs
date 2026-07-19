@@ -38,7 +38,7 @@ enum Lit{
 
 impl Parser{
     fn statement(&mut self) -> Result<Vec<Stmt>, String>{
-        let tk_type = self.peek();
+        let mut tk_type = self.peek();
         let mut statement: Vec<Stmt> = Vec::<Stmt>::new(); // has to be able to check for semi colon
         while tk_type != "EOF"{
             if matches!(tk_type.as_str(), "PRINT"){
@@ -55,6 +55,7 @@ impl Parser{
                 }
                 statement.push(Stmt::Other(result));
             }
+            tk_type = self.peek();
         }
         return Ok(statement)
     }
