@@ -99,8 +99,6 @@ impl Parser{
             }
             return Ok(Stmt::Print(res));
         }else if matches!(tk_type.as_str(), "LEFT_BRACE") {
-            count += 1;
-            println!("{}", count);
             let p: String = self.consume(); // consume { 
             let res: Vec<Declr> = self.block()?; // call back 
             return Ok(Stmt::Block(res))
@@ -525,9 +523,6 @@ impl Interpreter {
 // on good cases should print out everything and return good. 
 
 fn execute(val: Vec<Declr>) -> Result<(), String> {
-    if val.len() > 2{
-        println!("{:?}", val);
-    }
     let mut interpreter: Interpreter = Interpreter{vars: HashMap::new()}; // create new instance
     for i in val{
         if let Declr::VarDeclr(id, stmt) = i { // whether declaration for now HAS to be a simple expr
