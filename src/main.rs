@@ -9,20 +9,13 @@ struct Parser{
     tokens: Vec<String>,
     current: usize
 }
-// enum is saying anything of this defined type is allowed. 
-// when populating 
 
-
-// fn declaration -- 
-// var = denoted by an identifier now
-// needs to be accessed, so becomes identifier
-// inside evaluate have to update the value of the identifier
-// peek at semicolon and then do somethign there 
-
+// wrap var state inside interpreter so for now the whole program would reference
+//the same variables
 
 #[derive(Debug)]
 enum Declr{
-    VarDeclr(Stmt),
+    VarDeclr(String, Stmt),
     Reg(Stmt)
 }
 
@@ -40,12 +33,25 @@ enum Expr{
     Grouping(Box<Expr>),
     Literal(Lit),
 }
-#[derive(Debug)]                                                                                             
+#[derive(Debug, Clone)]                                                                                             
 enum Lit{
     String(String),
     Bool(bool),
     Nil,
     F64(f64),
+    Id(String)
+}
+
+impl std::fmt::Display for Lit {            
+      fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+          match self {
+              Lit::F64(n) => write!(f, "{}", n),                                                                                                                                                                                                                                                        
+              Lit::Bool(b) => write!(f, "{}", b),
+              Lit::String(s) => write!(f, "{}", s),    
+              Lit::Id(s) => write!(f, "{}", s),    
+              Lit::Nil => write!(f, "nil"),                                                                                                                                                                                                                                                           
+          }
+      }
 }
 
 impl Parser{
@@ -61,7 +67,7 @@ impl Parser{
                     return Err("need = sign on var".to_string())
                 }
                 let right: Stmt = self.statement()?;
-                d.push(Declr::VarDeclr(right))
+                d.push(Declr::VarDeclr(id, right))
             }else{
                 let right: Stmt = self.statement()?; // statements should go until semicolons
                 d.push(Declr::Reg(right))
@@ -79,9 +85,6 @@ impl Parser{
                 if self.consume() != ";"{
                     return Err("line [1] make sure to include semicolon!".to_string()) 
                 }
-                if let Expr::Literal(Lit::Nil) = res{
-                    return Err("line [1] include other stuff".to_string()) 
-                } // handles print; case
                 return Ok(Stmt::Print(res));
         }else {
                 let result: Expr = self.equality()?;
@@ -160,11 +163,12 @@ impl Parser{
         let tk_type = self.peek();
         let curr_tok = self.tokens[self.current].to_string();
         let tk_arr: Vec<&str> = curr_tok.split(" ").collect(); 
-        if matches!(tk_type.as_str(), "SEMICOLON"){
-            return Ok(Expr::Literal(Lit::Nil)) // has to be something other than nil
-        }if matches!(tk_type.as_str(), "NUMBER"){
+        if matches!(tk_type.as_str(), "NUMBER"){
             let f: f64 =  self.consume().parse().unwrap();
             return Ok(Expr::Literal(Lit::F64(f)))
+        }else if matches!(tk_type.as_str(), "IDENTIFIER"){
+            let s: String = self.consume();
+            return Ok(Expr::Literal(Lit::Id(s))) // change this
         }else if matches!(tk_type.as_str(), "STRING"){
             let s: String =  curr_tok.split('"').nth(1).unwrap().to_string(); 
             self.current += 1;
@@ -183,11 +187,12 @@ impl Parser{
             let right = self.equality()?;
             let curr = self.consume(); 
             return Ok(Expr::Grouping(Box::new(right)))    
+        }else if matches!(tk_type.as_str(), "SEMICOLON"){
+            return Err("line[1] missing some requirement".to_string())
         }else{
             return Err( format!("[line 1] Error at '{}': Expect expression.", self.consume() )) 
-        }
-    } 
-
+        } 
+    }
     fn consume(&mut self) -> String {
         let curr_tok = self.tokens[self.current].to_string();
         let tk_arr: Vec<&str> = curr_tok.split(" ").collect(); 
@@ -202,8 +207,6 @@ impl Parser{
         return curr_type
     }
 }
-
-
 fn tokenize(file_contents: String) -> (Vec<String>, Vec<String>) {
     let res_words = HashMap::from([
         ("and", "AND" ),
@@ -377,88 +380,98 @@ fn parse(val: Expr) -> String {
     return "".to_string()
 }
 
-// have to check if it's string, f64, or bool
+struct Interpreter {
+    vars: HashMap<String, Lit>,
+}
 
-fn evaluate(val: Expr) -> Result<Lit, String> { 
-    match val{
-        Expr::Literal(lit) => return Ok(lit),
-        Expr::Binary(l , o, r) =>{
-            let left: Lit = evaluate(*l)?; // always unpack
-            let right: Lit = evaluate(*r)?;
-            if matches!(o.as_str(), | "*" | "/" |"-" |">" | "<" | ">=" | "<="){
-                if let Lit::F64(n) = left && let Lit::F64(n2) = right{ 
-                    match o.as_str(){
-                        "*" => return Ok(Lit::F64(n*n2)),
-                        "/"=> return Ok(Lit::F64(n/n2)),
-                        "-" => return Ok(Lit::F64(n-n2)),
-                        ">" => return Ok(Lit::Bool(n>n2)),
-                        "<"=>  return Ok(Lit::Bool(n<n2)),
-                        ">="=>  return Ok(Lit::Bool(n>=n2)),
-                        "<=" =>  return Ok(Lit::Bool(n<=n2)),
-                        _ => return Ok(Lit::Nil)
+impl Interpreter {
+    fn evaluate(&mut self, expr: Expr) -> Result<Lit, String> {
+        match expr{
+            Expr::Literal(lit) => {
+                if let Lit::Id(s) = lit {
+                    return Ok(self.vars[&s].clone()) 
+                }
+                return Ok(lit)
+            },
+            Expr::Binary(l , o, r) =>{
+                let left: Lit = self.evaluate(*l)?; // always unpack
+                let right: Lit = self.evaluate(*r)?;
+                if matches!(o.as_str(), | "*" | "/" |"-" |">" | "<" | ">=" | "<="){
+                    if let Lit::F64(n) = left && let Lit::F64(n2) = right{ 
+                        match o.as_str(){
+                            "*" => return Ok(Lit::F64(n*n2)),
+                            "/"=> return Ok(Lit::F64(n/n2)),
+                            "-" => return Ok(Lit::F64(n-n2)),
+                            ">" => return Ok(Lit::Bool(n>n2)),
+                            "<"=>  return Ok(Lit::Bool(n<n2)),
+                            ">="=>  return Ok(Lit::Bool(n>=n2)),
+                            "<=" =>  return Ok(Lit::Bool(n<=n2)),
+                            _ => return Ok(Lit::Nil)
+                        }
+                    }else{
+                        return Err("Operands must be numbers".to_string())
                     }
                 }else{
-                    return Err("Operands must be numbers".to_string())
+                    match o.as_str(){
+                        "+" => {
+                            if let Lit::F64(n) = left && let Lit::F64(n2) = right{ 
+                                return Ok(Lit::F64(n+n2))
+                            }else if let Lit::String(s) = left && let Lit::String(s2) = right{
+                                return Ok(Lit::String(format!("{}{}",s,s2)))
+                            }
+                            return Err("Operands must be strings/numbers".to_string())
+                        },
+                        "==" => { // case would be anything
+                            if let Lit::F64(n) = left && let Lit::F64(n2) = right{
+                                return Ok(Lit::Bool(n==n2))
+                            }else if let Lit::Bool(b) = left && let Lit::Bool(b2) = right{
+                                return Ok(Lit::Bool(b==b2))
+                            }else if let Lit::String(s) = left && let Lit::String(s2) = right{
+                                return Ok(Lit::Bool(s==s2))
+                            }
+                            return Ok(Lit::Bool(false))
+                        },
+                        "!="=>  {
+                            if let Lit::F64(n) = left && let Lit::F64(n2) = right{
+                                return Ok(Lit::Bool(n!=n2))
+                            }else if let Lit::Bool(b) = left && let Lit::Bool(b2) = right{
+                                return Ok(Lit::Bool(b!=b2))
+                            }else if let Lit::String(s) = left && let Lit::String(s2) = right{
+                                return Ok(Lit::Bool(s!=s2))
+                            }
+                            return Ok(Lit::Bool(true))
+                        },
+                        _ => return Ok(Lit::Nil)
+                    }
                 }
-            }else{
-                match o.as_str(){
-                    "+" => {
-                        if let Lit::F64(n) = left && let Lit::F64(n2) = right{ 
-                            return Ok(Lit::F64(n+n2))
-                        }else if let Lit::String(s) = left && let Lit::String(s2) = right{
-                            return Ok(Lit::String(format!("{}{}",s,s2)))
+            },
+            Expr::Unary(l, r) => {
+                let right = self.evaluate(*r)?;
+                match l.as_str(){
+                    "!"=> {
+                        if let Lit::Bool(b) = right{
+                            return Ok(Lit::Bool(!b))
+                        }else if let Lit::Nil = right{
+                            return Ok(Lit::Bool(true))
                         }
-                        return Err("Operands must be strings/numbers".to_string())
+                        return Ok(Lit::Nil)
                     },
-                    "==" => { // case would be anything
-                        if let Lit::F64(n) = left && let Lit::F64(n2) = right{
-                            return Ok(Lit::Bool(n==n2))
-                        }else if let Lit::Bool(b) = left && let Lit::Bool(b2) = right{
-                            return Ok(Lit::Bool(b==b2))
-                        }else if let Lit::String(s) = left && let Lit::String(s2) = right{
-                            return Ok(Lit::Bool(s==s2))
+                    "-" => {
+                        if let Lit::F64(f) = right{
+                            return Ok(Lit::F64(-1.0 * f))
                         }
-                        return Ok(Lit::Bool(false))
+                        return Err("line[1] Operand must be a number.".to_string())
                     },
-                    "!="=>  {
-                        if let Lit::F64(n) = left && let Lit::F64(n2) = right{
-                            return Ok(Lit::Bool(n!=n2))
-                        }else if let Lit::Bool(b) = left && let Lit::Bool(b2) = right{
-                            return Ok(Lit::Bool(b!=b2))
-                        }else if let Lit::String(s) = left && let Lit::String(s2) = right{
-                            return Ok(Lit::Bool(s!=s2))
-                        }
-                        return Ok(Lit::Bool(true))
-                    },
-                    _ => return Ok(Lit::Nil)
+                    _=> return Ok(Lit::Nil)
                 }
             }
-        },
-        Expr::Unary(l, r) => {
-            let right = evaluate(*r)?;
-            match l.as_str(){
-                "!"=> {
-                    if let Lit::Bool(b) = right{
-                        return Ok(Lit::Bool(!b))
-                    }else if let Lit::Nil = right{
-                        return Ok(Lit::Bool(true))
-                    }
-                    return Ok(Lit::Nil)
-                },
-                "-" => {
-                    if let Lit::F64(f) = right{
-                        return Ok(Lit::F64(-1.0 * f))
-                    }
-                    return Err("line[1] Operand must be a number.".to_string())
-                },
-                _=> return Ok(Lit::Nil)
+            Expr::Grouping(l) => {
+                return self.evaluate(*l)
             }
-        }
-        Expr::Grouping(l) => {
-            return evaluate(*l)
-        }
-    };    
+        };    
+    }
 }
+
 
 fn main() -> ExitCode {
     let args: Vec<String> = env::args().collect();
@@ -509,20 +522,11 @@ fn main() -> ExitCode {
         }, "evaluate" => {
             let (tokens, err_str) = tokenize(file_contents); // NUMBER 50 50.0, EOF null
             let mut parser = Parser{tokens, current: 0};
-            let result = match parser.equality(){ 
+            let result = match parser.equality(){
                 Ok(val) => { 
-                    let res = match evaluate(val){
-                        Ok(val)=>{
-                            if let Lit::F64(n) = val{
-                                println!("{}", n);                    
-                            }else if let Lit::Bool(b) = val{
-                                println!("{}", b);                     
-                            }else if let Lit::String(s) = val{
-                                println!("{}", s);
-                            }else{
-                                println!("nil")
-                            }
-                        }
+                    let mut interpter: Interpreter = Interpreter{vars: HashMap::new()};
+                    let res = match interpter.evaluate(val){
+                        Ok(val)=> println!("{}", val),
                         Err(err) =>{
                             eprintln!("{}", err);
                             return ExitCode::from(70)
@@ -540,32 +544,32 @@ fn main() -> ExitCode {
             let mut parser = Parser{tokens, current: 0};
             match parser.declaration(){ 
                 Ok(val)=>{
+                    let mut interpreter: Interpreter = Interpreter{vars: HashMap::new()};
                     for i in val{
-                        if let Declr::VarDeclr(d) = i {
-                            if let Stmt::Other(expr) = d{
-                                // do something about var
+                        if let Declr::VarDeclr(id, d) = i {
+                            if let Stmt::Other(expr) = d{ 
+                                match interpreter.evaluate(expr){
+                                    Ok(val)=> {
+                                         interpreter.vars.insert(id, val);
+                                    },
+                                    Err(e)=>{
+                                        eprintln!("{}", e);
+                                        return ExitCode::from(70)
+                                    }
+                                }
                             }
                         }else if let Declr::Reg(e) = i{
                             if let Stmt::Print(expr) = e{
-                                match evaluate(expr){
-                                    Ok(val)=>{
-                                        if let Lit::F64(n) = val{
-                                            println!("{}", n);                    
-                                        }else if let Lit::Bool(b) = val{
-                                            println!("{}", b);                     
-                                        }else if let Lit::String(s) = val{
-                                            println!("{}", s);
-                                        }else{
-                                            println!("nil")
-                                        }
-                                    }
+                                //______________________ have to change ___________________________
+                                match interpreter.evaluate(expr){
+                                    Ok(val)=> println!("{}", val),
                                     Err(e)=>{
                                         eprintln!("{}", e);
                                         return ExitCode::from(70)
                                     }
                                 }
                             }else if let Stmt::Other(expr) = e{
-                                match evaluate(expr){
+                                match interpreter.evaluate(expr){
                                     Ok(val)=>{},
                                     Err(e) => {
                                         eprintln!("{}", e);
