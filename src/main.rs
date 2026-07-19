@@ -66,6 +66,7 @@ impl Parser{
     }
 
     fn declaration(&mut self)-> Result<Vec<Declr>, String> { // if just that 
+        println!("full tokens {:?}", self.tokens);
         let mut tk_type: String = self.peek();
         let mut d: Vec<Declr> = Vec::<Declr>::new();
         while tk_type != "EOF" || tk_type != "RIGHT_BRACE"{
@@ -92,6 +93,7 @@ impl Parser{
         if matches!(tk_type.as_str(), "PRINT"){
             let p: String = self.consume();
             let res: Expr = self.assignment()?;
+            println!("should be an id {:?}", res);
             if self.consume() != ";"{
                 return Err("line [1] make sure to include semicolon!".to_string()) 
             }
@@ -102,6 +104,7 @@ impl Parser{
             return Ok(Stmt::Block(res))
         }else{  
             let result: Expr = self.assignment()?;
+            println!("should be a string {:?}", result);
             if self.consume() != ";"{
                 return Err("line [1] make sure to include semicolon!".to_string()) 
             }
