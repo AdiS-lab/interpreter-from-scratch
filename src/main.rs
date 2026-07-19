@@ -185,7 +185,10 @@ impl Parser{
         }else if matches!(tk_type.as_str(), "LEFT_PAREN"){
             _ = self.consume(); // consumes (
             let right = self.equality()?;
-            let curr = self.consume(); 
+            let right_paren = self.consume(); 
+            if right_paren != ")"{
+                return Err(format!("[line 1] Error at '{}': close parantheses.", right_paren)) 
+            }
             return Ok(Expr::Grouping(Box::new(right)))    
         }else if matches!(tk_type.as_str(), "SEMICOLON"){
             return Err("line[1] missing some requirement".to_string())
@@ -359,16 +362,15 @@ fn tokenize(file_contents: String) -> (Vec<String>, Vec<String>) {
 }
 
 
-
 fn parse(val: Expr) -> String {
     match val{
         Expr::Literal(lit) => {
             if let Lit::F64(f) = lit { 
-               return format!("{:?}", f);
+            return format!("{:?}", f);
             }else if let Lit::String(s) = lit{
-               return format!("{}", s);
+            return format!("{}", s);
             }else if let Lit::Bool(b) = lit{
-               return format!("{}", b);
+            return format!("{}", b);
             }else if let Lit::Nil = lit{
                 return "nil".to_string()
             }
@@ -379,6 +381,7 @@ fn parse(val: Expr) -> String {
     };    
     return "".to_string()
 }
+
 
 struct Interpreter {
     vars: HashMap<String, Lit>,
@@ -510,6 +513,7 @@ fn main() -> ExitCode {
             let mut parser = Parser{tokens, current: 0};
             let result = match parser.equality(){
                 Ok(val) => {
+                `   let mut interpreter 
                     let tree_str: String = parse(val);
                     println!("{}", tree_str);
                 }
