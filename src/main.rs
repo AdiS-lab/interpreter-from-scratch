@@ -63,11 +63,14 @@ impl Parser{
                 let v: String = self.consume();
                 let id: String = self.consume();
                 let o: String = self.consume();
-                if o != "="{
-                    return Err("need = sign on var".to_string())
+                if o == "="{
+                    let right: Stmt = self.statement()?;
+                    d.push(Declr::VarDeclr(id, right))
+                }else if o ==";"{
+                    d.push( Declr::VarDeclr(id, Stmt::Other(Expr::Literal(Lit::Nil))))
+                }else{
+                    return Err("bad syntax on var".to_string())
                 }
-                let right: Stmt = self.statement()?;
-                d.push(Declr::VarDeclr(id, right))
             }else{
                 let right: Stmt = self.statement()?; // statements should go until semicolons
                 d.push(Declr::Reg(right))
