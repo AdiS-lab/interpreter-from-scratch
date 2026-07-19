@@ -99,17 +99,16 @@ impl Parser{
     }
 
     fn assignment(&mut self) -> Result<Expr, String> {
-        let left = self.equality()?; 
+        let left: Expr = self.equality()?; 
         let tk_type = self.peek(); 
 
-        while matches!(tk_type.as_str(), "EQUAL"){ // check if the previous was leftentifier
-            let operator = self.consume(); 
+        if matches!(tk_type.as_str(), "EQUAL"){ // check if the previous was leftentifier
+            let operator: String = self.consume(); 
             if let Expr::Literal(Lit:: Id(s)) = left{
-                let right = self.equality()?;
+                let right = self.assignment()?;
                 return Ok(Expr::Assign(s, Box::new(right))) // left and expr
-            }else{
-                return Err("make sure to include equal if re-defining identifier".to_string())
             }
+            return Err("make sure to include equal if re-defining identifier".to_string())
         }
         return Ok(left); // if not id then will just be expr
     }
