@@ -58,11 +58,11 @@ impl std::fmt::Display for Lit {
 impl Parser{
     fn block(&mut self) -> Result<Vec<Declr>, String>{
         let res: Vec<Declr> = self.declaration()?;
-        let p: String = self.consume();
-        if p.as_str() != "}"{
+        let p: String = self.peek();
+        if p.as_str() != "RIGHT_BRACE"{
             return Err("make sure to close block".to_string())
         }
-        return Ok(self.declaration()?);
+        return Ok(res);
     }
 
     fn declaration(&mut self)-> Result<Vec<Declr>, String> { // if just that 
@@ -85,6 +85,7 @@ impl Parser{
             }
             tk_type = self.peek();
         }
+        println!("should be right brace {}", tk_type);
         return Ok(d);
     }
 
