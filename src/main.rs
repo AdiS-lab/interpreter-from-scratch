@@ -312,10 +312,7 @@ fn tokenize(file_contents: String) -> (Vec<String>, Vec<String>) {
 
                         if res_words.contains_key(&*identifier){
                             let reference = res_words[&*identifier];
-                            result.push(format!("{} {} null", reference, identifier));
-
-                        }else if (identifier == "print".to_string()){
-                            
+                            result.push(format!("{} {} null", reference, identifier)); 
                         }else{
                             result.push(format!("IDENTIFIER {} null", identifier));
                         }
@@ -525,7 +522,7 @@ fn main() -> ExitCode {
                     eprintln!("{}", e);
                     return ExitCode::from(65)
                 }
-            }
+            };
             return ExitCode::from(0)
         }, _ => {
             eprintln!("Unknown command: {}", command);
