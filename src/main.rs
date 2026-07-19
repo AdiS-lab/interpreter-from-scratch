@@ -58,18 +58,17 @@ impl std::fmt::Display for Lit {
 impl Parser{
     fn block(&mut self) -> Result<Vec<Declr>, String>{
         let res: Vec<Declr> = self.declaration()?;
-        let tk_type: String = self.peek();
-        if tk_type != "RIGHT_BRACE"{
+        let p: String = self.consume();
+        if p.as_str() != "}"{
             return Err("make sure to close block".to_string())
         }
-        let p: String = self.consume();
         return Ok(self.declaration()?);
     }
 
     fn declaration(&mut self)-> Result<Vec<Declr>, String> { // if just that 
         let mut tk_type: String = self.peek();
         let mut d: Vec<Declr> = Vec::<Declr>::new();
-        while tk_type != "EOF" || tk_type != "}"{
+        while tk_type != "EOF" || tk_type != "RIGHT_BRACE"{
             if matches!(tk_type.as_str(), "VAR"){
                 let v: String = self.consume();
                 let id: String = self.consume();
