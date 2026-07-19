@@ -84,13 +84,13 @@ impl Parser{
         let tk_type = self.peek();
         if matches!(tk_type.as_str(), "PRINT"){
                 let p: String = self.consume();
-                let res: Expr = self.equality()?;
+                let res: Expr = self.assignment()?;
                 if self.consume() != ";"{
                     return Err("line [1] make sure to include semicolon!".to_string()) 
                 }
                 return Ok(Stmt::Print(res));
         }else {
-                let result: Expr = self.equality()?;
+                let result: Expr = self.assignment()?;
                 if self.consume() != ";"{
                     return Err("line [1] make sure to include semicolon!".to_string()) 
                 }
