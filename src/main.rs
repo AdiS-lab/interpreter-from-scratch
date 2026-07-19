@@ -34,18 +34,19 @@ enum Lit{
     F64(f64),
 }
 
-// want to first unwrap stmt, if print then wrap with this
-
 impl Parser{
     fn statement(&mut self) -> Result<Vec<Stmt>, String>{
         let mut tk_type = self.peek();
-        let mut statement: Vec<Stmt> = Vec::<Stmt>::new(); // has to be able to check for semi colon
+        let mut statement: Vec<Stmt> = Vec::<Stmt>::new();
         while tk_type != "EOF"{
             if matches!(tk_type.as_str(), "PRINT"){
                 let p: String = self.consume();
                 let res: Expr = self.equality()?;
                 if self.consume() != ";"{
                     return Err("line [1] make sure to include semicolon!".to_string()) 
+                }
+                if let Expr::Literal(Lit::Nil) = res{
+                    return Err("line [1] include other stuff".to_string()) 
                 }
                 statement.push(Stmt::Print(res));
             }else{
@@ -62,14 +63,12 @@ impl Parser{
 
     fn equality(&mut self) -> Result<Expr, String> {
         let left = self.comparison()?;
-        let tk_type = self.peek(); // &str
+        let tk_type = self.peek(); 
         if matches!(tk_type.as_str(), "BANG_EQUAL" | "EQUAL_EQUAL"){
-            let operator = self.consume(); // operator = String
-            let right = self.comparison()?; // loop
-            // return Ok(format!("({} {} {})", operator, left, right));
+            let operator = self.consume(); 
+            let right = self.comparison()?; 
             return Ok(Expr::Binary(Box::new(left), operator, Box::new(right)))
         }else{
-            // return Ok(left)
             return Ok(left)
         };
     }
@@ -81,23 +80,20 @@ impl Parser{
         while matches! (tk_type.as_str(), "GREATER_EQUAL" | "GREATER" |  "LESS" | "LESS_EQUAL"){
             let operator = self.consume();
             let right = self.add()?;
-            // built_str = format!("({} {} {})", operator, built_str, right);
             left = Expr::Binary(Box::new(left), operator, Box::new(right));
             tk_type = self.peek();
         };
-        // return Ok(built_str)
         return Ok(left)
         
         
     }
 
     fn add(&mut self) -> Result<Expr, String>{
-        let mut left = self.mult()?; // starts as left
+        let mut left = self.mult()?; 
         let mut tk_type = self.peek();
         while matches!(tk_type.as_str(), "PLUS" | "MINUS"){ 
             let operator = self.consume();
             let right = self.mult()?; 
-            // built_str = format!("({} {} {})", operator, built_str, right); // if mult (/ (* 3 2 ) 5)
             left = Expr::Binary(Box::new(left), operator, Box::new(right));
             tk_type = self.peek();
         }
@@ -105,13 +101,12 @@ impl Parser{
     }
 
     fn mult(&mut self) -> Result<Expr, String>{
-        let mut left = self.unary()?; //  num or String
+        let mut left = self.unary()?;
         let mut tk_type = self.peek();
 
         while matches!(tk_type.as_str(), "STAR" | "SLASH"){
-            let operator = self.consume(); // * 
-            let right = self.unary()?; // num or String
-            // built_str = format!("({} {} {})", operator, built_str, right);
+            let operator = self.consume(); 
+            let right = self.unary()?; 
             left = Expr::Binary(Box::new(left), operator, Box::new(right));
             tk_type = self.peek();
         }
@@ -123,7 +118,6 @@ impl Parser{
         if matches!(tk_type.as_str(), "MINUS" | "BANG"){
             let operator = self.consume();
             let right = self.literal()?;
-            // let mut build_str = String::new();
             let unary = Expr::Unary(operator, Box::new(right));
             return Ok(unary)
         }
@@ -131,18 +125,17 @@ impl Parser{
         return Ok(result)
     }
 
-    // has to be a Result, and then unary will catch immediately through question mark. 
     fn literal(&mut self) -> Result<Expr, String> { 
         let tk_type = self.peek();
         let curr_tok = self.tokens[self.current].to_string();
-        let tk_arr: Vec<&str> = curr_tok.split(" ").collect(); // Vec<&str>
+        let tk_arr: Vec<&str> = curr_tok.split(" ").collect(); 
         if matches!(tk_type.as_str(), "SEMICOLON"){
-            return Ok(Expr::Literal(Lit::Nil))
+            return Ok(Expr::Literal(Lit::Nil)) // has to be something other than nil
         }if matches!(tk_type.as_str(), "NUMBER"){
             let f: f64 =  self.consume().parse().unwrap();
             return Ok(Expr::Literal(Lit::F64(f)))
         }else if matches!(tk_type.as_str(), "STRING" | "PRINT"){
-            let s: String =  curr_tok.split('"').nth(1).unwrap().to_string(); // &str --> String
+            let s: String =  curr_tok.split('"').nth(1).unwrap().to_string(); 
             self.current += 1;
             return Ok(Expr::Literal(Lit::String(s)))
         }else if matches!(tk_type.as_str(), "TRUE" | "FALSE"){
@@ -166,10 +159,10 @@ impl Parser{
 
     fn consume(&mut self) -> String {
         let curr_tok = self.tokens[self.current].to_string();
-        let tk_arr: Vec<&str> = curr_tok.split(" ").collect(); // Vec<&str>
+        let tk_arr: Vec<&str> = curr_tok.split(" ").collect(); 
         let &tk_type = tk_arr.get(0).unwrap();
         self.current += 1;
-        return tk_arr.get(1).unwrap_or(&"").to_string() // &str --> String
+        return tk_arr.get(1).unwrap_or(&"").to_string() 
     }
     fn peek(&mut self) -> String {
         let curr_tok = self.tokens[self.current].to_string(); 
