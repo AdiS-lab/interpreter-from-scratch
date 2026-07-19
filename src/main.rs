@@ -513,10 +513,28 @@ fn main() -> ExitCode {
         },"run"=>{
             let (tokens, err_str) = tokenize(file_contents); // NUMBER 50 50.0, EOF null
             let mut parser = Parser{tokens, current: 0};
-            let result = match parser.statement(){
+            match parser.statement(){ 
                 Ok(val)=>{
-                    for i in &val{
-                        println!("{:?}", i);
+                    for i in val{
+                        if let Stmt::Print(expr) = i{
+                            match evaluate(expr){
+                                Ok(val)=>{
+                                    if let Lit::F64(n) = val{
+                                        println!("{}", n);                    
+                                    }else if let Lit::Bool(b) = val{
+                                        println!("{}", b);                     
+                                    }else if let Lit::String(s) = val{
+                                        println!("{}", s);
+                                    }else{
+                                        println!("nil")
+                                    }
+                                }
+                                Err(e)=>{
+                                    eprintln!("{}", e);
+                                    return ExitCode::from(70)
+                                }
+                            }
+                        }
                     };
                 },
                 Err(e)=>{
