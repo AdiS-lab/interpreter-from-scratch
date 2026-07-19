@@ -22,7 +22,8 @@ enum Declr{
 #[derive(Debug)]
 enum Stmt{
     Print(Expr),
-    Other(Expr)
+    Other(Expr),
+    Block(Vec<Declr>)
 }
 
 #[derive(Debug)]                                                                                                                                                   
@@ -55,48 +56,61 @@ impl std::fmt::Display for Lit {
 }
 
 impl Parser{
-    fn declaration(&mut self)-> Result<Vec<Declr>, String> {
-        let mut tk_type = self.peek();
+    fn block(&mut self) -> Result<Vec<Declr>, String>{
+        let res: Vec<Declr> = self.declaration()?;
+        let tk_type: String = self.peek();
+        if tk_type != "RIGHT_PAREN"{
+            return Err("make sure to close block".to_string())
+        }
+        let p: String = self.consume();
+        return Ok(self.declaration()?);
+    }
+
+    fn declaration(&mut self)-> Result<Vec<Declr>, String> { // if just that 
+        let mut tk_type: String = self.peek();
         let mut d: Vec<Declr> = Vec::<Declr>::new();
-        while tk_type!= "EOF"{
+        while tk_type != "EOF" || tk_type != "}"{
             if matches!(tk_type.as_str(), "VAR"){
                 let v: String = self.consume();
                 let id: String = self.consume();
                 let o: String = self.consume();
-                if o == "="{
-                    let right: Stmt = self.statement()?;
-                    d.push(Declr::VarDeclr(id, right))
-                }else if o ==";"{
-                    d.push( Declr::VarDeclr(id, Stmt::Other(Expr::Literal(Lit::Nil))))
-                }else{
-                    return Err("bad syntax on var".to_string())
+                match o.as_str() {
+                    "=" => d.push(Declr::VarDeclr(id, self.statement()?)),
+                    ";" => d.push(Declr::VarDeclr(id, Stmt::Other(Expr::Literal(Lit::Nil)))),
+                    _ => return Err("bad syntax on var".to_string())
                 }
             }else{
                 let right: Stmt = self.statement()?; // statements should go until semicolons
-                d.push(Declr::Reg(right))
+                d.push(Declr::Reg(right));
             }
-            tk_type = self.peek()
+            tk_type = self.peek();
         }
-        return Ok(d)
+        return Ok(d);
     }
 
     fn statement(&mut self) -> Result<Stmt, String>{
         let tk_type = self.peek();
         if matches!(tk_type.as_str(), "PRINT"){
-                let p: String = self.consume();
-                let res: Expr = self.assignment()?;
-                if self.consume() != ";"{
-                    return Err("line [1] make sure to include semicolon!".to_string()) 
-                }
-                return Ok(Stmt::Print(res));
-        }else {
-                let result: Expr = self.assignment()?;
-                if self.consume() != ";"{
-                    return Err("line [1] make sure to include semicolon!".to_string()) 
-                }
-                return Ok(Stmt::Other(result));
+            let p: String = self.consume();
+            let res: Expr = self.assignment()?;
+            if self.consume() != ";"{
+                return Err("line [1] make sure to include semicolon!".to_string()) 
             }
+            return Ok(Stmt::Print(res));
+        }else if matches!(tk_type.as_str(), "{") {
+            let p: String = self.consume(); // consume { 
+            let res: Vec<Declr> = self.block()?; // call back 
+            return Ok(Stmt::Block(res))
+        }else{  
+            let result: Expr = self.assignment()?;
+            if self.consume() != ";"{
+                return Err("line [1] make sure to include semicolon!".to_string()) 
+            }
+            return Ok(Stmt::Other(result));
+         }
     }
+
+    // if left curly then loop through declarations, 
 
     fn assignment(&mut self) -> Result<Expr, String> {
         let left: Expr = self.equality()?; 
@@ -507,6 +521,48 @@ impl Interpreter {
 
 
 
+fn execute(val: Vec<Declr>) -> Result<ExitCode, String> {
+    let mut interpreter: Interpreter = Interpreter{vars: HashMap::new()}; // create new instance
+    for i in val{
+        if let Declr::VarDeclr(id, stmt) = i { // whether declaration for now HAS to be a simple expr
+            if let Stmt::Other(expr) = stmt{ 
+                match interpreter.evaluate(expr){
+                    Ok(val)=> {
+                        interpreter.vars.insert(id, val); // insert var
+                    },
+                    Err(e)=>{
+                        eprintln!("{}", e);
+                        return Ok(ExitCode::from(70))
+                    }
+                }
+            }
+        }else if let Declr::Reg(stmt) = i{
+            if let Stmt::Print(expr) = stmt{
+                match interpreter.evaluate(expr){ 
+                    Ok(val)=> println!("{}", val),
+                    Err(e)=>{
+                        eprintln!("{}", e);
+                        return Ok(ExitCode::from(70))
+                    }
+                }
+            }else if let Stmt::Other(expr) = stmt{ 
+                match interpreter.evaluate(expr){
+                    Ok(val)=>{},
+                    Err(e) => {
+                        eprintln!("{}", e);
+                        return Ok(ExitCode::from(70))
+                    }
+                }
+            }else if let Stmt::Block(vecD) = stmt{
+                execute(vecD)?;
+            }
+        }
+    };
+    return Ok(ExitCode::from(0))
+}
+
+
+
 fn main() -> ExitCode {
     let args: Vec<String> = env::args().collect();
     if args.len() < 3 {
@@ -576,43 +632,12 @@ fn main() -> ExitCode {
         },"run"=>{
             let (tokens, err_str) = tokenize(file_contents); // NUMBER 50 50.0, EOF null
             let mut parser = Parser{tokens, current: 0};
-            match parser.declaration(){ 
+            match parser.declaration(){
                 Ok(val)=>{ 
-                    let mut interpreter: Interpreter = Interpreter{vars: HashMap::new()};
-                    for i in val{
-                        if let Declr::VarDeclr(id, d) = i { // whether declaration
-                            if let Stmt::Other(expr) = d{ 
-                                match interpreter.evaluate(expr){
-                                    Ok(val)=> {
-                                         interpreter.vars.insert(id, val);
-                                    },
-                                    Err(e)=>{
-                                        eprintln!("{}", e);
-                                        return ExitCode::from(70)
-                                    }
-                                }
-                            }
-                        }else if let Declr::Reg(e) = i{
-                            if let Stmt::Print(expr) = e{
-                                //______________________ have to change ___________________________
-                                match interpreter.evaluate(expr){ // check if expression is assignment or equality
-                                    Ok(val)=> println!("{}", val),
-                                    Err(e)=>{
-                                        eprintln!("{}", e);
-                                        return ExitCode::from(70)
-                                    }
-                                }
-                            }else if let Stmt::Other(expr) = e{
-                                match interpreter.evaluate(expr){
-                                    Ok(val)=>{},
-                                    Err(e) => {
-                                        eprintln!("{}", e);
-                                        return ExitCode::from(70)
-                                    }
-                                }
-                            }
-                     }
-                    };
+                    match execute(val){
+                        Ok(val) => return val,
+                        Err(e) => return e
+                    }
                 },
                 Err(e)=>{
                     eprintln!("{}", e);
