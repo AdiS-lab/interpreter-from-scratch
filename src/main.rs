@@ -513,7 +513,6 @@ fn main() -> ExitCode {
             let mut parser = Parser{tokens, current: 0};
             let result = match parser.equality(){
                 Ok(val) => {
-                `   let mut interpreter 
                     let tree_str: String = parse(val);
                     println!("{}", tree_str);
                 }
