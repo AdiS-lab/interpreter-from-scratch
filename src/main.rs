@@ -521,6 +521,9 @@ impl Interpreter {
 // on good cases should print out everything and return good. 
 
 fn execute(val: Vec<Declr>) -> Result<(), String> {
+    if val.len() > 1{
+        println!("{:?}", val);
+    }
     let mut interpreter: Interpreter = Interpreter{vars: HashMap::new()}; // create new instance
     for i in val{
         if let Declr::VarDeclr(id, stmt) = i { // whether declaration for now HAS to be a simple expr
