@@ -13,6 +13,14 @@ struct Parser{
 // when populating 
 
 #[derive(Debug)]
+enum Declr{
+    VarDeclr(Stmt),
+    Reg(Stmt)
+}
+
+
+
+#[derive(Debug)]
 enum Stmt{
     Print(Expr),
     Other(Expr)
@@ -49,7 +57,7 @@ impl Parser{
                     return Err("line [1] include other stuff".to_string()) 
                 }
                 statement.push(Stmt::Print(res));
-            }else{
+            }else if{
                 let result: Expr = self.equality()?;
                 if self.consume() != ";"{
                     return Err("line [1] make sure to include semicolon!".to_string()) 
@@ -192,6 +200,7 @@ fn tokenize(file_contents: String) -> (Vec<String>, Vec<String>) {
         ("var", "VAR"),
         ("while", "WHILE"),
         ("print", "PRINT"),
+        ("var", "VAR"),
     ]);
     let mut str_iter = file_contents.chars().peekable();
     let mut new_line: i32 = 1; //  have to do something with this that allows the next thing to see it
