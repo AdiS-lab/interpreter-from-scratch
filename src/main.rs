@@ -66,7 +66,6 @@ impl Parser{
     }
 
     fn declaration(&mut self)-> Result<Vec<Declr>, String> { // if just that 
-        println!("full tokens {:?}", self.tokens);
         let mut tk_type: String = self.peek();
         let mut d: Vec<Declr> = Vec::<Declr>::new();
         while tk_type != "EOF" || tk_type != "RIGHT_BRACE"{
@@ -84,6 +83,7 @@ impl Parser{
                 d.push(Declr::Reg(right));
             }
             tk_type = self.peek();
+            println!("this is tk type {}", tk_type)
         }
         println!("should be right brace {}", tk_type);
         return Ok(d);
