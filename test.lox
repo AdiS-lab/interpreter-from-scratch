@@ -1,8 +1,6 @@
+var baz = (91 * 16) - 61;
 {
-    var quz = "before";
-    print quz;
+    var world = "quz" + "89";
+    print world;
 }
-{
-    var quz = "after";
-    print quz;
-}
+print baz;
