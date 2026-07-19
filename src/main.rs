@@ -392,7 +392,10 @@ impl Interpreter {
         match expr{
             Expr::Literal(lit) => {
                 if let Lit::Id(s) = lit {
-                    return Ok(self.vars[&s].clone()) 
+                    if self.vars.contains_key(&s){
+                        return Ok(self.vars[&s].clone()) 
+                    }
+                    return Err(format!("{} not found", s))
                 }
                 return Ok(lit)
             },
