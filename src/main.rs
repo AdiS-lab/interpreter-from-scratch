@@ -618,7 +618,10 @@ fn main() -> ExitCode {
                 Ok(val)=>{ 
                     match execute(val){
                         Ok(val) => {},
-                        Err(e) => return e
+                        Err(e) => {
+                            eprintln!("{}", e);
+                            return ExitCode::from(70)
+                        }
                     }
                 },
                 Err(e)=>{
