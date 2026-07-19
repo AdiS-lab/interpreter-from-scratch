@@ -97,7 +97,7 @@ impl Parser{
                 return Err("line [1] make sure to include semicolon!".to_string()) 
             }
             return Ok(Stmt::Print(res));
-        }else if matches!(tk_type.as_str(), "{") {
+        }else if matches!(tk_type.as_str(), "LEFT_PAREN") {
             let p: String = self.consume(); // consume { 
             let res: Vec<Declr> = self.block()?; // call back 
             return Ok(Stmt::Block(res))
@@ -535,8 +535,8 @@ fn execute(val: Vec<Declr>) -> Result<(), String> {
                 println!("{}", val);
             }else if let Stmt::Other(expr) = stmt{ 
                 let val: Lit = interpreter.evaluate(expr)?;
-            }else if let Stmt::Block(vecD) = stmt{
-                execute(vecD)?;
+            }else if let Stmt::Block(vec_d) = stmt{
+                execute(vec_d)?;
             }
         }
     };
