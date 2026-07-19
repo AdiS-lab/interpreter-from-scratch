@@ -68,7 +68,7 @@ impl Parser{
     fn declaration(&mut self)-> Result<Vec<Declr>, String> { // if just that 
         let mut tk_type: String = self.peek();
         let mut d: Vec<Declr> = Vec::<Declr>::new();
-        while tk_type != "EOF" || tk_type != "RIGHT_BRACE"{
+        while tk_type != "EOF" && tk_type != "RIGHT_BRACE"{
             if matches!(tk_type.as_str(), "VAR"){
                 let v: String = self.consume();
                 let id: String = self.consume();
@@ -83,19 +83,15 @@ impl Parser{
                 d.push(Declr::Reg(right));
             }
             tk_type = self.peek();
-            println!("this is tk type {}", tk_type)
         }
-        println!("should be right brace {}", tk_type);
         return Ok(d);
     }
 
     fn statement(&mut self) -> Result<Stmt, String>{
         let tk_type = self.peek();
-        println!("this is tk type in statement {}", tk_type);
         if matches!(tk_type.as_str(), "PRINT"){
             let p: String = self.consume();
             let res: Expr = self.assignment()?;
-            println!("should be an id {:?}", res);
             if self.consume() != ";"{
                 return Err("line [1] make sure to include semicolon!".to_string()) 
             }
@@ -106,7 +102,6 @@ impl Parser{
             return Ok(Stmt::Block(res))
         }else{  
             let result: Expr = self.assignment()?;
-            println!("should be a string {:?}", result);
             if self.consume() != ";"{
                 return Err("line [1] make sure to include semicolon!".to_string()) 
             }
