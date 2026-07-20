@@ -554,11 +554,11 @@ impl Interpreter {
             },
             Expr::Operand(l, o , r) =>{ //false or false or true =>   false or true
                 let left = self.evaluate(*l)?;
-                let bool = self.is_falsey(left.clone());
-                if o == "and" && bool{
+                let b = self.is_truthy(left.clone());
+                if o == "and" && !b{
                     return Ok(left)
                 }
-                if o == "or" && !bool{
+                if o == "or" && b{
                     return Ok(left);
                 }
                 return self.evaluate(*r);
@@ -566,7 +566,7 @@ impl Interpreter {
         }   
     }
 
-    fn is_falsey(&mut self, lit: Lit) -> bool{
+    fn is_truthy(&mut self, lit: Lit) -> bool{
         if let Lit::Nil = lit{
             return false
         }
@@ -606,8 +606,8 @@ fn ex_reg(stmt: Stmt, interpreter: &mut Interpreter)->Result<(), String>{
         interpreter.scope.pop(); 
     }else if let Stmt::IfChain(expr, then_stmt, else_stmt) = stmt{ 
         let val: Lit =(interpreter.evaluate(expr)?);
-        let b = interpreter.is_falsey(val.clone());
-        if !b{
+        let b = interpreter.is_truthy(val.clone()); // if lit ain't that then true
+        if b{
             ex_reg(*then_stmt, interpreter)?;  
         }else{
             ex_reg(*else_stmt, interpreter)?;  
