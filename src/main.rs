@@ -543,7 +543,6 @@ impl Interpreter {
 // pass in interpreter, and then on call execute, push itself into the existing one. 
 
 fn execute(list: Vec<Declr>, interpreter: &mut Interpreter) -> Result<(), String> {
-    println!("{:?}", list);
     for i in list{
         if let Declr::VarDeclr(id, stmt) = i { // whether declaration for now HAS to be a simple expr
             if let Stmt::Other(expr) = stmt { 
