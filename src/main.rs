@@ -136,9 +136,9 @@ impl Parser{
 
         if matches!(tk_type.as_str(), "EQUAL"){ 
             let operator: String = self.consume(); 
-            if let Expr::Literal(Lit:: Id(s)) = left{
+            if let Expr::Literal(Lit:: Id(id)) = left{
                 let right = self.assignment()?;
-                return Ok(Expr::Assign(s, Box::new(right))) 
+                return Ok(Expr::Assign(id, Box::new(right))) 
             }
             return Err("make sure to include equal if re-defining identifier".to_string())
         }
@@ -246,7 +246,7 @@ impl Parser{
             return Ok(result)
         }else if matches!(tk_type.as_str(), "LEFT_PAREN"){
             _ = self.consume(); // consumes (
-            let right = self.equality()?;
+            let right = self.assignment()?;
             let right_paren = self.consume(); 
             if right_paren != ")"{
                 return Err(format!("[line 1] Error at '{}': close parantheses.", right_paren)) 
