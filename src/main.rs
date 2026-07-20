@@ -95,6 +95,7 @@ impl Parser{
         if matches!(tk_type.as_str(), "PRINT"){
             self.consume();
             let res: Expr = self.assignment()?;
+            // println!("this is res to print {:?}", res);
             if self.consume() != ";"{
                 return Err("line [1] make sure to include semicolon!".to_string()) 
             }
@@ -108,6 +109,7 @@ impl Parser{
             let open: String = self.consume(); 
             let condition: Expr = self.assignment()?;
             let close: String = self.consume();
+            // println!("{:?}", condition);
 
             let then_st: Stmt = self.statement()?; 
             let mut else_st: Stmt = Stmt::Other(Expr::Literal(Lit::Nil));
@@ -126,8 +128,10 @@ impl Parser{
          }
     } 
 
+// if (false or "ok") print "bar";
+
     fn assignment(&mut self) -> Result<Expr, String> {
-        let left: Expr = self.equality()?; 
+        let left: Expr = self.operands()?; 
         let tk_type = self.peek(); 
 
         if matches!(tk_type.as_str(), "EQUAL"){ 
@@ -142,8 +146,8 @@ impl Parser{
     }
 
     fn operands(&mut self) -> Result<Expr, String>{
-        let mut tk_type = self.peek();
         let mut left = self.equality()?;
+        let mut tk_type = self.peek();
 
         while matches!(tk_type.as_str(), "OR" | "AND"){ // false or true or true
             let operator: String = self.consume();
@@ -576,6 +580,7 @@ impl Interpreter {
 
 
 fn execute(list: Vec<Declr>, interpreter: &mut Interpreter) -> Result<(), String> {
+    // println!("{:?}", list);
     for i in list{
         if let Declr::VarDeclr(id, stmt) = i { // whether declaration for now HAS to be a simple expr
             if let Stmt::Other(expr) = stmt { 
@@ -600,13 +605,12 @@ fn ex_reg(stmt: Stmt, interpreter: &mut Interpreter)->Result<(), String>{
         execute(list, interpreter)?;
         interpreter.scope.pop(); 
     }else if let Stmt::IfChain(expr, then_stmt, else_stmt) = stmt{ 
-        let val: Lit = interpreter.evaluate(expr)?;
-        if let Lit::Bool(b) = val{
-            if b{ 
-                ex_reg(*then_stmt, interpreter)?;  
-            }else{
-                ex_reg(*else_stmt, interpreter)?;  
-            }
+        let val: Lit =(interpreter.evaluate(expr)?);
+        let b = interpreter.is_falsey(val.clone());
+        if !b{
+            ex_reg(*then_stmt, interpreter)?;  
+        }else{
+            ex_reg(*else_stmt, interpreter)?;  
         }
     }
     return Ok(())
