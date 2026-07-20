@@ -1,2 +1,1 @@
 var world = 0;
-while (world < 3) print world = world + 1;

@@ -25,7 +25,8 @@ enum Stmt{
     Other(Expr),
     Block(Vec<Declr>),
     IfChain(Expr, Box<Stmt>, Box<Stmt>),
-    WhileStmt(Expr, Box<Stmt>)
+    WhileStmt(Expr, Box<Stmt>),
+    // ForStmt()
 }
 
 #[derive(Debug, Clone)]                                                                                                                                                   
@@ -87,6 +88,8 @@ impl Parser{
                 d.push(Declr::Reg(right));
             }
             tk_type = self.peek();
+            println!("{}", tk_type);
+
         }
         return Ok(d);
     }
@@ -110,8 +113,6 @@ impl Parser{
             let open: String = self.consume(); 
             let condition: Expr = self.assignment()?;
             let close: String = self.consume();
-            // println!("{:?}", condition);
-
             let then_st: Stmt = self.statement()?; 
             let mut else_st: Stmt = Stmt::Other(Expr::Literal(Lit::Nil));
             if self.peek() == "ELSE"{
@@ -127,6 +128,17 @@ impl Parser{
             let close: String = self.consume();
             let repeat = self.statement()?;
             return Ok(Stmt::WhileStmt(condition, Box::new(repeat)))
+        // }else if matches!(tk_type.as_str(), "FOR"){
+        //     self.consume();
+        //     let open: String = self.consume(); 
+        //     let start:  = self.declaration()?;
+
+
+
+
+        //     let close: String = self.consume();
+        //     let repeat = self.statement()?;
+        //     return Ok(Stmt::WhileStmt(condition, Box::new(repeat))) 
         }else{  
             let result: Expr = self.assignment()?;
             if self.consume() != ";"{
