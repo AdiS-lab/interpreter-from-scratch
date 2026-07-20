@@ -108,12 +108,12 @@ impl Parser{
             let condition: Expr = self.assignment()?;
             let close: String = self.consume();
 
-            let thenSt: Stmt = self.statement()?; 
-            let mut elseSt: Stmt = Stmt::Other(Expr::Literal(Lit::Nil));
+            let then_st: Stmt = self.statement()?; 
+            let mut else_st: Stmt = Stmt::Other(Expr::Literal(Lit::Nil));
             if self.peek() == "ELSE"{
-                elseSt = self.statement()?;
+                else_st = self.statement()?;
             }
-            return Ok( Stmt::IfChain(condition, Box::new(thenSt), Box::new(elseSt)) ) // should be an expr
+            return Ok( Stmt::IfChain(condition, Box::new(then_st), Box::new(else_st)) ) // should be an expr
 
         }else{  
             let result: Expr = self.assignment()?;
@@ -543,6 +543,7 @@ impl Interpreter {
 // pass in interpreter, and then on call execute, push itself into the existing one. 
 
 fn execute(list: Vec<Declr>, interpreter: &mut Interpreter) -> Result<(), String> {
+    println!("{:?}", list);
     for i in list{
         if let Declr::VarDeclr(id, stmt) = i { // whether declaration for now HAS to be a simple expr
             if let Stmt::Other(expr) = stmt { 
@@ -550,31 +551,32 @@ fn execute(list: Vec<Declr>, interpreter: &mut Interpreter) -> Result<(), String
                 interpreter.scope.last_mut().unwrap().insert(id, val);
             }
         }else if let Declr::Reg(stmt) = i{
-            if let Stmt::Print(expr) = stmt{
-                let val: Lit = interpreter.evaluate(expr)?;
-                println!("{}", val);
-            }else if let Stmt::Other(expr) = stmt{ 
-                let val: Lit = interpreter.evaluate(expr)?;
-            }else if let Stmt::Block(list) = stmt{
-                interpreter.scope.push(HashMap::new());
-                execute(list, interpreter)?;
-                interpreter.scope.pop();
-            }else if let Stmt::IfChain(expr, then_stmt, else_stmt) = stmt{
-                let val: Lit = interpreter.evaluate(expr)?;
-                if let Lit::Bool(b) = val{
-                    if b{
-                        if let Stmt::Block(list) = *then_stmt {
-                            execute(list, interpreter)?;
-                        }
-                    }else{
-                        if let Stmt::Block(list ) = *else_stmt{
-                            execute(list, interpreter)?;
-                        }
-                    }
-                }
-            }
+            ex_reg(stmt, interpreter)?;
         }
     };
+    return Ok(())
+}
+
+fn ex_reg(stmt: Stmt, interpreter: &mut Interpreter)->Result<(), String>{
+    if let Stmt::Print(expr) = stmt{
+        let val: Lit = interpreter.evaluate(expr)?;
+        println!("{}", val);
+    }else if let Stmt::Other(expr) = stmt{ 
+        let val: Lit = interpreter.evaluate(expr)?;
+    }else if let Stmt::Block(list) = stmt{
+        interpreter.scope.push(HashMap::new());
+        execute(list, interpreter)?;
+        interpreter.scope.pop(); 
+    }else if let Stmt::IfChain(expr, then_stmt, else_stmt) = stmt{ 
+        let val: Lit = interpreter.evaluate(expr)?;
+        if let Lit::Bool(b) = val{
+            if b{ 
+                ex_reg(*then_stmt, interpreter)?;  
+            }else{
+                ex_reg(*else_stmt, interpreter)?;  
+            }
+        }
+    }
     return Ok(())
 }
 

@@ -1,14 +1,1 @@
-{
-    var baz = "outer baz";
-    var foo = "outer foo";
-    {
-      baz = "modified baz";
-      var foo = "inner foo";
-      print baz;
-      print foo;
-    }
-    print baz;
-    print foo;
-}
-print baz;
-
+if (true) print "hello";
