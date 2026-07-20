@@ -111,6 +111,7 @@ impl Parser{
             let then_st: Stmt = self.statement()?; 
             let mut else_st: Stmt = Stmt::Other(Expr::Literal(Lit::Nil));
             if self.peek() == "ELSE"{
+                self.consume();
                 else_st = self.statement()?;
             }
             return Ok( Stmt::IfChain(condition, Box::new(then_st), Box::new(else_st)) ) // should be an expr
