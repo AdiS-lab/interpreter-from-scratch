@@ -141,12 +141,14 @@ impl Parser{
     }
 
     fn equality(&mut self) -> Result<Expr, String> {
-        let left = self.comparison()?;
-        let tk_type = self.peek(); 
-        if matches!(tk_type.as_str(), "BANG_EQUAL" | "EQUAL_EQUAL" | "OR"){
-            let operator = self.consume(); 
-            let right = self.comparison()?; 
-            return Ok(Expr::Binary(Box::new(left), operator, Box::new(right)))
+        let mut left = self.comparison()?;
+        let mut tk_type = self.peek(); 
+        
+        while matches!(tk_type.as_str(), "BANG_EQUAL" | "EQUAL_EQUAL" | "OR"){
+            let operator = self.consume();
+            let right = self.comparison()?;
+            left = Expr::Binary(Box::new(left), operator, Box::new(right));
+            tk_type = self.peek();
         }
         return Ok(left)
     }
