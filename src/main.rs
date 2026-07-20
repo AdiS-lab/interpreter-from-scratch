@@ -133,22 +133,23 @@ impl Parser{
         }else if matches!(tk_type.as_str(), "FOR"){
             self.consume();
             let open: String = self.consume();  // ( var i = 1; i < 2; i + 1)
-            // println!("{}", self.peek());
+            let mut start: Declr = Declr::Reg(Stmt::Other(Expr::Literal(Lit::Nil)));
 
-            let start:Declr  = self.var_declr()?;
+            if self.peek() == "VAR"{
+                start = self.var_declr()?;
+            }else{
+                self.consume();
+            }
+
             let range: Stmt = self.statement()?;
-            // println!("{:?}\n{:?}", start, range);
             let mut incr: Expr = Expr::Literal(Lit::Nil);
-
-            // println!("{}", self.peek());
             if self.peek() != "RIGHT_PAREN"{
                 incr = self.assignment()?;
             }
 
             let close: String = self.consume();
             let repeat: Stmt = self.statement()?;
-            // println!("{:?}", repeat);
-            // println!("{}", self.peek());
+
 
             return Ok(Stmt::ForStmt(Box::new(start), Box::new(range), incr, Box::new(repeat))) 
         }else{
@@ -653,9 +654,9 @@ fn ex_reg(stmt: Stmt, interpreter: &mut Interpreter)->Result<(), String>{
 
         };
     }else if let Stmt::ForStmt(var_init,range, incr, stmt) = stmt{
-        let Declr::VarDeclr(id, val) = *var_init else{return Err("no var init in for loop".to_string())};
-        ex_var(id.clone(), val, interpreter)?; // create var with num
-
+        if let Declr::VarDeclr(id, val) = *var_init{
+            ex_var(id.clone(), val, interpreter)?; // create var with num
+        }
         let condition = if let Stmt::Other(c) = *range { c } else { Expr::Literal(Lit::Bool(true)) }; // condition
         let mut val = interpreter.evaluate(condition.clone())?; // range
 
