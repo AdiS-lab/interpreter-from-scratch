@@ -26,7 +26,7 @@ enum Stmt{
     Block(Vec<Declr>),
     IfChain(Expr, Box<Stmt>, Box<Stmt>),
     WhileStmt(Expr, Box<Stmt>),
-    // ForStmt()
+    ForStmt(Box<Declr>, Box<Stmt>, Expr, Box<Stmt>)
 }
 
 #[derive(Debug, Clone)]                                                                                                                                                   
@@ -70,26 +70,28 @@ impl Parser{
         return Ok(res);
     }
 
+    fn var_declr(&mut self) -> Result<Declr, String>{
+        let vars: String = self.consume();
+        let id: String = self.consume();
+        let operator: String = self.consume(); 
+        match operator.as_str() {
+            "=" =>  return Ok(Declr::VarDeclr(id, self.statement()?)),
+            ";" => return Ok(Declr::VarDeclr(id, Stmt::Other(Expr::Literal(Lit::Nil)))),
+            _ => return Err("bad syntax on var".to_string())
+        }
+    } 
+
     fn declaration(&mut self)-> Result<Vec<Declr>, String> { // if just that 
         let mut tk_type: String = self.peek();
         let mut d: Vec<Declr> = Vec::<Declr>::new();
         while tk_type != "EOF" && tk_type != "RIGHT_BRACE"{
             if matches!(tk_type.as_str(), "VAR"){
-                let v: String = self.consume();
-                let id: String = self.consume();
-                let o: String = self.consume();
-                match o.as_str() {
-                    "=" => d.push(Declr::VarDeclr(id, self.statement()?)),
-                    ";" => d.push(Declr::VarDeclr(id, Stmt::Other(Expr::Literal(Lit::Nil)))),
-                    _ => return Err("bad syntax on var".to_string())
-                }
+                d.push(self.var_declr()?);
             }else{
                 let right: Stmt = self.statement()?; // statements should go until semicolons
                 d.push(Declr::Reg(right));
             }
             tk_type = self.peek();
-            println!("{}", tk_type);
-
         }
         return Ok(d);
     }
@@ -128,19 +130,28 @@ impl Parser{
             let close: String = self.consume();
             let repeat = self.statement()?;
             return Ok(Stmt::WhileStmt(condition, Box::new(repeat)))
-        // }else if matches!(tk_type.as_str(), "FOR"){
-        //     self.consume();
-        //     let open: String = self.consume(); 
-        //     let start:  = self.declaration()?;
+        }else if matches!(tk_type.as_str(), "FOR"){
+            self.consume();
+            let open: String = self.consume();  // ( var i = 1; i < 2; i + 1)
 
+            let start:Declr  = self.var_declr()?;
+            let range: Stmt = self.statement()?;
+            // println!("{:?}\n{:?}", start, range);
+            let mut incr: Expr = Expr::Literal(Lit::Nil);
 
+            // println!("{}", self.peek());
+            if self.peek() != "RIGHT_PAREN"{
+                incr = self.assignment()?;
+            }
 
+            let close: String = self.consume();
+            let repeat: Stmt = self.statement()?;
+            // println!("{:?}", repeat);
+            // println!("{}", self.peek());
 
-        //     let close: String = self.consume();
-        //     let repeat = self.statement()?;
-        //     return Ok(Stmt::WhileStmt(condition, Box::new(repeat))) 
-        }else{  
-            let result: Expr = self.assignment()?;
+            return Ok(Stmt::ForStmt(Box::new(start), Box::new(range), incr, Box::new(repeat))) 
+        }else{
+            let result: Expr = self.assignment()?; // this is for var declaratiions.
             if self.consume() != ";"{
                 return Err("line [1] make sure to include semicolon!".to_string()) 
             }
@@ -153,7 +164,6 @@ impl Parser{
     fn assignment(&mut self) -> Result<Expr, String> {
         let left: Expr = self.operands()?; 
         let tk_type = self.peek(); 
-
         if matches!(tk_type.as_str(), "EQUAL"){ 
             let operator: String = self.consume(); 
             if let Expr::Literal(Lit:: Id(id)) = left{
@@ -595,7 +605,12 @@ impl Interpreter {
         }
         return true
     }
-  
+    fn incr_var(&mut self, id: String){
+        let scope = self.scope.last_mut().unwrap();
+        if let Some(Lit::F64(value)) = scope.get(&id) {
+          scope.insert(id, Lit::F64(value + 1.0));
+        }
+    }
 }
 
 
@@ -603,10 +618,7 @@ fn execute(list: Vec<Declr>, interpreter: &mut Interpreter) -> Result<(), String
     // println!("{:?}", list);
     for i in list{
         if let Declr::VarDeclr(id, stmt) = i { // whether declaration for now HAS to be a simple expr
-            if let Stmt::Other(expr) = stmt { 
-                let val: Lit = interpreter.evaluate(expr)?;
-                interpreter.scope.last_mut().unwrap().insert(id, val);
-            }
+            ex_var(id, stmt, interpreter)?;
         }else if let Declr::Reg(stmt) = i{
             ex_reg(stmt, interpreter)?;
         }
@@ -625,8 +637,8 @@ fn ex_reg(stmt: Stmt, interpreter: &mut Interpreter)->Result<(), String>{
         execute(list, interpreter)?;
         interpreter.scope.pop(); 
     }else if let Stmt::IfChain(conditional, then_stmt, else_stmt) = stmt{ 
-        let val: Lit =(interpreter.evaluate(conditional)?);
-        let b = interpreter.is_truthy(val.clone()); // if lit ain't that then true
+        let val: Lit = interpreter.evaluate(conditional)?;
+        let b: bool = interpreter.is_truthy(val.clone()); // if lit ain't that then true
         if b{
             ex_reg(*then_stmt, interpreter)?;  
         }else{
@@ -634,16 +646,39 @@ fn ex_reg(stmt: Stmt, interpreter: &mut Interpreter)->Result<(), String>{
         }
     }else if let Stmt::WhileStmt(c, stmt) = stmt{
         let mut res = interpreter.evaluate(c.clone())?;
-        // println!("{}", res);
-        
         while interpreter.is_truthy(res) { 
             ex_reg(*stmt.clone(), interpreter)?;
-            // println!("{:?}", interpreter.scope);
             res = interpreter.evaluate(c.clone())?;
 
         };
-    }
+    }else if let Stmt::ForStmt(var_init,range, incr, stmt) = stmt{
+        let Declr::VarDeclr(id, val) = *var_init else{return Err("no var init in for loop".to_string())};
+        ex_var(id.clone(), val, interpreter)?; // create var with num
+
+        let condition = if let Stmt::Other(c) = *range { c } else { Expr::Literal(Lit::Bool(true)) }; // condition
+        let mut val = interpreter.evaluate(condition.clone())?; // range
+
+        while interpreter.is_truthy(val){
+            // println!("{:?}", interpreter.scope);
+            ex_reg(*stmt.clone(), interpreter)?; 
+            match incr{
+                Expr::Literal(Lit::Nil) => {},
+                _=> { interpreter.evaluate(incr.clone())?; }
+            }
+            val = interpreter.evaluate(condition.clone())?;
+            // println!("{:?}",val);
+        };
+    }   
     return Ok(())
+}
+
+
+fn ex_var(id: String, stmt: Stmt, interpreter: &mut Interpreter) -> Result<(), String>{
+  if let Stmt::Other(expr) = stmt { 
+    let val: Lit = interpreter.evaluate(expr)?;
+    interpreter.scope.last_mut().unwrap().insert(id, val);
+  }
+  return Ok(())
 }
 
 fn main() -> ExitCode {
