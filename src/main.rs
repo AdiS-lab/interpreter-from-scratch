@@ -23,7 +23,8 @@ enum Declr{
 enum Stmt{
     Print(Expr),
     Other(Expr),
-    Block(Vec<Declr>)
+    Block(Vec<Declr>),
+    IfChain(Expr, Box<Stmt>, Box<Stmt>),
 }
 
 #[derive(Debug)]                                                                                                                                                   
@@ -91,16 +92,29 @@ impl Parser{
     fn statement(&mut self) -> Result<Stmt, String>{
         let tk_type = self.peek();
         if matches!(tk_type.as_str(), "PRINT"){
-            let p: String = self.consume();
+            self.consume();
             let res: Expr = self.assignment()?;
             if self.consume() != ";"{
                 return Err("line [1] make sure to include semicolon!".to_string()) 
             }
             return Ok(Stmt::Print(res));
         }else if matches!(tk_type.as_str(), "LEFT_BRACE") {
-            let p: String = self.consume(); // consume { 
+            self.consume(); // consume { 
             let res: Vec<Declr> = self.block()?; // call back 
             return Ok(Stmt::Block(res))
+        }else if matches!(tk_type.as_str(), "IF"){
+            self.consume();
+            let open: String = self.consume(); 
+            let condition: Expr = self.assignment()?;
+            let close: String = self.consume();
+
+            let thenSt: Stmt = self.statement()?; 
+            let mut elseSt: Stmt = Stmt::Other(Expr::Literal(Lit::Nil));
+            if self.peek() == "ELSE"{
+                elseSt = self.statement()?;
+            }
+            return Ok( Stmt::IfChain(condition, Box::new(thenSt), Box::new(elseSt)) ) // should be an expr
+
         }else{  
             let result: Expr = self.assignment()?;
             if self.consume() != ";"{
@@ -108,7 +122,7 @@ impl Parser{
             }
             return Ok(Stmt::Other(result));
          }
-    }
+    } 
 
     // if left curly then loop through declarations, 
 
@@ -116,15 +130,15 @@ impl Parser{
         let left: Expr = self.equality()?; 
         let tk_type = self.peek(); 
 
-        if matches!(tk_type.as_str(), "EQUAL"){ // check if the previous was leftentifier
+        if matches!(tk_type.as_str(), "EQUAL"){ 
             let operator: String = self.consume(); 
             if let Expr::Literal(Lit:: Id(s)) = left{
                 let right = self.assignment()?;
-                return Ok(Expr::Assign(s, Box::new(right))) // left and expr
+                return Ok(Expr::Assign(s, Box::new(right))) 
             }
             return Err("make sure to include equal if re-defining identifier".to_string())
         }
-        return Ok(left); // if not id then will just be expr
+        return Ok(left); 
     }
 
     fn equality(&mut self) -> Result<Expr, String> {
@@ -528,10 +542,10 @@ impl Interpreter {
 
 // pass in interpreter, and then on call execute, push itself into the existing one. 
 
-fn execute(val: Vec<Declr>, interpreter: &mut Interpreter) -> Result<(), String> {
-    for i in val{
+fn execute(list: Vec<Declr>, interpreter: &mut Interpreter) -> Result<(), String> {
+    for i in list{
         if let Declr::VarDeclr(id, stmt) = i { // whether declaration for now HAS to be a simple expr
-            if let Stmt::Other(expr) = stmt{ 
+            if let Stmt::Other(expr) = stmt { 
                 let val: Lit = interpreter.evaluate(expr)?;
                 interpreter.scope.last_mut().unwrap().insert(id, val);
             }
@@ -541,10 +555,23 @@ fn execute(val: Vec<Declr>, interpreter: &mut Interpreter) -> Result<(), String>
                 println!("{}", val);
             }else if let Stmt::Other(expr) = stmt{ 
                 let val: Lit = interpreter.evaluate(expr)?;
-            }else if let Stmt::Block(vec_d) = stmt{
+            }else if let Stmt::Block(list) = stmt{
                 interpreter.scope.push(HashMap::new());
-                execute(vec_d, interpreter)?;
+                execute(list, interpreter)?;
                 interpreter.scope.pop();
+            }else if let Stmt::IfChain(expr, then_stmt, else_stmt) = stmt{
+                let val: Lit = interpreter.evaluate(expr)?;
+                if let Lit::Bool(b) = val{
+                    if b{
+                        if let Stmt::Block(list) = *then_stmt {
+                            execute(list, interpreter)?;
+                        }
+                    }else{
+                        if let Stmt::Block(list ) = *else_stmt{
+                            execute(list, interpreter)?;
+                        }
+                    }
+                }
             }
         }
     };
