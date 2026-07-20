@@ -416,7 +416,7 @@ fn parse(val: Expr) -> String {
 
 
 struct Interpreter {
-    vars: HashMap<String, Lit>,
+    scope: Vec<HashMap<String, Lit>>,
 }
 
 impl Interpreter {
@@ -424,9 +424,12 @@ impl Interpreter {
         match expr{
             Expr::Literal(lit) => {
                 if let Lit::Id(s) = lit {
-                    if self.vars.contains_key(&s){
-                        return Ok(self.vars[&s].clone()) 
-                    }
+                    let iter = self.scope.iter().rev();
+                    for vars in iter{
+                        if vars.contains_key(&s){
+                            return Ok(vars[&s].clone())
+                        }
+                    };
                     return Err(format!("{} not found", s))
                 }
                 return Ok(lit)
@@ -507,9 +510,9 @@ impl Interpreter {
                 return self.evaluate(*l)
             },
             Expr::Assign(s, expr) => {
-                if self.vars.contains_key(&s){ // give reference 
+                if self.scope.last_mut().unwrap().contains_key(&s){ // give reference 
                     let res = self.evaluate(*expr)?; // dereference box to get expr
-                    self.vars.insert(s, res.clone()); // find key/val and 
+                    self.scope.last_mut().unwrap().insert(s, res.clone()); // find key/val and 
                     return Ok(res) 
                 }
                 return Err(format!("{} not found", s))
@@ -519,15 +522,15 @@ impl Interpreter {
     }    
 }
 
-// on good cases should print out everything and return good. 
 
-fn execute(val: Vec<Declr>) -> Result<(), String> {
-    let mut interpreter: Interpreter = Interpreter{vars: HashMap::new()}; // create new instance
+// pass in interpreter, and then on call execute, push itself into the existing one. 
+
+fn execute(val: Vec<Declr>, interpreter: &mut Interpreter) -> Result<(), String> {
     for i in val{
         if let Declr::VarDeclr(id, stmt) = i { // whether declaration for now HAS to be a simple expr
             if let Stmt::Other(expr) = stmt{ 
                 let val: Lit = interpreter.evaluate(expr)?;
-                interpreter.vars.insert(id, val);
+                interpreter.scope.last_mut().unwrap().insert(id, val);
             }
         }else if let Declr::Reg(stmt) = i{
             if let Stmt::Print(expr) = stmt{
@@ -536,7 +539,9 @@ fn execute(val: Vec<Declr>) -> Result<(), String> {
             }else if let Stmt::Other(expr) = stmt{ 
                 let val: Lit = interpreter.evaluate(expr)?;
             }else if let Stmt::Block(vec_d) = stmt{
-                execute(vec_d)?;
+                interpreter.scope.push(HashMap::new());
+                execute(vec_d, interpreter)?;
+                interpreter.scope.pop();
             }
         }
     };
@@ -596,11 +601,11 @@ fn main() -> ExitCode {
             let mut parser = Parser{tokens, current: 0};
             let result = match parser.equality(){
                 Ok(val) => { 
-                    let mut interpter: Interpreter = Interpreter{vars: HashMap::new()};
-                    let res = match interpter.evaluate(val){
+                    let mut interpreter: Interpreter = Interpreter{scope: vec![HashMap::new()]};
+                    let res = match interpreter.evaluate(val){
                         Ok(val)=> println!("{}", val),
                         Err(err) =>{
-                            eprintln!("{}", err);
+                            eprintln!("{}", err); // print expression
                             return ExitCode::from(70)
                         }
                     };
@@ -616,7 +621,8 @@ fn main() -> ExitCode {
             let mut parser = Parser{tokens, current: 0};
             match parser.declaration(){
                 Ok(val)=>{ 
-                    match execute(val){
+                    let mut interpreter: Interpreter = Interpreter{scope: vec![HashMap::new()] }; // create new instance
+                    match execute(val, &mut interpreter){
                         Ok(val) => {},
                         Err(e) => {
                             eprintln!("{}", e);

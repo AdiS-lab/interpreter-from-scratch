@@ -1,6 +1,20 @@
-var baz = (91 * 16) - 61;
-{
-    var world = "quz" + "89";
+var baz = "global baz";
+var foo = "global foo";
+var world = "global world"; 
+  {
+    var baz = "outer baz";
+    var foo = "outer foo";
+    {
+      var baz = "inner baz";
+      print baz;
+      print foo;
+      print world;
+    }
+    print baz;
+    print foo;
     print world;
-}
+  }
 print baz;
+print foo;
+print world;
+
