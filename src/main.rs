@@ -13,7 +13,7 @@ struct Parser{
 // wrap var state inside interpreter so for now the whole program would reference
 //the same variables
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 enum Declr{
     VarDeclr(String, Stmt),
     Reg(Stmt)
