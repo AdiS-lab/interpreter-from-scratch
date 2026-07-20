@@ -436,7 +436,8 @@ fn parse(val: Expr) -> String {
         Expr::Binary(l , o, r) =>return format!("({} {} {})", o, parse(*l), parse(*r)),
         Expr::Unary(l, r) =>return format!("({} {})", l, parse(*r)),
         Expr::Grouping(l) =>return format!("(group {})", parse(*l)),
-        Expr::Assign(s, expr) => return format!("({}{})",s, parse(*expr))
+        Expr::Assign(s, expr) => return format!("({}{})",s, parse(*expr)),
+        Expr::Operand(l, o, r) => return format!("({}{}{})", o, parse(*l), parse(*r))
     };    
     return "".to_string()
 }
