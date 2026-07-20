@@ -121,6 +121,7 @@ impl Parser{
             return Ok( Stmt::IfChain(condition, Box::new(then_st), Box::new(else_st)) ) // should be an expr
 
         }else if matches!(tk_type.as_str(), "WHILE"){
+            self.consume();
             let open: String = self.consume(); 
             let condition: Expr = self.assignment()?;
             let close: String = self.consume();
@@ -621,9 +622,13 @@ fn ex_reg(stmt: Stmt, interpreter: &mut Interpreter)->Result<(), String>{
         }
     }else if let Stmt::WhileStmt(c, stmt) = stmt{
         let mut res = interpreter.evaluate(c.clone())?;
-        while !interpreter.is_truthy(res) { 
+        // println!("{}", res);
+        
+        while interpreter.is_truthy(res) { 
             ex_reg(*stmt.clone(), interpreter)?;
+            // println!("{:?}", interpreter.scope);
             res = interpreter.evaluate(c.clone())?;
+
         };
     }
     return Ok(())
