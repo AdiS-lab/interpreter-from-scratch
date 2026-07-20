@@ -156,7 +156,7 @@ impl Parser{
             return Ok(Stmt::ForStmt(Box::new(start), Box::new(range), incr, Box::new(repeat))) 
         }else{
             let result: Expr = self.assignment()?; // this is for var declaratiions.
-            println!("{:?}", result);
+            // println!("{:?}", result);
             if self.consume() != ";"{
                 return Err("line [1] make sure to include semicolon!".to_string()) 
             }
@@ -486,7 +486,7 @@ struct Interpreter {
 
 impl Interpreter {
     fn evaluate(&mut self, expr: Expr) -> Result<Lit, String> {
-        println!("{:?}", self.scope);
+        // println!("{:?}", self.scope);
         match expr{
             Expr::Literal(lit) => {
                 if let Lit::Id(s) = lit {
