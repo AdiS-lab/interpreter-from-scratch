@@ -125,8 +125,6 @@ impl Parser{
          }
     } 
 
-    // if left curly then loop through declarations, 
-
     fn assignment(&mut self) -> Result<Expr, String> {
         let left: Expr = self.equality()?; 
         let tk_type = self.peek(); 
@@ -145,7 +143,7 @@ impl Parser{
     fn equality(&mut self) -> Result<Expr, String> {
         let left = self.comparison()?;
         let tk_type = self.peek(); 
-        if matches!(tk_type.as_str(), "BANG_EQUAL" | "EQUAL_EQUAL"){
+        if matches!(tk_type.as_str(), "BANG_EQUAL" | "EQUAL_EQUAL" | "OR"){
             let operator = self.consume(); 
             let right = self.comparison()?; 
             return Ok(Expr::Binary(Box::new(left), operator, Box::new(right)))
@@ -496,6 +494,18 @@ impl Interpreter {
                                 return Ok(Lit::Bool(s!=s2))
                             }
                             return Ok(Lit::Bool(true))
+                        },
+                        "or" =>{
+                            if let Lit::Bool(b) = left && let Lit::Bool(b2) = right{
+                                if !b && !b2{
+                                    return Ok(Lit::Bool(false))
+                                }
+                                return Ok(Lit::Bool(true))
+                            }else if let Lit::Nil = left && let Lit::Nil = right{
+                                return Ok(Lit::Bool(false))
+                            }else{
+                                return Ok(Lit::Bool(true))
+                            }
                         },
                         _ => return Ok(Lit::Nil)
                     }
