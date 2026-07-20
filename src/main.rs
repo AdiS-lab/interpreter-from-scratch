@@ -28,12 +28,13 @@ enum Stmt{
 }
 
 #[derive(Debug)]                                                                                                                                                   
-enum Expr{
+enum Expr{ //  for some reason logical or and logical and are implemented inside expression
     Binary(Box<Expr>, String, Box<Expr>),
     Unary(String, Box<Expr>),
     Grouping(Box<Expr>),
     Literal(Lit),
-    Assign(String, Box<Expr>)
+    Assign(String, Box<Expr>), // that means that assign is either assign or OR. so an enum with both expressed.
+    Operand(Box<Expr>, String, Box<Expr>)
 }
 #[derive(Debug, Clone)]                                                                                             
 enum Lit{
@@ -140,11 +141,24 @@ impl Parser{
         return Ok(left); 
     }
 
+    fn operands(&mut self) -> Result<Expr, String>{
+        let mut tk_type = self.peek();
+        let mut left = self.equality()?;
+
+        while matches!(tk_type.as_str(), "OR" | "AND"){ // false or true or true
+            let operator: String = self.consume();
+            let right = self.equality()?;
+            left = Expr::Operand(Box::new(left), operator, Box::new(right));
+            tk_type = self.peek();
+        }
+        return Ok(left)
+    }  
+
     fn equality(&mut self) -> Result<Expr, String> {
         let mut left = self.comparison()?;
         let mut tk_type = self.peek(); 
-        
-        while matches!(tk_type.as_str(), "BANG_EQUAL" | "EQUAL_EQUAL" | "OR"){
+
+        while matches!(tk_type.as_str(), "BANG_EQUAL" | "EQUAL_EQUAL"){
             let operator = self.consume();
             let right = self.comparison()?;
             left = Expr::Binary(Box::new(left), operator, Box::new(right));
@@ -163,9 +177,7 @@ impl Parser{
             left = Expr::Binary(Box::new(left), operator, Box::new(right));
             tk_type = self.peek();
         };
-        return Ok(left)
-        
-        
+        return Ok(left)  
     }
 
     fn add(&mut self) -> Result<Expr, String>{
@@ -497,23 +509,11 @@ impl Interpreter {
                             }
                             return Ok(Lit::Bool(true))
                         },
-                        "or" =>{
-                            if let Lit::Bool(b) = left && let Lit::Bool(b2) = right{
-                                if !b && !b2{
-                                    return Ok(Lit::Bool(false))
-                                }
-                                return Ok(Lit::Bool(true))
-                            }else if let Lit::Nil = left && let Lit::Nil = right{
-                                return Ok(Lit::Bool(false))
-                            }else{
-                                return Ok(Lit::Bool(true))
-                            }
-                        },
                         _ => return Ok(Lit::Nil)
                     }
                 }
             },
-            Expr::Unary(l, r) => {
+            Expr::Unary(l, r) => { 
                 let right = self.evaluate(*r)?;
                 match l.as_str(){
                     "!"=> {
@@ -536,7 +536,7 @@ impl Interpreter {
             Expr::Grouping(l) => {
                 return self.evaluate(*l)
             },
-            Expr::Assign(k, expr) => {
+            Expr::Assign(k, expr) => { 
                 let res = self.evaluate(*expr)?; 
                 let iter = self.scope.iter_mut().rev();
                 for vars in iter{
@@ -547,13 +547,32 @@ impl Interpreter {
                 };
                 return Err(format!("not found {}", k))
             },
-                
+            Expr::Operand(l, o , r) =>{ //false or false or true =>   false or true
+                let left = self.evaluate(*l)?;
+                let bool = self.is_falsey(left.clone());
+                if o == "and" && bool{
+                    return Ok(left)
+                }
+                if o == "or" && !bool{
+                    return Ok(left);
+                }
+                return self.evaluate(*r);
+            },
         }   
-    }    
+    }
+
+    fn is_falsey(&mut self, lit: Lit) -> bool{
+        if let Lit::Nil = lit{
+            return false
+        }
+        if let Lit::Bool(false) = lit{
+            return false
+        }
+        return true
+    }
+  
 }
 
-
-// pass in interpreter, and then on call execute, push itself into the existing one. 
 
 fn execute(list: Vec<Declr>, interpreter: &mut Interpreter) -> Result<(), String> {
     for i in list{
