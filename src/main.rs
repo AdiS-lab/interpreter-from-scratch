@@ -81,14 +81,14 @@ impl Parser{
         }
     } 
 
-    fn declaration(&mut self)-> Result<Vec<Declr>, String> { // if just that 
+    fn declaration(&mut self)-> Result<Vec<Declr>, String> { 
         let mut tk_type: String = self.peek();
         let mut d: Vec<Declr> = Vec::<Declr>::new();
         while tk_type != "EOF" && tk_type != "RIGHT_BRACE"{
             if matches!(tk_type.as_str(), "VAR"){
                 d.push(self.var_declr()?);
             }else{
-                let right: Stmt = self.statement()?; // statements should go until semicolons
+                let right: Stmt = self.statement()?;
                 d.push(Declr::Reg(right));
             }
             tk_type = self.peek();
@@ -133,6 +133,7 @@ impl Parser{
         }else if matches!(tk_type.as_str(), "FOR"){
             self.consume();
             let open: String = self.consume();  // ( var i = 1; i < 2; i + 1)
+            // println!("{}", self.peek());
 
             let start:Declr  = self.var_declr()?;
             let range: Stmt = self.statement()?;
