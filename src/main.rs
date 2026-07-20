@@ -19,15 +19,16 @@ enum Declr{
     Reg(Stmt)
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 enum Stmt{
     Print(Expr),
     Other(Expr),
     Block(Vec<Declr>),
     IfChain(Expr, Box<Stmt>, Box<Stmt>),
+    WhileStmt(Expr, Box<Stmt>)
 }
 
-#[derive(Debug)]                                                                                                                                                   
+#[derive(Debug, Clone)]                                                                                                                                                   
 enum Expr{ //  for some reason logical or and logical and are implemented inside expression
     Binary(Box<Expr>, String, Box<Expr>),
     Unary(String, Box<Expr>),
@@ -119,6 +120,12 @@ impl Parser{
             }
             return Ok( Stmt::IfChain(condition, Box::new(then_st), Box::new(else_st)) ) // should be an expr
 
+        }else if matches!(tk_type.as_str(), "WHILE"){
+            let open: String = self.consume(); 
+            let condition: Expr = self.assignment()?;
+            let close: String = self.consume();
+            let repeat = self.statement()?;
+            return Ok(Stmt::WhileStmt(condition, Box::new(repeat)))
         }else{  
             let result: Expr = self.assignment()?;
             if self.consume() != ";"{
@@ -604,19 +611,23 @@ fn ex_reg(stmt: Stmt, interpreter: &mut Interpreter)->Result<(), String>{
         interpreter.scope.push(HashMap::new());
         execute(list, interpreter)?;
         interpreter.scope.pop(); 
-    }else if let Stmt::IfChain(expr, then_stmt, else_stmt) = stmt{ 
-        let val: Lit =(interpreter.evaluate(expr)?);
+    }else if let Stmt::IfChain(conditional, then_stmt, else_stmt) = stmt{ 
+        let val: Lit =(interpreter.evaluate(conditional)?);
         let b = interpreter.is_truthy(val.clone()); // if lit ain't that then true
         if b{
             ex_reg(*then_stmt, interpreter)?;  
         }else{
             ex_reg(*else_stmt, interpreter)?;  
         }
+    }else if let Stmt::WhileStmt(c, stmt) = stmt{
+        let mut res = interpreter.evaluate(c.clone())?;
+        while !interpreter.is_truthy(res) { 
+            ex_reg(*stmt.clone(), interpreter)?;
+            res = interpreter.evaluate(c.clone())?;
+        };
     }
     return Ok(())
 }
-
-
 
 fn main() -> ExitCode {
     let args: Vec<String> = env::args().collect();
