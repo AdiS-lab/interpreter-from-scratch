@@ -137,8 +137,10 @@ impl Parser{
 
             if self.peek() == "VAR"{
                 start = self.var_declr()?;
-            }else{
+            }else if self.peek() == "SEMICOLON"{
                 self.consume();
+            }else{
+                start = Declr::Reg(self.statement()?);
             }
 
             let range: Stmt = self.statement()?;
@@ -154,14 +156,13 @@ impl Parser{
             return Ok(Stmt::ForStmt(Box::new(start), Box::new(range), incr, Box::new(repeat))) 
         }else{
             let result: Expr = self.assignment()?; // this is for var declaratiions.
+            println!("{:?}", result);
             if self.consume() != ";"{
                 return Err("line [1] make sure to include semicolon!".to_string()) 
             }
             return Ok(Stmt::Other(result));
          }
     } 
-
-// if (false or "ok") print "bar";
 
     fn assignment(&mut self) -> Result<Expr, String> {
         let left: Expr = self.operands()?; 
@@ -485,6 +486,7 @@ struct Interpreter {
 
 impl Interpreter {
     fn evaluate(&mut self, expr: Expr) -> Result<Lit, String> {
+        println!("{:?}", self.scope);
         match expr{
             Expr::Literal(lit) => {
                 if let Lit::Id(s) = lit {
@@ -656,6 +658,8 @@ fn ex_reg(stmt: Stmt, interpreter: &mut Interpreter)->Result<(), String>{
     }else if let Stmt::ForStmt(var_init,range, incr, stmt) = stmt{
         if let Declr::VarDeclr(id, val) = *var_init{
             ex_var(id.clone(), val, interpreter)?; // create var with num
+        }else if let Declr::Reg(stmt) = *var_init{
+            ex_reg(stmt, interpreter)?;
         }
         let condition = if let Stmt::Other(c) = *range { c } else { Expr::Literal(Lit::Bool(true)) }; // condition
         let mut val = interpreter.evaluate(condition.clone())?; // range
