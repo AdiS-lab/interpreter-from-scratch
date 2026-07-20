@@ -431,7 +431,7 @@ impl Interpreter {
                         }
                     };
                     return Err(format!("{} not found", s))
-                }
+                };
                 return Ok(lit)
             },
             Expr::Binary(l , o, r) =>{
@@ -509,13 +509,16 @@ impl Interpreter {
             Expr::Grouping(l) => {
                 return self.evaluate(*l)
             },
-            Expr::Assign(s, expr) => {
-                if self.scope.last_mut().unwrap().contains_key(&s){ // give reference 
-                    let res = self.evaluate(*expr)?; // dereference box to get expr
-                    self.scope.last_mut().unwrap().insert(s, res.clone()); // find key/val and 
-                    return Ok(res) 
-                }
-                return Err(format!("{} not found", s))
+            Expr::Assign(k, expr) => {
+                let res = self.evaluate(*expr)?; 
+                let iter = self.scope.iter_mut().rev();
+                for vars in iter{
+                    if vars.contains_key(&k){
+                        vars.insert(k, res.clone()); 
+                        return Ok(res)
+                    };
+                };
+                return Err(format!("not found {}", k))
             },
                 
         }   

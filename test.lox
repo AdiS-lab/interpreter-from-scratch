@@ -1,20 +1,14 @@
-var baz = "global baz";
-var foo = "global foo";
-var world = "global world"; 
-  {
+{
     var baz = "outer baz";
     var foo = "outer foo";
     {
-      var baz = "inner baz";
+      baz = "modified baz";
+      var foo = "inner foo";
       print baz;
       print foo;
-      print world;
     }
     print baz;
     print foo;
-    print world;
-  }
+}
 print baz;
-print foo;
-print world;
 
