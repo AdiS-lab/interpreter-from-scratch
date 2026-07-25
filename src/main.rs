@@ -479,7 +479,6 @@ fn parse(val: Expr) -> String {
     return "".to_string()
 }
 
-
 struct Interpreter {
     scope: Vec<HashMap<String, Lit>>,
 }
