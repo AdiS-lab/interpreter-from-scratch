@@ -22,7 +22,7 @@ enum Declr{
 
 #[derive(Debug, Clone)]
 enum Stmt{
-    Print(Expr),
+    Print(Box<Stmt>),
     Other(Expr),
     Block(Vec<Declr>),
     IfChain(Expr, Box<Stmt>, Box<Stmt>),
@@ -126,11 +126,11 @@ impl Parser{
         let tk_type: String = self.peek();
         if matches!(tk_type.as_str(), "PRINT"){
             self.consume();
-            let res: Expr = self.assignment()?;
+            let res: Stmt = self.statement()?;
             if self.consume() != ";"{
                 return Err("line [1] make sure to include semicolon!".to_string()) 
             }
-            return Ok(Stmt::Print(res));
+            return Ok(Stmt::Print(Box::new(res)));
         }else if matches!(tk_type.as_str(), "LEFT_BRACE") {
             self.consume(); // consume { 
             let res: Vec<Declr> = self.block()?; // call back 
@@ -677,11 +677,16 @@ fn execute(list: Vec<Declr>, interpreter: &mut Interpreter) -> Result<(), String
 }
 
 fn ex_reg(stmt: Stmt, interpreter: &mut Interpreter)->Result<(), String>{
-    if let Stmt::Print(expr) = stmt{
-        let val: Lit = interpreter.evaluate(expr)?;
-        println!("{}", val);
+    if let Stmt::Print(print_statement) = stmt{
+        if let Stmt::Other(expr) = *print_statement{
+            let val: Lit = interpreter.evaluate(expr)?;
+            println!("{}", val);
+        }else{
+            ex_reg(*print_statement, interpreter)?;
+        }
     }else if let Stmt::Other(expr) = stmt{ 
         let val: Lit = interpreter.evaluate(expr)?;
+
     }else if let Stmt::Block(list) = stmt{
         interpreter.scope.push(HashMap::new());
         execute(list, interpreter)?;
