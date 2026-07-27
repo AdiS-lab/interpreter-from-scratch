@@ -3,7 +3,7 @@ use std::env;
 use std::fs;
 use std::process::ExitCode;
 use std::collections::HashMap;
-
+use std::time::{SystemTime, UNIX_EPOCH};
 
 struct Parser{
     tokens: Vec<String>,
@@ -16,6 +16,7 @@ struct Parser{
 #[derive(Debug, Clone)]
 enum Declr{
     VarDeclr(String, Stmt),
+    FunDeclr(String, Vec<String>, Stmt),
     Reg(Stmt)
 }
 
@@ -26,16 +27,17 @@ enum Stmt{
     Block(Vec<Declr>),
     IfChain(Expr, Box<Stmt>, Box<Stmt>),
     WhileStmt(Expr, Box<Stmt>),
-    ForStmt(Box<Declr>, Box<Stmt>, Expr, Box<Stmt>)
+    ForStmt(Box<Declr>, Box<Stmt>, Expr, Box<Stmt>),
+    FunStmt(String, Vec<Expr>)
 }
 
 #[derive(Debug, Clone)]                                                                                                                                                   
-enum Expr{ //  for some reason logical or and logical and are implemented inside expression
+enum Expr{
     Binary(Box<Expr>, String, Box<Expr>),
     Unary(String, Box<Expr>),
     Grouping(Box<Expr>),
     Literal(Lit),
-    Assign(String, Box<Expr>), // that means that assign is either assign or OR. so an enum with both expressed.
+    Assign(String, Box<Expr>),
     Operand(Box<Expr>, String, Box<Expr>)
 }
 #[derive(Debug, Clone)]                                                                                             
@@ -44,7 +46,9 @@ enum Lit{
     Bool(bool),
     Nil,
     F64(f64),
-    Id(String)
+    Id(String),
+    DeclrFn(Vec<String>, Box<Stmt>),
+    NativeFn(String)
 }
 
 impl std::fmt::Display for Lit {            
@@ -54,7 +58,9 @@ impl std::fmt::Display for Lit {
               Lit::Bool(b) => write!(f, "{}", b),
               Lit::String(s) => write!(f, "{}", s),    
               Lit::Id(s) => write!(f, "{}", s),    
-              Lit::Nil => write!(f, "nil"),                                                                                                                                                                                                                                                           
+              Lit::Nil => write!(f, "nil"), 
+              Lit::DeclrFn(v, s) => write!(f, "hello"), // change
+              Lit::NativeFn(s) => write!(f, "hi")                                                                                                                                                                                                                                                         
           }
       }
 }
@@ -70,6 +76,24 @@ impl Parser{
         return Ok(res);
     }
 
+    fn fun_declr(&mut self) -> Result<Declr, String>{
+        self.consume(); // fn
+        let function_id: String = self.consume();
+        self.consume(); // left paren
+        let mut parameters: Vec<String> = Vec::new();
+        while self.peek() != "RIGHT_PAREN" {
+            if self.peek() != "COMMA"{
+                let parameter: String = self.consume();
+                parameters.push(parameter);
+            }else{
+                self.consume();
+            }
+        }
+        self.consume(); // right paren
+        let block_stmt: Stmt = self.statement()?;
+        return Ok(Declr::FunDeclr(function_id, parameters, block_stmt))
+    }
+
     fn var_declr(&mut self) -> Result<Declr, String>{
         let vars: String = self.consume();
         let id: String = self.consume();
@@ -79,7 +103,7 @@ impl Parser{
             ";" => return Ok(Declr::VarDeclr(id, Stmt::Other(Expr::Literal(Lit::Nil)))),
             _ => return Err("bad syntax on var".to_string())
         }
-    } 
+    }
 
     fn declaration(&mut self)-> Result<Vec<Declr>, String> { 
         let mut tk_type: String = self.peek();
@@ -87,6 +111,8 @@ impl Parser{
         while tk_type != "EOF" && tk_type != "RIGHT_BRACE"{
             if matches!(tk_type.as_str(), "VAR"){
                 d.push(self.var_declr()?);
+            }else if matches!(tk_type.as_str(), "FUN"){
+                d.push(self.fun_declr()?)
             }else{
                 let right: Stmt = self.statement()?;
                 d.push(Declr::Reg(right));
@@ -97,11 +123,10 @@ impl Parser{
     }
 
     fn statement(&mut self) -> Result<Stmt, String>{
-        let tk_type = self.peek();
+        let tk_type: String = self.peek();
         if matches!(tk_type.as_str(), "PRINT"){
             self.consume();
             let res: Expr = self.assignment()?;
-            // println!("this is res to print {:?}", res);
             if self.consume() != ";"{
                 return Err("line [1] make sure to include semicolon!".to_string()) 
             }
@@ -154,6 +179,23 @@ impl Parser{
 
 
             return Ok(Stmt::ForStmt(Box::new(start), Box::new(range), incr, Box::new(repeat))) 
+        }else if matches!(tk_type.as_str(), "IDENTIFIER"){
+            let id: String = self.consume();
+            let mut arguments: Vec<Expr> = Vec::new();
+            if self.peek() == "LEFT_PAREN"{
+                self.consume();
+                while self.peek()!="RIGHT_PAREN" {
+                    if self.peek()!="COMMA"{
+                        let expr: Expr = self.literal()?;
+                        arguments.push(expr);
+                    }else{
+                        self.consume();
+                    }
+                };
+                return Ok(Stmt::FunStmt(id,arguments))
+            }else{
+                return Err("function has to be callable".to_string())
+            }
         }else{
             let result: Expr = self.assignment()?; // this is for var declaratiions.
             // println!("{:?}", result);
@@ -263,7 +305,7 @@ impl Parser{
             return Ok(Expr::Literal(Lit::F64(f)))
         }else if matches!(tk_type.as_str(), "IDENTIFIER"){
             let s: String = self.consume();
-            return Ok(Expr::Literal(Lit::Id(s))) // change this
+            return Ok(Expr::Literal(Lit::Id(s)))
         }else if matches!(tk_type.as_str(), "STRING"){
             let s: String =  curr_tok.split('"').nth(1).unwrap().to_string(); 
             self.current += 1;
@@ -483,19 +525,13 @@ struct Interpreter {
     scope: Vec<HashMap<String, Lit>>,
 }
 
+
 impl Interpreter {
     fn evaluate(&mut self, expr: Expr) -> Result<Lit, String> {
-        // println!("{:?}", self.scope);
         match expr{
             Expr::Literal(lit) => {
                 if let Lit::Id(s) = lit {
-                    let iter = self.scope.iter().rev();
-                    for vars in iter{
-                        if vars.contains_key(&s){
-                            return Ok(vars[&s].clone())
-                        }
-                    };
-                    return Err(format!("{} not found", s))
+                   return self.search_state(s)
                 };
                 return Ok(lit)
             },
@@ -608,21 +644,32 @@ impl Interpreter {
         }
         return true
     }
-    fn incr_var(&mut self, id: String){
-        let scope = self.scope.last_mut().unwrap();
-        if let Some(Lit::F64(value)) = scope.get(&id) {
-          scope.insert(id, Lit::F64(value + 1.0));
-        }
+
+    fn search_state(&mut self, key: String)-> Result<Lit, String>{
+        let iter = self.scope.iter_mut().rev();
+            for vars in iter{
+                if vars.contains_key(&key){
+                    return Ok(vars[&key].clone())
+                };
+            };
+        return Err(format!("{} not found", key))
     }
 }
 
 
+
+
+
+
+
 fn execute(list: Vec<Declr>, interpreter: &mut Interpreter) -> Result<(), String> {
     // println!("{:?}", list);
-    for i in list{
-        if let Declr::VarDeclr(id, stmt) = i { // whether declaration for now HAS to be a simple expr
+    for declaration in list{
+        if let Declr::VarDeclr(id, stmt) = declaration { // whether declaration for now HAS to be a simple expr
             ex_var(id, stmt, interpreter)?;
-        }else if let Declr::Reg(stmt) = i{
+        }else if let Declr::FunDeclr(id, parameters, stmt) = declaration{
+            add_function(id, parameters, stmt, interpreter)
+        }else if let Declr::Reg(stmt) = declaration{
             ex_reg(stmt, interpreter)?;
         }
     };
@@ -639,6 +686,7 @@ fn ex_reg(stmt: Stmt, interpreter: &mut Interpreter)->Result<(), String>{
         interpreter.scope.push(HashMap::new());
         execute(list, interpreter)?;
         interpreter.scope.pop(); 
+
     }else if let Stmt::IfChain(conditional, then_stmt, else_stmt) = stmt{ 
         let val: Lit = interpreter.evaluate(conditional)?;
         let b: bool = interpreter.is_truthy(val.clone()); // if lit ain't that then true
@@ -647,6 +695,7 @@ fn ex_reg(stmt: Stmt, interpreter: &mut Interpreter)->Result<(), String>{
         }else{
             ex_reg(*else_stmt, interpreter)?;  
         }
+
     }else if let Stmt::WhileStmt(c, stmt) = stmt{
         let mut res = interpreter.evaluate(c.clone())?;
         while interpreter.is_truthy(res) { 
@@ -654,6 +703,7 @@ fn ex_reg(stmt: Stmt, interpreter: &mut Interpreter)->Result<(), String>{
             res = interpreter.evaluate(c.clone())?;
 
         };
+        
     }else if let Stmt::ForStmt(var_init,range, incr, stmt) = stmt{
         if let Declr::VarDeclr(id, val) = *var_init{
             ex_var(id.clone(), val, interpreter)?; // create var with num
@@ -673,10 +723,30 @@ fn ex_reg(stmt: Stmt, interpreter: &mut Interpreter)->Result<(), String>{
             val = interpreter.evaluate(condition.clone())?;
             // println!("{:?}",val);
         };
-    }   
+    }else if let Stmt::FunStmt(id, arguments) = stmt{
+        let res: Lit = interpreter.search_state(id)?;
+        if let Lit::DeclrFn(parameters, stmt) = res{ 
+            let mut i = 0;
+            while i < parameters.len(){
+                ex_var(parameters[i].clone(), Stmt::Other(arguments[i].clone()), interpreter)?; // define vars in new scope
+                i += 1;
+            };
+            ex_reg(*stmt, interpreter)?;
+        }else if let Lit::NativeFn(s) = res{
+            match s.as_str(){
+                "clock" => {
+                    println!("{}", SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs());
+                    return Ok(())
+                },
+                _=> return Err("function not defined".to_string())
+            }
+        }
+        else{
+            return Err("function not defined".to_string())
+        } 
+    }
     return Ok(())
 }
-
 
 fn ex_var(id: String, stmt: Stmt, interpreter: &mut Interpreter) -> Result<(), String>{
   if let Stmt::Other(expr) = stmt { 
@@ -685,6 +755,10 @@ fn ex_var(id: String, stmt: Stmt, interpreter: &mut Interpreter) -> Result<(), S
   }
   return Ok(())
 }
+
+fn add_function(id: String, parameters: Vec<String>, stmt: Stmt, interpreter: &mut Interpreter){
+    interpreter.scope.last_mut().unwrap().insert(id, Lit::DeclrFn(parameters, Box::new(stmt)));
+}   
 
 fn main() -> ExitCode {
     let args: Vec<String> = env::args().collect();
@@ -732,7 +806,7 @@ fn main() -> ExitCode {
                 }  
             };
             return ExitCode::from(0)
-        }, "evaluate" => {
+        },"evaluate" => {
             let (tokens, err_str) = tokenize(file_contents); // NUMBER 50 50.0, EOF null
             let mut parser = Parser{tokens, current: 0};
             let result = match parser.equality(){
@@ -756,8 +830,11 @@ fn main() -> ExitCode {
             let (tokens, err_str) = tokenize(file_contents); // NUMBER 50 50.0, EOF null
             let mut parser = Parser{tokens, current: 0};
             match parser.declaration(){
-                Ok(val)=>{ 
-                    let mut interpreter: Interpreter = Interpreter{scope: vec![HashMap::new()] }; // create new instance
+                Ok(val)=>{
+                    let mut scope: HashMap<String, Lit> = HashMap::new();
+                    scope.insert("clock".to_string(), Lit::NativeFn("clock".to_string()));
+                    let mut interpreter: Interpreter = Interpreter{scope: vec![scope]};
+
                     match execute(val, &mut interpreter){
                         Ok(val) => {},
                         Err(e) => {
