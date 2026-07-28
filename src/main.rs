@@ -103,7 +103,6 @@ fn main() -> ExitCode {
             let mut parser = Parser{tokens, current: 0};
             match parser.declaration(){
                 Ok(val)=>{
-                    println!("this is val of declarations {:?}", val);
                     let mut scope: HashMap<String, Lit> = HashMap::new();
                     scope.insert("clock".to_string(), Lit::NativeFn("clock".to_string()));
                     let mut interpreter: Interpreter = Interpreter{scope: vec![scope]};
