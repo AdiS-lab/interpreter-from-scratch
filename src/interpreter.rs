@@ -120,6 +120,13 @@ impl Interpreter {
                         _=> return Err("function not found".to_string())
                     }
                 }else if let Lit::DefineFn(params, block_stmt) = call_type{
+                    let mut i = 0;
+                    while i < params.len(){
+                        let lit = self.evaluate(args[i].clone())?;
+                        self.scope.last_mut().unwrap().insert(params[i].clone(), lit);
+                        i+=1;
+                    }
+                    ex_reg(*block_stmt, self)?;
                     return Ok(Lit::Nil)
                 }else{
                     return Err("function not found".to_string())
@@ -174,7 +181,7 @@ pub fn ex_reg(stmt: Stmt, interpreter: &mut Interpreter)->Result<(), String>{
     }else if let Stmt::Block(list) = stmt{
         interpreter.scope.push(HashMap::new());
         execute(list, interpreter)?;
-        interpreter.scope.pop(); 
+        interpreter.scope.pop();
 
     }else if let Stmt::IfChain(conditional, then_stmt, else_stmt) = stmt{ 
         let val: Lit = interpreter.evaluate(conditional)?;
@@ -203,14 +210,12 @@ pub fn ex_reg(stmt: Stmt, interpreter: &mut Interpreter)->Result<(), String>{
         let mut val = interpreter.evaluate(condition.clone())?; // range
 
         while interpreter.is_truthy(val){
-            // println!("{:?}", interpreter.scope);
             ex_reg(*stmt.clone(), interpreter)?; 
             match incr{
                 Expr::Literal(Lit::Nil) => {},
                 _=> { interpreter.evaluate(incr.clone())?; }
             }
             val = interpreter.evaluate(condition.clone())?;
-            // println!("{:?}",val);
         };
     }
     return Ok(())
