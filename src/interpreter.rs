@@ -112,7 +112,20 @@ impl Interpreter {
                 }
                 return self.evaluate(*r);
             },
-        }   
+            Expr::Call(id, args) => {
+                let call_type: Lit = self.search_state(id)?;
+                if let Lit::NativeFn(fn_name) = call_type{
+                    match fn_name.as_str(){
+                        "clock" => return Ok(Lit::F64(SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs() as f64)),
+                        _=> return Err("function not found".to_string())
+                    }
+                }else if let Lit::DefineFn(params, block_stmt) = call_type{
+                    return Ok(Lit::Nil)
+                }else{
+                    return Err("function not found".to_string())
+                }
+            },   
+        }
     }
 
     fn is_truthy(&mut self, lit: Lit) -> bool{
@@ -203,27 +216,6 @@ pub fn ex_reg(stmt: Stmt, interpreter: &mut Interpreter)->Result<(), String>{
             val = interpreter.evaluate(condition.clone())?;
             // println!("{:?}",val);
         };
-    }else if let Stmt::FunStmt(id, arguments) = stmt{
-        let res: Lit = interpreter.search_state(id)?;
-        if let Lit::DeclrFn(parameters, stmt) = res{ 
-            let mut i = 0;
-            while i < parameters.len(){
-                ex_var(parameters[i].clone(), Stmt::Other(arguments[i].clone()), interpreter)?; // define vars in new scope
-                i += 1;
-            };
-            ex_reg(*stmt, interpreter)?;
-        }else if let Lit::NativeFn(s) = res{
-            match s.as_str(){
-                "clock" => {
-                    println!("{}", SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs());
-                    return Ok(())
-                },
-                _=> return Err("function not defined".to_string())
-            }
-        }
-        else{
-            return Err("function not defined".to_string())
-        } 
     }
     return Ok(())
 }
@@ -237,8 +229,5 @@ pub fn ex_var(id: String, stmt: Stmt, interpreter: &mut Interpreter) -> Result<(
 }
 
 pub fn add_function(id: String, parameters: Vec<String>, stmt: Stmt, interpreter: &mut Interpreter){
-    interpreter.scope.last_mut().unwrap().insert(id, Lit::DeclrFn(parameters, Box::new(stmt)));
-}   
-
-
-
+    interpreter.scope.last_mut().unwrap().insert(id, Lit::DefineFn(parameters, Box::new(stmt)));
+}

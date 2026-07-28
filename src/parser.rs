@@ -120,23 +120,6 @@ impl Parser{
 
 
             return Ok(Stmt::ForStmt(Box::new(start), Box::new(range), incr, Box::new(repeat))) 
-        }else if matches!(tk_type.as_str(), "IDENTIFIER"){
-            let id: String = self.consume();
-            let mut arguments: Vec<Expr> = Vec::new();
-            if self.peek() == "LEFT_PAREN"{
-                self.consume();
-                while self.peek()!="RIGHT_PAREN" {
-                    if self.peek()!="COMMA"{
-                        let expr: Expr = self.literal()?;
-                        arguments.push(expr);
-                    }else{
-                        self.consume();
-                    }
-                };
-                return Ok(Stmt::FunStmt(id,arguments))
-            }else{
-                return Err("function has to be callable".to_string())
-            }
         }else{
             let result: Expr = self.assignment()?; // this is for var declaratiions.
             // println!("{:?}", result);
@@ -245,8 +228,22 @@ impl Parser{
             let f: f64 =  self.consume().parse().unwrap();
             return Ok(Expr::Literal(Lit::F64(f)))
         }else if matches!(tk_type.as_str(), "IDENTIFIER"){
-            let s: String = self.consume();
-            return Ok(Expr::Literal(Lit::Id(s)))
+            let id: String = self.consume();
+
+            if self.peek() == "LEFT_PAREN"{
+                let mut arguments: Vec<Expr> = Vec::new();
+                while self.peek() != "RIGHT_PAREN"{
+                    if self.peek() != "COMMA"{
+                        let argument: Expr = self.assignment()?;
+                        arguments.push(argument);
+                    }
+                }
+                self.consume();
+                return Ok(Expr::Call(id, arguments))
+            }else{
+                return Ok(Expr::Literal(Lit::Id(id)))
+            }
+
         }else if matches!(tk_type.as_str(), "STRING"){
             let s: String =  curr_tok.split('"').nth(1).unwrap().to_string(); 
             self.current += 1;
@@ -308,7 +305,8 @@ pub fn parse(val: Expr) -> String {
         Expr::Unary(l, r) =>return format!("({} {})", l, parse(*r)),
         Expr::Grouping(l) =>return format!("(group {})", parse(*l)),
         Expr::Assign(s, expr) => return format!("({}{})",s, parse(*expr)),
-        Expr::Operand(l, o, r) => return format!("({}{}{})", o, parse(*l), parse(*r))
+        Expr::Operand(l, o, r) => return format!("({}{}{})", o, parse(*l), parse(*r)),
+        Expr::Call(id, args) => return format!("({}{:?})", id, args)
     };    
     return "".to_string()
 }

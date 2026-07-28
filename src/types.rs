@@ -13,7 +13,6 @@ pub enum Stmt{
     IfChain(Expr, Box<Stmt>, Box<Stmt>),
     WhileStmt(Expr, Box<Stmt>),
     ForStmt(Box<Declr>, Box<Stmt>, Expr, Box<Stmt>),
-    FunStmt(String, Vec<Expr>)
 }
 
 #[derive(Debug, Clone)]                                                                                                                                                   
@@ -23,7 +22,8 @@ pub enum Expr{
     Grouping(Box<Expr>),
     Literal(Lit),
     Assign(String, Box<Expr>),
-    Operand(Box<Expr>, String, Box<Expr>)
+    Operand(Box<Expr>, String, Box<Expr>),
+    Call(String, Vec<Expr>)
 }
 #[derive(Debug, Clone)]                                                                                             
 pub enum Lit{
@@ -32,8 +32,8 @@ pub enum Lit{
     Nil,
     F64(f64),
     Id(String),
-    DeclrFn(Vec<String>, Box<Stmt>),
-    NativeFn(String)
+    DefineFn(Vec<String>, Box<Stmt>),
+    NativeFn(String) // this would mean that have to parse string out when matching on this
 }
 
 impl std::fmt::Display for Lit {            
