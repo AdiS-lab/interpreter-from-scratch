@@ -13,11 +13,13 @@ mod types;
 mod parser;
 mod interpreter;
 mod tokenizer;
+mod statements;
 
 use types::*;
 use parser::*;
 use interpreter::*;
 use tokenizer::*;
+use statements::*;
 
 
 //-----------------------
