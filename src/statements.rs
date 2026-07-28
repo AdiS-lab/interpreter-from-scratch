@@ -28,6 +28,7 @@ pub fn ex_reg(stmt: Stmt, interpreter: &mut Interpreter)->Result<Lit, String>{
     }else if let Stmt::Block(list) = stmt{
         interpreter.scope.push(HashMap::new());
         let val: Lit = execute(list, interpreter)?;
+        println!("this is return val if ever made it {:?}", val);
         interpreter.scope.pop();
         if let Lit::Return(b) = val{
             return Ok(*b)
