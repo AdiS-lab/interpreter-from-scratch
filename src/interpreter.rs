@@ -8,7 +8,6 @@ pub struct Interpreter {
 
 impl Interpreter {
     pub fn evaluate(&mut self, expr: Expr) -> Result<Lit, String> {
-        println!("{:?}", self.scope);
         match expr{
             Expr::Literal(lit) => {
                 if let Lit::Id(s) = lit {
@@ -122,7 +121,6 @@ impl Interpreter {
                     }
                 }else if let Lit::DefineFn(_, params, block_stmt) = call_type{
                     let mut i = 0;
-                    println!("{}", params.len());
                     while i < params.len(){
                         let lit = self.evaluate(args[i].clone())?;
                         self.scope.last_mut().unwrap().insert(params[i].clone(), lit);
@@ -160,7 +158,6 @@ impl Interpreter {
 
 
 pub fn execute(list: Vec<Declr>, interpreter: &mut Interpreter) -> Result<(), String> {
-    // println!("{:?}", list);
     for declaration in list{
         if let Declr::VarDeclr(id, stmt) = declaration { // whether declaration for now HAS to be a simple expr
             ex_var(id, stmt, interpreter)?;
