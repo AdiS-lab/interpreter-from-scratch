@@ -8,7 +8,13 @@ pub struct Interpreter {
 
 impl Interpreter {
     pub fn evaluate(&mut self, expr: Expr) -> Result<Lit, String> {
-        println!("DEBUG this is scope {:?}", self.scope);
+          println!("=== SCOPES ({}) ===", interpreter.scope.len());                                                                                                    
+        for (i, scope) in self.scope.iter().enumerate() {
+            let keys: Vec<_> = scope.iter().map(|(k, v)| format!("{k}={v:?}")).collect();                                                                            
+            println!("  [{}] {}", i, keys.join(", "));                                                                                                             
+        }
+        println!("===");
+        
         match expr{
             Expr::Literal(lit) => {
                 if let Lit::Id(s) = lit {
