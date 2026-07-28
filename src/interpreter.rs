@@ -119,7 +119,7 @@ impl Interpreter {
                         "clock" => return Ok(Lit::F64(SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs() as f64)),
                         _=> return Err("function not found".to_string())
                     }
-                }else if let Lit::DefineFn(params, block_stmt) = call_type{
+                }else if let Lit::DefineFn(_, params, block_stmt) = call_type{
                     let mut i = 0;
                     while i < params.len(){
                         let lit = self.evaluate(args[i].clone())?;
@@ -230,5 +230,5 @@ pub fn ex_var(id: String, stmt: Stmt, interpreter: &mut Interpreter) -> Result<(
 }
 
 pub fn add_function(id: String, parameters: Vec<String>, stmt: Stmt, interpreter: &mut Interpreter){
-    interpreter.scope.last_mut().unwrap().insert(id, Lit::DefineFn(parameters, Box::new(stmt)));
+    interpreter.scope.last_mut().unwrap().insert(id.clone(), Lit::DefineFn(id, parameters, Box::new(stmt)));
 }

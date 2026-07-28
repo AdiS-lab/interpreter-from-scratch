@@ -32,7 +32,7 @@ pub enum Lit{
     Nil,
     F64(f64),
     Id(String),
-    DefineFn(Vec<String>, Box<Stmt>),
+    DefineFn(String, Vec<String>, Box<Stmt>),
     NativeFn(String) // this would mean that have to parse string out when matching on this
 }
 
@@ -43,7 +43,9 @@ impl std::fmt::Display for Lit {
               Lit::Bool(b) => write!(f, "{}", b),
               Lit::String(s) => write!(f, "{}", s),    
               Lit::Id(s) => write!(f, "{}", s),    
-              Lit::Nil => write!(f, "nil"), 
+              Lit::Nil => write!(f, "nil"),
+              Lit::DefineFn(s, _, _) => write!(f, "<fn {}>", s),
+              Lit::NativeFn(s) => write!(f, "<fn {}>", s),
               _ => write!(f, "complex literal")                                                                                                                                                                                                                                                       
           }
       }
