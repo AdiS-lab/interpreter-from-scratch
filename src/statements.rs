@@ -60,7 +60,9 @@ pub fn ex_reg(stmt: Stmt, interpreter: &mut Interpreter)->Result<Lit, String>{
 
         while interpreter.is_truthy(res) { 
             let val = ex_reg(*stmt.clone(), interpreter)?;
-            let Lit::Nil = val else{return Ok(val)};  
+            if let Lit::Return(b) = val{
+                return Ok(*b)
+            }  
             res = interpreter.evaluate(conditional.clone())?;
         };
         

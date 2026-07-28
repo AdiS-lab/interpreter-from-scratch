@@ -48,8 +48,7 @@ impl std::fmt::Display for Lit {
               Lit::Nil => write!(f, "nil"),
               Lit::DefineFn(s, _, _) => write!(f, "<fn {}>", s),
               Lit::NativeFn(s) => write!(f, "<fn {}>", s),
-              Lit::Return(e) => write!(f, "{:?}", e),
-              _ => write!(f, "complex literal")                                                                                                                                                                                                                                                       
+              Lit::Return(e) => write!(f, "{:?}", e)
           }
       }
 }
