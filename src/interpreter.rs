@@ -33,7 +33,7 @@ impl Interpreter {
                     }else{
                         return Err("Operands must be numbers".to_string())
                     }
-                }else{
+                }else{6
                     match o.as_str(){
                         "+" => {
                             if let Lit::F64(n) = left && let Lit::F64(n2) = right{ 
