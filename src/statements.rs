@@ -1,6 +1,6 @@
 
 use crate::types::*;
-use std::collections::HashMap;
+use std::collections::{HashMap, btree_map::Values};
 use crate::Interpreter;
 
 
@@ -12,9 +12,7 @@ pub fn execute(list: Vec<Declr>, interpreter: &mut Interpreter) -> Result<Lit, S
             add_function(id, parameters, stmt, interpreter)
         }else if let Declr::Reg(stmt) = declaration{
             let val: Lit = ex_reg(stmt, interpreter)?; // check for nil
-            if let Lit::Return(b) = val{
-                return Ok(*b)
-            }
+            if matches!(val, Lit::Return(_)) { return Ok(val); }
         }
     };
     return Ok(Lit::Nil)
@@ -30,9 +28,7 @@ pub fn ex_reg(stmt: Stmt, interpreter: &mut Interpreter)->Result<Lit, String>{
         let val: Lit = execute(list, interpreter)?;
         println!("this is return val if ever made it {:?}", val);
         interpreter.scope.pop();
-        if let Lit::Return(b) = val{
-            return Ok(*b)
-        }
+        if matches!(val, Lit::Return(_)) { return Ok(val); }
 
     }else if let Stmt::Other(expr) = stmt{ // only hits here on implicit returns
         let val: Lit = interpreter.evaluate(expr)?;
@@ -46,14 +42,11 @@ pub fn ex_reg(stmt: Stmt, interpreter: &mut Interpreter)->Result<Lit, String>{
         let b: bool = interpreter.is_truthy(val.clone());
         if b{
             let val = ex_reg(*then_stmt, interpreter)?;
-            if let Lit::Return(b) = val{
-                return Ok(*b)
-            }  
+            if matches!(val, Lit::Return(_)) { return Ok(val); }
         }else{
             let val = ex_reg(*else_stmt, interpreter)?; 
-            if let Lit::Return(b) = val{
-                return Ok(*b)
-            }  
+            if matches!(val, Lit::Return(_)) { return Ok(val); }
+
         }
 
     }else if let Stmt::WhileStmt(conditional, stmt) = stmt{
@@ -61,9 +54,7 @@ pub fn ex_reg(stmt: Stmt, interpreter: &mut Interpreter)->Result<Lit, String>{
 
         while interpreter.is_truthy(res) { 
             let val = ex_reg(*stmt.clone(), interpreter)?;
-            if let Lit::Return(b) = val{
-                return Ok(*b)
-            }  
+            if matches!(val, Lit::Return(_)) { return Ok(val); } 
             res = interpreter.evaluate(conditional.clone())?;
         };
         
@@ -78,9 +69,7 @@ pub fn ex_reg(stmt: Stmt, interpreter: &mut Interpreter)->Result<Lit, String>{
 
         while interpreter.is_truthy(val){
             let res = ex_reg(*stmt.clone(), interpreter)?; 
-            if let Lit::Return(b) = res{
-                return Ok(*b)
-            }
+            if matches!(res, Lit::Return(_)) { return Ok(res); }
             match incr{
                 Expr::Literal(Lit::Nil) => {},
                 _=> { interpreter.evaluate(incr.clone())?; }

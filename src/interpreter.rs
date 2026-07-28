@@ -140,9 +140,7 @@ impl Interpreter {
                     }
                     let val: Lit = ex_reg(*block_stmt, self)?;
                     self.scope.pop();
-                    if let Lit::Return(b) = val{
-                        return Ok(*b)
-                    };
+                    if let Lit::Return(return_res) = val { return Ok(*return_res); }
                     return Ok(Lit::Nil)
                 }else{
                     return Err("function not found".to_string())
