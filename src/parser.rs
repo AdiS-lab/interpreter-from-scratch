@@ -61,12 +61,14 @@ impl Parser{
                 d.push(self.var_declr()?);
             }else if matches!(tk_type.as_str(), "FUN"){
                 d.push(self.fun_declr()?);
+                println!("DEBUG this is funDeclaration {:?}", d);
             }else{
                 let right: Stmt = self.statement()?;
                 d.push(Declr::Reg(right));
             }
             tk_type = self.peek();
         }
+        println!("DEBUG this is full Declaration {:?}", d);
         return Ok(d);
     }
 
