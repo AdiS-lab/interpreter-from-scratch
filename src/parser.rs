@@ -61,14 +61,14 @@ impl Parser{
                 d.push(self.var_declr()?);
             }else if matches!(tk_type.as_str(), "FUN"){
                 d.push(self.fun_declr()?);
-                println!("DEBUG this is funDeclaration {:?}", d);
+                // println!("DEBUG this is funDeclaration {:?}", d);
             }else{
                 let right: Stmt = self.statement()?;
                 d.push(Declr::Reg(right));
             }
             tk_type = self.peek();
         }
-        println!("DEBUG this is full Declaration {:?}", d);
+        // println!("DEBUG this is full Declaration {:?}", d);
         return Ok(d);
     }
 
@@ -131,7 +131,7 @@ impl Parser{
         }else if matches!(tk_type.as_str(), "RETURN"){
             self.consume();
             let expr = self.assignment()?;
-            println!("DEBUG this is return expression {:?}", expr);
+            // println!("DEBUG this is return expression {:?}", expr);
             if self.consume() != ";"{
                 return Err("line [1] make sure to include semicolon!".to_string()) 
             }
