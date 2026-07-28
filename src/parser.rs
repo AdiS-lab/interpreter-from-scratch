@@ -30,6 +30,9 @@ impl Parser{
             }
         }
         self.consume(); // right paren
+        if self.peek() != "LEFT_BRACE"{
+            return Err("make sure to include braces or arrow".to_string())
+        }
         let block_stmt: Stmt = self.statement()?;
         return Ok(Declr::FunDeclr(function_id, parameters, block_stmt))
     }

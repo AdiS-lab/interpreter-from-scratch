@@ -126,7 +126,7 @@ impl Interpreter {
                         self.scope.last_mut().unwrap().insert(params[i].clone(), lit);
                         i+=1;
                     }
-                    let Stmt::Block(v ) = *block_stmt.clone() else { return Err("make sure to add braces or an arrow".to_string())};
+                    // let Stmt::Block(v ) = *block_stmt.clone() else { return Err("make sure to add braces or an arrow".to_string())};
                     let val: Lit = ex_reg(*block_stmt, self)?;
                     let Lit::Nil = val else{return Ok(val)};
                     return Ok(Lit::Nil)
