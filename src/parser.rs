@@ -231,6 +231,7 @@ impl Parser{
             let id: String = self.consume();
 
             if self.peek() == "LEFT_PAREN"{
+                self.consume();
                 let mut arguments: Vec<Expr> = Vec::new();
                 while self.peek() != "RIGHT_PAREN"{
                     if self.peek() != "COMMA"{
