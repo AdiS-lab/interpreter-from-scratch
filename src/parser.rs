@@ -117,8 +117,11 @@ impl Parser{
             let close: String = self.consume();
             let repeat: Stmt = self.statement()?;
 
-
             return Ok(Stmt::ForStmt(Box::new(start), Box::new(range), incr, Box::new(repeat))) 
+        }else if matches!(tk_type.as_str(), "RETURN"){
+            self.consume();
+            let expr = self.assignment()?;
+            return Ok(Stmt::ReturnStmt(expr))
         }else{
             let result: Expr = self.assignment()?; // this is for var declaratiions.
             if self.consume() != ";"{

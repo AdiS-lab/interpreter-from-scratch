@@ -13,6 +13,7 @@ pub enum Stmt{
     IfChain(Expr, Box<Stmt>, Box<Stmt>),
     WhileStmt(Expr, Box<Stmt>),
     ForStmt(Box<Declr>, Box<Stmt>, Expr, Box<Stmt>),
+    ReturnStmt(Expr)
 }
 
 #[derive(Debug, Clone)]                                                                                                                                                   

@@ -126,7 +126,8 @@ impl Interpreter {
                         self.scope.last_mut().unwrap().insert(params[i].clone(), lit);
                         i+=1;
                     }
-                    ex_reg(*block_stmt, self)?;
+                    let val = ex_reg(*block_stmt, self)?;
+                    let Lit::Nil = val else{return Ok(val)};
                     return Ok(Lit::Nil)
                 }else{
                     return Err("function not found".to_string())
@@ -157,34 +158,39 @@ impl Interpreter {
 }
 
 
-pub fn execute(list: Vec<Declr>, interpreter: &mut Interpreter) -> Result<(), String> {
+pub fn execute(list: Vec<Declr>, interpreter: &mut Interpreter) -> Result<Lit, String> {
     for declaration in list{
-        if let Declr::VarDeclr(id, stmt) = declaration { // whether declaration for now HAS to be a simple expr
+        if let Declr::VarDeclr(id, stmt) = declaration {
             ex_var(id, stmt, interpreter)?;
         }else if let Declr::FunDeclr(id, parameters, stmt) = declaration{
             add_function(id, parameters, stmt, interpreter)
         }else if let Declr::Reg(stmt) = declaration{
-            ex_reg(stmt, interpreter)?;
+            let val: Lit = ex_reg(stmt, interpreter)?; // check for nil
+            let Lit::Nil = val else{return Ok(val)};
         }
     };
-    return Ok(())
+    return Ok(Lit::Nil)
 }
 
-pub fn ex_reg(stmt: Stmt, interpreter: &mut Interpreter)->Result<(), String>{
+pub fn ex_reg(stmt: Stmt, interpreter: &mut Interpreter)->Result<Lit, String>{
     if let Stmt::Print(expr) = stmt{
         let val: Lit = interpreter.evaluate(expr)?;
         println!("{}", val);
-    }else if let Stmt::Other(expr) = stmt{ 
-        let val: Lit = interpreter.evaluate(expr)?;
-
     }else if let Stmt::Block(list) = stmt{
         interpreter.scope.push(HashMap::new());
-        execute(list, interpreter)?;
+        let val = execute(list, interpreter)?;
+        let Lit::Nil = val else{return Ok(val)};
         interpreter.scope.pop();
+
+    }else if let Stmt::Other(expr) = stmt{ // only hits here on implicit returns
+        return interpreter.evaluate(expr);
+
+    }else if let Stmt::ReturnStmt(expr) = stmt{ // only hits here on returns
+        return interpreter.evaluate(expr);
 
     }else if let Stmt::IfChain(conditional, then_stmt, else_stmt) = stmt{ 
         let val: Lit = interpreter.evaluate(conditional)?;
-        let b: bool = interpreter.is_truthy(val.clone()); // if lit ain't that then true
+        let b: bool = interpreter.is_truthy(val.clone());
         if b{
             ex_reg(*then_stmt, interpreter)?;  
         }else{
@@ -217,7 +223,7 @@ pub fn ex_reg(stmt: Stmt, interpreter: &mut Interpreter)->Result<(), String>{
             val = interpreter.evaluate(condition.clone())?;
         };
     }
-    return Ok(())
+    return Ok(Lit::Nil)
 }
 
 pub fn ex_var(id: String, stmt: Stmt, interpreter: &mut Interpreter) -> Result<(), String>{
