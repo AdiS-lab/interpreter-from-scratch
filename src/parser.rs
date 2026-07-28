@@ -129,6 +129,7 @@ impl Parser{
         }else if matches!(tk_type.as_str(), "RETURN"){
             self.consume();
             let expr = self.assignment()?;
+            println!("DEBUG this is return expression {:?}", expr);
             if self.consume() != ";"{
                 return Err("line [1] make sure to include semicolon!".to_string()) 
             }
