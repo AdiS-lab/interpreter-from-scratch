@@ -21,12 +21,17 @@ impl Parser{
         self.consume(); // left paren 
         let mut parameters: Vec<String> = Vec::new();
         while self.peek() != "RIGHT_PAREN" {
+
             if self.peek() != "COMMA"{
                 let parameter: String = self.consume();
                 parameters.push(parameter);
             }else{
+                if self.peek() != "IDENTIFIER"{
+                    return Err("function syntax is wrong".to_string())
+                }
                 self.consume();
             }
+
         }
         self.consume(); // right paren
         if self.peek() != "LEFT_BRACE"{
