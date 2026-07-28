@@ -281,7 +281,6 @@ impl Parser{
             }
             return Ok(Expr::Grouping(Box::new(right)))    
         }else if matches!(tk_type.as_str(), "SEMICOLON"){
-            println!("DEBUG ")
             return Err("line [1] missing some requirement".to_string())
         }else{
             return Err( format!("[line 1] Error at '{}': Expect expression.", self.consume() )) 
