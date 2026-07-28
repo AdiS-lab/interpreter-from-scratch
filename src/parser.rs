@@ -19,7 +19,7 @@ impl Parser{
     fn fun_declr(&mut self) -> Result<Declr, String>{
         self.consume(); // fn
         let function_id: String = self.consume();
-        self.consume(); // left paren
+        self.consume(); // left paren 
         let mut parameters: Vec<String> = Vec::new();
         while self.peek() != "RIGHT_PAREN" {
             if self.peek() != "COMMA"{
@@ -52,7 +52,7 @@ impl Parser{
             if matches!(tk_type.as_str(), "VAR"){
                 d.push(self.var_declr()?);
             }else if matches!(tk_type.as_str(), "FUN"){
-                d.push(self.fun_declr()?)
+                d.push(self.fun_declr()?);
             }else{
                 let right: Stmt = self.statement()?;
                 d.push(Declr::Reg(right));
@@ -121,7 +121,6 @@ impl Parser{
             return Ok(Stmt::ForStmt(Box::new(start), Box::new(range), incr, Box::new(repeat))) 
         }else{
             let result: Expr = self.assignment()?; // this is for var declaratiions.
-            // println!("{:?}", result);
             if self.consume() != ";"{
                 return Err("line [1] make sure to include semicolon!".to_string()) 
             }
@@ -236,9 +235,11 @@ impl Parser{
                     if self.peek() != "COMMA"{
                         let argument: Expr = self.assignment()?;
                         arguments.push(argument);
+                    }else{
+                        self.consume();
                     }
                 }
-                self.consume();
+                self.consume(); // right paren
                 return Ok(Expr::Call(id, arguments))
             }else{
                 return Ok(Expr::Literal(Lit::Id(id)))

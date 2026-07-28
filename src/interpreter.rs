@@ -122,6 +122,7 @@ impl Interpreter {
                     }
                 }else if let Lit::DefineFn(_, params, block_stmt) = call_type{
                     let mut i = 0;
+                    println!("{}", params.len());
                     while i < params.len(){
                         let lit = self.evaluate(args[i].clone())?;
                         self.scope.last_mut().unwrap().insert(params[i].clone(), lit);
