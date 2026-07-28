@@ -8,7 +8,7 @@ pub struct Interpreter {
 
 impl Interpreter {
     pub fn evaluate(&mut self, expr: Expr) -> Result<Lit, String> {
-          println!("=== SCOPES ({}) ===", self.scope.len());                                                                                                    
+        println!("=== SCOPES ({}) ===", self.scope.len());                                                                                                    
         for (i, scope) in self.scope.iter().enumerate() {
             let keys: Vec<_> = scope.iter().map(|(k, v)| format!("{k}={v:?}")).collect();                                                                            
             println!("  [{}] {}", i, keys.join(", "));                                                                                                             
@@ -205,16 +205,19 @@ pub fn ex_reg(stmt: Stmt, interpreter: &mut Interpreter)->Result<Lit, String>{
         let val: Lit = interpreter.evaluate(conditional)?;
         let b: bool = interpreter.is_truthy(val.clone());
         if b{
-            ex_reg(*then_stmt, interpreter)?;  
+            let val = ex_reg(*then_stmt, interpreter)?;
+            let Lit::Nil = val else{return Ok(val)};  
         }else{
-            ex_reg(*else_stmt, interpreter)?;  
+            let val = ex_reg(*else_stmt, interpreter)?; 
+            let Lit::Nil = val else{return Ok(val)};  
         }
 
     }else if let Stmt::WhileStmt(conditional, stmt) = stmt{
         let mut res = interpreter.evaluate(conditional.clone())?;
 
         while interpreter.is_truthy(res) { 
-            ex_reg(*stmt.clone(), interpreter)?;
+            let val = ex_reg(*stmt.clone(), interpreter)?;
+            let Lit::Nil = val else{return Ok(val)};  
             res = interpreter.evaluate(conditional.clone())?;
         };
         
