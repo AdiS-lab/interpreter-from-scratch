@@ -8,6 +8,7 @@ pub struct Interpreter {
 
 impl Interpreter {
     pub fn evaluate(&mut self, expr: Expr) -> Result<Lit, String> {
+        println!("DEBUG this is scope {:?}", self.scope);
         match expr{
             Expr::Literal(lit) => {
                 if let Lit::Id(s) = lit {
