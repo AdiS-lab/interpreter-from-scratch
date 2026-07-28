@@ -121,6 +121,9 @@ impl Interpreter {
                     }
                 }else if let Lit::DefineFn(_, params, block_stmt) = call_type{
                     let mut i = 0;
+                    if params.len() != args.len(){
+                        return Err("mismatching args and params".to_string())
+                    }
                     while i < params.len(){
                         let lit = self.evaluate(args[i].clone())?;
                         self.scope.last_mut().unwrap().insert(params[i].clone(), lit);

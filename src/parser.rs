@@ -8,8 +8,7 @@ pub struct Parser{
 impl Parser{
     fn block(&mut self) -> Result<Vec<Declr>, String>{
         let res: Vec<Declr> = self.declaration()?;
-        let p: String = self.peek();
-        if p.as_str() != "RIGHT_BRACE"{
+        if self.peek() != "RIGHT_BRACE"{
             return Err("make sure to close block".to_string())
         }
         self.consume();
