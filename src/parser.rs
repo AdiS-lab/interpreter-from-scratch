@@ -67,6 +67,7 @@ impl Parser{
         if matches!(tk_type.as_str(), "PRINT"){
             self.consume();
             let res: Stmt = self.statement()?;
+            println!("{:?}", res);
             if self.consume() != ";"{
                 return Err("line [1] make sure to include semicolon!".to_string()) 
             }
