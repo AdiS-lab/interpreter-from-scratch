@@ -129,6 +129,9 @@ impl Parser{
         }else if matches!(tk_type.as_str(), "RETURN"){
             self.consume();
             let expr = self.assignment()?;
+            if self.consume() != ";"{
+                return Err("line [1] make sure to include semicolon!".to_string()) 
+            }
             return Ok(Stmt::ReturnStmt(expr))
         }else{
             let result: Expr = self.assignment()?; // this is for var declaratiions.
@@ -278,7 +281,8 @@ impl Parser{
             }
             return Ok(Expr::Grouping(Box::new(right)))    
         }else if matches!(tk_type.as_str(), "SEMICOLON"){
-            return Err("line[1] missing some requirement".to_string())
+            println!("DEBUG ")
+            return Err("line [1] missing some requirement".to_string())
         }else{
             return Err( format!("[line 1] Error at '{}': Expect expression.", self.consume() )) 
         } 
