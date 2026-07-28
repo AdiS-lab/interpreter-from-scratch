@@ -20,19 +20,18 @@ impl Parser{
         let function_id: String = self.consume();
         self.consume(); // left paren 
         let mut parameters: Vec<String> = Vec::new();
-        while self.peek() != "RIGHT_PAREN" {
+        if self.peek() != "RIGHT_PAREN" {
+            if self.peek() != "IDENTIFIER"{
+                return Err("make sure to include identifier".to_string())
+            }
+            parameters.push(self.consume());
 
-            if self.peek() != "COMMA"{
-                let parameter: String = self.consume();
-                if self.peek() != "COMMA" && self.peek() != "RIGHT_PAREN" {
-                    return Err("function syntax is wrong".to_string())
-                }
-                parameters.push(parameter);
-            }else{
+            while self.peek() == "COMMA"{
                 self.consume();
                 if self.peek() != "IDENTIFIER"{
-                    return Err("function syntax is wrong".to_string())
+                    return Err("make sure to include id after".to_string())
                 }
+                parameters.push(self.consume());
             }
         }
         self.consume(); // right paren

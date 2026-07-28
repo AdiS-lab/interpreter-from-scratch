@@ -91,8 +91,8 @@ impl Interpreter {
                 return self.evaluate(*l)
             },
             Expr::Assign(k, expr) => { 
-                let res = self.evaluate(*expr)?; 
-                let iter = self.scope.iter_mut().rev();
+                let res: Lit = self.evaluate(*expr)?; // total + 1
+                let iter: std::iter::Rev<std::slice::IterMut<'_, HashMap<String, Lit>>> = self.scope.iter_mut().rev();
                 for vars in iter{
                     if vars.contains_key(&k){
                         vars.insert(k, res.clone()); 
@@ -182,12 +182,12 @@ pub fn ex_reg(stmt: Stmt, interpreter: &mut Interpreter)->Result<Lit, String>{
         println!("{}", val);
     }else if let Stmt::Block(list) = stmt{
         interpreter.scope.push(HashMap::new());
-        let val = execute(list, interpreter)?;
-        let Lit::Nil = val else{return Ok(val)};
+        let val: Lit = execute(list, interpreter)?;
         interpreter.scope.pop();
+        let Lit::Nil = val else{return Ok(val)};
 
     }else if let Stmt::Other(expr) = stmt{ // only hits here on implicit returns
-        return interpreter.evaluate(expr);
+        let val = interpreter.evaluate(expr)?;
 
     }else if let Stmt::ReturnStmt(expr) = stmt{ // only hits here on returns
         return interpreter.evaluate(expr);
@@ -201,12 +201,12 @@ pub fn ex_reg(stmt: Stmt, interpreter: &mut Interpreter)->Result<Lit, String>{
             ex_reg(*else_stmt, interpreter)?;  
         }
 
-    }else if let Stmt::WhileStmt(c, stmt) = stmt{
-        let mut res = interpreter.evaluate(c.clone())?;
+    }else if let Stmt::WhileStmt(conditional, stmt) = stmt{
+        let mut res = interpreter.evaluate(conditional.clone())?;
+
         while interpreter.is_truthy(res) { 
             ex_reg(*stmt.clone(), interpreter)?;
-            res = interpreter.evaluate(c.clone())?;
-
+            res = interpreter.evaluate(conditional.clone())?;
         };
         
     }else if let Stmt::ForStmt(var_init,range, incr, stmt) = stmt{
@@ -241,3 +241,6 @@ pub fn ex_var(id: String, stmt: Stmt, interpreter: &mut Interpreter) -> Result<(
 pub fn add_function(id: String, parameters: Vec<String>, stmt: Stmt, interpreter: &mut Interpreter){
     interpreter.scope.last_mut().unwrap().insert(id.clone(), Lit::DefineFn(id, parameters, Box::new(stmt)));
 }
+
+
+
