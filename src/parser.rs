@@ -131,6 +131,7 @@ impl Parser{
         }else if matches!(tk_type.as_str(), "RETURN"){
             self.consume();
             if self.peek() =="SEMICOLON" {
+                self.consume();
                 return Ok(Stmt::ReturnStmt(Expr::Literal(Lit::Nil)))
             }else{
                 let expr = self.assignment()?;
