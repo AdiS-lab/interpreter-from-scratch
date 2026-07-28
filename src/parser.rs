@@ -26,12 +26,11 @@ impl Parser{
                 let parameter: String = self.consume();
                 parameters.push(parameter);
             }else{
-                if self.peek() != "IDENTIFIER"{
+                self.consume();
+                 if self.peek() != "IDENTIFIER"{
                     return Err("function syntax is wrong".to_string())
                 }
-                self.consume();
             }
-
         }
         self.consume(); // right paren
         if self.peek() != "LEFT_BRACE"{
