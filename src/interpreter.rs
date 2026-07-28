@@ -189,6 +189,7 @@ pub fn ex_reg(stmt: Stmt, interpreter: &mut Interpreter)->Result<Lit, String>{
     if let Stmt::Print(expr) = stmt{
         let val: Lit = interpreter.evaluate(expr)?;
         println!("{}", val);
+        
     }else if let Stmt::Block(list) = stmt{
         interpreter.scope.push(HashMap::new());
         let val: Lit = execute(list, interpreter)?;
@@ -225,13 +226,14 @@ pub fn ex_reg(stmt: Stmt, interpreter: &mut Interpreter)->Result<Lit, String>{
         if let Declr::VarDeclr(id, val) = *var_init{
             ex_var(id.clone(), val, interpreter)?; // create var with num
         }else if let Declr::Reg(stmt) = *var_init{
-            ex_reg(stmt, interpreter)?;
+            ex_reg(stmt, interpreter)?; // asssignment
         }
         let condition = if let Stmt::Other(c) = *range { c } else { Expr::Literal(Lit::Bool(true)) }; // condition
         let mut val = interpreter.evaluate(condition.clone())?; // range
 
         while interpreter.is_truthy(val){
-            ex_reg(*stmt.clone(), interpreter)?; 
+            let res = ex_reg(*stmt.clone(), interpreter)?; 
+            let Lit::Nil = res else{return Ok(res)};
             match incr{
                 Expr::Literal(Lit::Nil) => {},
                 _=> { interpreter.evaluate(incr.clone())?; }
