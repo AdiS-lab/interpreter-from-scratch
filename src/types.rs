@@ -7,7 +7,7 @@ pub enum Declr{
 
 #[derive(Debug, Clone)]
 pub enum Stmt{
-    Print(Box<Stmt>),
+    Print(Expr),
     Other(Expr),
     Block(Vec<Declr>),
     IfChain(Expr, Box<Stmt>, Box<Stmt>),

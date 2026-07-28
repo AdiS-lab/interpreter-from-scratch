@@ -165,13 +165,9 @@ pub fn execute(list: Vec<Declr>, interpreter: &mut Interpreter) -> Result<(), St
 }
 
 pub fn ex_reg(stmt: Stmt, interpreter: &mut Interpreter)->Result<(), String>{
-    if let Stmt::Print(print_statement) = stmt{
-        if let Stmt::Other(expr) = *print_statement{
-            let val: Lit = interpreter.evaluate(expr)?;
-            println!("{}", val);
-        }else{
-            ex_reg(*print_statement, interpreter)?;
-        }
+    if let Stmt::Print(expr) = stmt{
+        let val: Lit = interpreter.evaluate(expr)?;
+        println!("{}", val);
     }else if let Stmt::Other(expr) = stmt{ 
         let val: Lit = interpreter.evaluate(expr)?;
 

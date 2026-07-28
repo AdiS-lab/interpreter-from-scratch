@@ -70,7 +70,7 @@ impl Parser{
             if self.consume() != ";"{
                 return Err("line [1] make sure to include semicolon!".to_string()) 
             }
-            return Ok(Stmt::Print(Box::new(res)));
+            return Ok(Stmt::Print(res));
         }else if matches!(tk_type.as_str(), "LEFT_BRACE") {
             self.consume(); // consume { 
             let res: Vec<Declr> = self.block()?; // call back 
