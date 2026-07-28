@@ -122,6 +122,7 @@ impl Interpreter {
                     }
                 }else if let Lit::DefineFn(_, params, block_stmt) = call_type{
                     let mut i = 0;
+                    self.scope.push(HashMap::new());
                     if params.len() != args.len(){
                         return Err("mismatching args and params".to_string())
                     }
@@ -132,6 +133,7 @@ impl Interpreter {
                     }
                     // let Stmt::Block(v ) = *block_stmt.clone() else { return Err("make sure to add braces or an arrow".to_string())};
                     let val: Lit = ex_reg(*block_stmt, self)?;
+                    self.scope.pop();
                     let Lit::Nil = val else{return Ok(val)};
                     return Ok(Lit::Nil)
                 }else{
@@ -188,7 +190,7 @@ pub fn ex_reg(stmt: Stmt, interpreter: &mut Interpreter)->Result<Lit, String>{
         let Lit::Nil = val else{return Ok(val)};
 
     }else if let Stmt::Other(expr) = stmt{ // only hits here on implicit returns
-        let val = interpreter.evaluate(expr)?;
+        let val: Lit = interpreter.evaluate(expr)?;
 
     }else if let Stmt::ReturnStmt(expr) = stmt{ // only hits here on returns
         return interpreter.evaluate(expr);
