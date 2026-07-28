@@ -24,7 +24,7 @@ impl Parser{
 
             if self.peek() != "COMMA"{
                 let parameter: String = self.consume();
-                if self.peek() != "COMMA" || self.peek() != "RIGHT_PAREN" {
+                if self.peek() != "COMMA" && self.peek() != "RIGHT_PAREN" {
                     return Err("function syntax is wrong".to_string())
                 }
                 parameters.push(parameter);
