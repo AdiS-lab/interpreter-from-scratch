@@ -24,10 +24,13 @@ impl Parser{
 
             if self.peek() != "COMMA"{
                 let parameter: String = self.consume();
+                if self.peek() != "COMMA" || self.peek() != "RIGHT_PAREN" {
+                    return Err("function syntax is wrong".to_string())
+                }
                 parameters.push(parameter);
             }else{
                 self.consume();
-                 if self.peek() != "IDENTIFIER"{
+                if self.peek() != "IDENTIFIER"{
                     return Err("function syntax is wrong".to_string())
                 }
             }
