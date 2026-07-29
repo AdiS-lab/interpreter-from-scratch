@@ -9,12 +9,12 @@ pub struct Interpreter {
 
 impl Interpreter {
     pub fn evaluate(&mut self, expr: Expr) -> Result<Lit, String> {
-        println!("=== SCOPES ({}) ===", self.scope.len());                                                                                                    
-        for (i, scope) in self.scope.iter().enumerate() {
-            let keys: Vec<_> = scope.iter().map(|(k, v)| format!("{k}={v:?}")).collect();                                                                            
-            println!("  [{}] {}", i, keys.join(", "));                                                                                                             
-        }
-        println!("===");
+        // println!("=== SCOPES ({}) ===", self.scope.len());                                                                                                    
+        // for (i, scope) in self.scope.iter().enumerate() {
+        //     let keys: Vec<_> = scope.iter().map(|(k, v)| format!("{k}={v:?}")).collect();                                                                            
+        //     println!("  [{}] {}", i, keys.join(", "));                                                                                                             
+        // }
+        // println!("===");
 
         match expr{
             Expr::Literal(lit) => {
@@ -122,6 +122,7 @@ impl Interpreter {
             },
             Expr::Call(id_expr, args) => {
                 let id_eval = self.evaluate(*id_expr)?;
+                println!("{:?}", id_eval);
                 let Lit::String(id) = id_eval else {return Err("Fun call is not of valid type".to_string())};
 
                 let call_type: Lit = self.search_state(id)?;
