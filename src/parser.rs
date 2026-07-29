@@ -232,7 +232,7 @@ impl Parser{
         let tk_type = self.peek();
         if matches!(tk_type.as_str(), "MINUS" | "BANG"){
             let operator = self.consume();
-            let right = self.literal()?;
+            let right = self.func_call()?;
             let unary = Expr::Unary(operator, Box::new(right));
             return Ok(unary)
         }
