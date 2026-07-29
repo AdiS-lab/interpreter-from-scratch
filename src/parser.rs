@@ -236,8 +236,28 @@ impl Parser{
             let unary = Expr::Unary(operator, Box::new(right));
             return Ok(unary)
         }
-        let result = self.literal()?;
+        let result = self.func_call()?;
         return Ok(result)
+    }
+
+    fn func_call(&mut self) -> Result<Expr, String>{
+        let mut left: Expr = self.literal()?;
+        while self.peek() == "LEFT_PAREN"{
+            self.consume();
+
+            let mut arguments: Vec<Expr> = Vec::new();
+            while self.peek() != "RIGHT_PAREN"{
+                if self.peek() != "COMMA"{
+                    let argument: Expr = self.assignment()?;
+                    arguments.push(argument);
+                }else{
+                    self.consume();
+                }
+            }//parse out arguments
+            left = Expr::Call(Box::new(left), arguments);
+            self.consume(); // right paren
+        }
+        return Ok(left)
     }
     
     fn literal(&mut self) -> Result<Expr, String> { 
@@ -249,23 +269,7 @@ impl Parser{
             return Ok(Expr::Literal(Lit::F64(f)))
         }else if matches!(tk_type.as_str(), "IDENTIFIER"){
             let id: String = self.consume();
-            let mut left: Expr = Expr::Literal(Lit::Id(id));
-            while self.peek() == "LEFT_PAREN"{
-                self.consume();
-
-                let mut arguments: Vec<Expr> = Vec::new();
-                while self.peek() != "RIGHT_PAREN"{
-                    if self.peek() != "COMMA"{
-                        let argument: Expr = self.assignment()?;
-                        arguments.push(argument);
-                    }else{
-                        self.consume();
-                    }
-                }//parse out arguments
-                left = Expr::Call(Box::new(left), arguments);
-                self.consume(); // right paren
-            }
-            return Ok(left)
+            return Ok(Expr::Literal(Lit::Id(id)));
         }else if matches!(tk_type.as_str(), "STRING"){
             let s: String =  curr_tok.split('"').nth(1).unwrap().to_string(); 
             self.current += 1;
