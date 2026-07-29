@@ -121,11 +121,12 @@ impl Interpreter {
                 return self.evaluate(*r);
             },
             Expr::Call(id_expr, args) => {
-                let id_eval = self.evaluate(*id_expr)?;
-                println!("{:?}", id_eval);
-                let Lit::String(id) = id_eval else {return Err("Fun call is not of valid type".to_string())};
+                let call_type = self.evaluate(*id_expr)?; // WILL ALWAYS eval to a definefn native fn or there is an error
+                // because evaluate will whittle it down to an id, and id will point to a function, so the result of this
+                // is what is being checked on, that's amazing. 
+                // so expr call will go all the way down until the last fn is available, with args, and then
+                // will return the define fn all the way up to the top
 
-                let call_type: Lit = self.search_state(id)?;
                 if let Lit::NativeFn(fn_name) = call_type{
                     match fn_name.as_str(){
                         "clock" => return Ok(Lit::F64(SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs() as f64)),
