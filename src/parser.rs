@@ -249,9 +249,10 @@ impl Parser{
             return Ok(Expr::Literal(Lit::F64(f)))
         }else if matches!(tk_type.as_str(), "IDENTIFIER"){
             let id: String = self.consume();
-
-            if self.peek() == "LEFT_PAREN"{
+            let mut left: Expr = Expr::Literal(Lit::Id(id));
+            while self.peek() == "LEFT_PAREN"{
                 self.consume();
+
                 let mut arguments: Vec<Expr> = Vec::new();
                 while self.peek() != "RIGHT_PAREN"{
                     if self.peek() != "COMMA"{
@@ -260,13 +261,11 @@ impl Parser{
                     }else{
                         self.consume();
                     }
-                }
+                }//parse out arguments
+                left = Expr::Call(Box::new(left), arguments);
                 self.consume(); // right paren
-                return Ok(Expr::Call(id, arguments))
-            }else{
-                return Ok(Expr::Literal(Lit::Id(id)))
             }
-
+            return Ok(left)
         }else if matches!(tk_type.as_str(), "STRING"){
             let s: String =  curr_tok.split('"').nth(1).unwrap().to_string(); 
             self.current += 1;
@@ -329,7 +328,7 @@ pub fn parse(val: Expr) -> String {
         Expr::Grouping(l) =>return format!("(group {})", parse(*l)),
         Expr::Assign(s, expr) => return format!("({}{})",s, parse(*expr)),
         Expr::Operand(l, o, r) => return format!("({}{}{})", o, parse(*l), parse(*r)),
-        Expr::Call(id, args) => return format!("({}{:?})", id, args)
+        Expr::Call(id, args) => return format!("({:?}{:?})", id, args)
     };    
     return "".to_string()
 }

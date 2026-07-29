@@ -120,7 +120,10 @@ impl Interpreter {
                 }
                 return self.evaluate(*r);
             },
-            Expr::Call(id, args) => {
+            Expr::Call(id_expr, args) => {
+                let id_eval = self.evaluate(*id_expr)?;
+                let Lit::String(id) = id_eval else {return Err("Fun call is not of valid type".to_string())};
+
                 let call_type: Lit = self.search_state(id)?;
                 if let Lit::NativeFn(fn_name) = call_type{
                     match fn_name.as_str(){

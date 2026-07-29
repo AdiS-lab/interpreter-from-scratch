@@ -24,7 +24,7 @@ pub enum Expr{
     Literal(Lit),
     Assign(String, Box<Expr>),
     Operand(Box<Expr>, String, Box<Expr>),
-    Call(String, Vec<Expr>)
+    Call(Box<Expr>, Vec<Expr>)
 }
 #[derive(Debug, Clone)]                                                                                             
 pub enum Lit{
