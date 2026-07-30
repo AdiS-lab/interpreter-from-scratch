@@ -5,6 +5,7 @@ use crate::statements::*;
 
 pub struct Interpreter {
     pub scope: Vec<HashMap<String, Lit>>,
+    pub current_scope: usize
 }
 
 impl Interpreter {
@@ -12,7 +13,7 @@ impl Interpreter {
         // println!("=== SCOPES ({}) ===", self.scope.len());                                                                                                    
         // for (i, scope) in self.scope.iter().enumerate() {
         //     let keys: Vec<_> = scope.iter().map(|(k, v)| format!("{k}={v:?}")).collect();                                                                            
-        //     println!("  [{}] {}", i, keys.join(", "));                                                                                                             
+        //     println!("  [{}] {}", i, keys.join("           "));                                                                                                             
         // }
         // println!("===");
 
@@ -20,7 +21,7 @@ impl Interpreter {
             Expr::Literal(lit) => {
                 if let Lit::Id(s) = lit {
                    return self.search_state(s)
-                };
+                }
                 return Ok(lit)
             },
             Expr::Binary(l , o, r) =>{
@@ -100,7 +101,7 @@ impl Interpreter {
             },
             Expr::Assign(k, expr) => { 
                 let res: Lit = self.evaluate(*expr)?; // total + 1
-                let iter: std::iter::Rev<std::slice::IterMut<'_, HashMap<String, Lit>>> = self.scope.iter_mut().rev();
+                let iter  = self.scope.iter_mut().rev();
                 for vars in iter{
                     if vars.contains_key(&k){
                         vars.insert(k, res.clone()); 
@@ -121,30 +122,34 @@ impl Interpreter {
                 return self.evaluate(*r);
             },
             Expr::Call(id_expr, args) => {
-                let call_type = self.evaluate(*id_expr)?; // WILL ALWAYS eval to a definefn native fn or there is an error
-                // because evaluate will whittle it down to an id, and id will point to a function, so the result of this
-                // is what is being checked on, that's amazing. 
-                // so expr call will go all the way down until the last fn is available, with args, and then
-                // will return the define fn all the way up to the top
+                let call_type = self.evaluate(*id_expr)?;
 
                 if let Lit::NativeFn(fn_name) = call_type{
                     match fn_name.as_str(){
                         "clock" => return Ok(Lit::F64(SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs() as f64)),
                         _=> return Err("function not found".to_string())
                     }
-                }else if let Lit::DefineFn(_, params, block_stmt) = call_type{
+                }else if let Lit::DefineFn(_, params, block_stmt, index) = call_type{
                     let mut i = 0;
-                    self.scope.push(HashMap::new());
+                    let new_index = index + 1;
+                    self.current_scope = new_index;
+                    self.scope.insert(new_index, HashMap::new()); // make a new scope right after index
+
                     if params.len() != args.len(){
                         return Err("mismatching args and params".to_string())
                     }
+                    // add variables to the new scope right after index
                     while i < params.len(){
-                        let lit = self.evaluate(args[i].clone())?;
-                        self.scope.last_mut().unwrap().insert(params[i].clone(), lit);
+                        let lit = self.evaluate(args[i].clone())?;  // Call --> [id, [expr1, expr2]]
+                        self.scope[self.current_scope].insert(params[i].clone(), lit); // DefineFn --> [id, ["arg1", "arg2"], blockStmt]
                         i+=1;
                     }
+
+
                     let val: Lit = ex_reg(*block_stmt, self)?;
-                    self.scope.pop();
+                    self.scope.remove(self.current_scope);
+
+                    self.current_scope = self.scope.len()-1;
                     if let Lit::Return(return_res) = val { return Ok(*return_res); }
                     return Ok(Lit::Nil)
                 }else{
@@ -165,12 +170,12 @@ impl Interpreter {
     }
 
     fn search_state(&mut self, key: String)-> Result<Lit, String>{
-        let iter = self.scope.iter_mut().rev();
-            for vars in iter{
-                if vars.contains_key(&key){
-                    return Ok(vars[&key].clone())
-                };
+        for i in (0..= self.current_scope).rev() {
+            let val: HashMap<String, Lit> = self.scope[i].clone();
+            if val.contains_key(&key){
+                return Ok(val[&key].clone())
             };
+        };
         return Err(format!("{} not found", key))
     }
 }

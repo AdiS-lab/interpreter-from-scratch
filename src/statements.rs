@@ -24,9 +24,11 @@ pub fn ex_reg(stmt: Stmt, interpreter: &mut Interpreter)->Result<Lit, String>{
         println!("{}", val);
 
     }else if let Stmt::Block(list) = stmt{
-        interpreter.scope.push(HashMap::new());
-        let val: Lit = execute(list, interpreter)?;
-        interpreter.scope.pop();
+        interpreter.current_scope +=1;
+        interpreter.scope.insert(interpreter.current_scope, HashMap::new());
+        let val: Lit = execute(list, interpreter)?; 
+        interpreter.scope.remove(interpreter.current_scope);
+        interpreter.current_scope -=1;
         if matches!(val, Lit::Return(_)) { return Ok(val); }
 
     }else if let Stmt::Other(expr) = stmt{ // only hits here on implicit returns
@@ -82,15 +84,12 @@ pub fn ex_reg(stmt: Stmt, interpreter: &mut Interpreter)->Result<Lit, String>{
 pub fn ex_var(id: String, stmt: Stmt, interpreter: &mut Interpreter) -> Result<(), String>{
   if let Stmt::Other(expr) = stmt { 
     let val: Lit = interpreter.evaluate(expr)?;
-    interpreter.scope.last_mut().unwrap().insert(id, val);
+    interpreter.scope[interpreter.current_scope].insert(id, val);
   }
   return Ok(())
 }
 
 pub fn add_function(id: String, parameters: Vec<String>, stmt: Stmt, interpreter: &mut Interpreter){
-    // if parameters.len() = 0{
-
-    // }else {
-        interpreter.scope.last_mut().unwrap().insert(id.clone(), Lit::DefineFn(id, parameters, Box::new(stmt) ));
-    // }
+    let i = interpreter.current_scope;
+    interpreter.scope[i].insert(id.clone(), Lit::DefineFn(id, parameters, Box::new(stmt), i));
 }
