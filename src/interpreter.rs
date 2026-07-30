@@ -126,16 +126,20 @@ impl Interpreter {
                         _=> return Err("function not found".to_string())
                     }
                 }else if let Lit::DefineFn(_, params, block_stmt, temp_scope) = call_type{
-                    let mut i = 0;
                     if params.len() != args.len() {return Err("arguments do not match parameters".to_string())}
+
+                    let mut arguments: Vec<Lit>= Vec::new();
+                    for arg in &args{
+                        arguments.push(self.evaluate(arg.clone())?); // Call --> [id, [expr1, expr2]]
+
+                    }//eval args before switching to bind any updated variables
+
                     let real_scope = self.scope.clone();
                     self.scope = temp_scope;
                     self.scope.push(Rc::new(RefCell::new(HashMap::new())));
 
-                    while i < params.len(){
-                        let lit = self.evaluate(args[i].clone())?;  // Call --> [id, [expr1, expr2]]
-                        self.scope.last().unwrap().borrow_mut().insert(params[i].clone(), lit); // DefineFn --> [id, ["arg1", "arg2"], blockStmt]
-                        i+=1;
+                    for ( i, param ) in params.iter().enumerate(){
+                        self.scope.last().unwrap().borrow_mut().insert(params[i].clone(),arguments[i].clone()); // DefineFn --> [id, ["arg1", "arg2"], blockStmt]
                     }
                     // inserting vars into the same scope as func. 
 
