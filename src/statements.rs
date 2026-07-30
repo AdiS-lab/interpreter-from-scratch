@@ -24,11 +24,10 @@ pub fn ex_reg(stmt: Stmt, interpreter: &mut Interpreter)->Result<Lit, String>{
         println!("{}", val);
 
     }else if let Stmt::Block(list) = stmt{
-        interpreter.current_scope +=1;
-        interpreter.scope.insert(interpreter.current_scope, HashMap::new());
+
+        interpreter.scope.push(HashMap::new());
         let val: Lit = execute(list, interpreter)?; 
-        interpreter.scope.remove(interpreter.current_scope);
-        interpreter.current_scope -=1;
+        interpreter.scope.pop();
         if matches!(val, Lit::Return(_)) { return Ok(val); }
 
     }else if let Stmt::Other(expr) = stmt{ // only hits here on implicit returns
@@ -84,14 +83,12 @@ pub fn ex_reg(stmt: Stmt, interpreter: &mut Interpreter)->Result<Lit, String>{
 pub fn ex_var(id: String, stmt: Stmt, interpreter: &mut Interpreter) -> Result<(), String>{
   if let Stmt::Other(expr) = stmt { 
     let val: Lit = interpreter.evaluate(expr)?;
-    interpreter.scope[interpreter.current_scope].insert(id, val);
+    interpreter.scope.last_mut().unwrap().insert(id, val);
   }
   return Ok(())
 }
 
 pub fn add_function(id: String, parameters: Vec<String>, stmt: Stmt, interpreter: &mut Interpreter){
-    let i = interpreter.current_scope;
-    dbg!("this is usize to be inserted {}", i);
-    dbg!("this id of functions {}", id.clone());
-    interpreter.scope[i].insert(id.clone(), Lit::DefineFn(id, parameters, Box::new(stmt), i));
+    let temp_scope: Vec<HashMap<String, Lit>> = interpreter.scope.clone();
+    interpreter.scope.last_mut().unwrap().insert(id.clone(), Lit::DefineFn(id, parameters, Box::new(stmt), temp_scope));
 }

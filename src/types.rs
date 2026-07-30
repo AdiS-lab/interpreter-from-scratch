@@ -1,3 +1,5 @@
+use std::collections::HashMap; 
+
 #[derive(Debug, Clone)]
 pub enum Declr{
     VarDeclr(String, Stmt),
@@ -33,7 +35,7 @@ pub enum Lit{
     Nil,
     F64(f64),
     Id(String),
-    DefineFn(String, Vec<String>, Box<Stmt>, usize),
+    DefineFn(String, Vec<String>, Box<Stmt>, Vec<HashMap<String, Lit>>),
     NativeFn(String), // this would mean that have to parse string out when matching on this
     Return(Box<Lit>)
 }

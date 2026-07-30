@@ -85,7 +85,7 @@ fn main() -> ExitCode {
             let mut parser = Parser{tokens, current: 0};
             let result = match parser.equality(){
                 Ok(val) => { 
-                    let mut interpreter: Interpreter = Interpreter{scope: vec![HashMap::new()], current_scope: 0};
+                    let mut interpreter: Interpreter = Interpreter{scope: vec![HashMap::new()]};
                     let res = match interpreter.evaluate(val){
                         Ok(val)=> println!("{}", val),
                         Err(err) =>{
@@ -107,7 +107,7 @@ fn main() -> ExitCode {
                 Ok(val)=>{
                     let mut scope: HashMap<String, Lit> = HashMap::new();
                     scope.insert("clock".to_string(), Lit::NativeFn("clock".to_string()));
-                    let mut interpreter: Interpreter = Interpreter{scope: vec![scope], current_scope:0};
+                    let mut interpreter: Interpreter = Interpreter{scope: vec![scope]};
 
                     match execute(val, &mut interpreter){
                         Ok(val) => {},

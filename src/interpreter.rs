@@ -5,18 +5,10 @@ use crate::statements::*;
 
 pub struct Interpreter {
     pub scope: Vec<HashMap<String, Lit>>,
-    pub current_scope: usize
 }
 
 impl Interpreter {
     pub fn evaluate(&mut self, expr: Expr) -> Result<Lit, String> {
-        // println!("=== SCOPES ({}) ===", self.scope.len());                                                                                                    
-        // for (i, scope) in self.scope.iter().enumerate() {
-        //     let keys: Vec<_> = scope.iter().map(|(k, v)| format!("{k}={v:?}")).collect();                                                                            
-        //     println!("  [{}] {}", i, keys.join("           "));                                                                                                             
-        // }
-        // println!("===");
-
         match expr{
             Expr::Literal(lit) => {
                 if let Lit::Id(s) = lit {
@@ -129,40 +121,21 @@ impl Interpreter {
                         "clock" => return Ok(Lit::F64(SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs() as f64)),
                         _=> return Err("function not found".to_string())
                     }
-                }else if let Lit::DefineFn(_, params, block_stmt, index) = call_type{
+                }else if let Lit::DefineFn(_, params, block_stmt, temp_scope) = call_type{
                     let mut i = 0;
-                    let new_index = index + 1;
-                    self.current_scope = new_index;
+                    if params.len() != args.len() {return Err("arguments do not match parameters".to_string())}
+                    let real_scope = self.scope.clone();
+                    self.scope = temp_scope;
 
-                    dbg!("=== SCOPES ({}) ===", self.scope.len());    
-
-
-                    for (i, scope) in self.scope.iter().enumerate() {
-                        let keys: Vec<_> = scope.iter().map(|(k, v)| format!("{k}={v:?}")).collect();                                                                            
-                        dbg!("  [{}] {}", i, keys.join("           "));                                                                                                             
-                    }
-                    dbg!("===");
-
-                    dbg!("CURRENT SCOPE {:?}", self.current_scope);
-
-                    if params.len() != args.len(){
-                        return Err("mismatching args and params".to_string())
-                    }
-                    
-                    self.scope.insert(new_index, HashMap::new());
-                    // self.scope.insert(new_index, HashMap::new()); // make a new scope right after index
-                    // add variables to the new scope right after index
                     while i < params.len(){
                         let lit = self.evaluate(args[i].clone())?;  // Call --> [id, [expr1, expr2]]
-                        self.scope[self.current_scope].insert(params[i].clone(), lit); // DefineFn --> [id, ["arg1", "arg2"], blockStmt]
+                        self.scope.last_mut().unwrap().insert(params[i].clone(), lit); // DefineFn --> [id, ["arg1", "arg2"], blockStmt]
                         i+=1;
                     }
-
+                    // inserting vars into the same scope as func. 
 
                     let val: Lit = ex_reg(*block_stmt, self)?;
-                    self.scope.remove(self.current_scope);
-
-                    self.current_scope = self.scope.len()-1;
+                    self.scope = real_scope;
                     if let Lit::Return(return_res) = val { return Ok(*return_res); }
                     return Ok(Lit::Nil)
                 }else{
@@ -183,8 +156,8 @@ impl Interpreter {
     }
 
     fn search_state(&mut self, key: String)-> Result<Lit, String>{
-        for i in (0..= self.current_scope).rev() {
-            let val: HashMap<String, Lit> = self.scope[i].clone();
+        let iter= self.scope.iter().rev();
+        for val in iter {
             if val.contains_key(&key){
                 return Ok(val[&key].clone())
             };
