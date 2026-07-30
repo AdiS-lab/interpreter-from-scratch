@@ -122,10 +122,13 @@ impl Interpreter {
                         _=> return Err("function not found".to_string())
                     }
                 }else if let Lit::DefineFn(_, params, block_stmt, temp_scope) = call_type{
+
+
                     let mut i = 0;
                     if params.len() != args.len() {return Err("arguments do not match parameters".to_string())}
                     let real_scope = self.scope.clone();
                     self.scope = temp_scope;
+                    self.scope.push(HashMap::new());
 
                     while i < params.len(){
                         let lit = self.evaluate(args[i].clone())?;  // Call --> [id, [expr1, expr2]]
@@ -135,7 +138,14 @@ impl Interpreter {
                     // inserting vars into the same scope as func. 
 
                     let val: Lit = ex_reg(*block_stmt, self)?;
-                    self.scope = real_scope;
+                    self.scope.pop();
+                    
+                   if self.scope.len() > real_scope.len() {
+                        self.scope = self.scope[..real_scope.len()].to_vec();
+                    } else if self.scope.len() < real_scope.len() {
+                        self.scope = [&self.scope[..], &real_scope[self.scope.len()..]].concat();
+                    }
+
                     if let Lit::Return(return_res) = val { return Ok(*return_res); }
                     return Ok(Lit::Nil)
                 }else{
