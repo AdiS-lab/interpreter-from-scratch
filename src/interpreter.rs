@@ -133,6 +133,7 @@ impl Interpreter {
                     let mut i = 0;
                     let new_index = index + 1;
                     self.current_scope = new_index;
+                    println!("{:?}", self.scope);
                     self.scope.insert(new_index, HashMap::new()); // make a new scope right after index
 
                     if params.len() != args.len(){
