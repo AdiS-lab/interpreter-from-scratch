@@ -88,9 +88,9 @@ pub fn ex_var(id: String, stmt: Stmt, interpreter: &mut Interpreter) -> Result<(
 }
 
 pub fn add_function(id: String, parameters: Vec<String>, stmt: Stmt, interpreter: &mut Interpreter){
-    if parameters.len() = 0{
+    // if parameters.len() = 0{
 
-    }else {
+    // }else {
         interpreter.scope.last_mut().unwrap().insert(id.clone(), Lit::DefineFn(id, parameters, Box::new(stmt) ));
-    }
+    // }
 }
