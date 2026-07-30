@@ -133,8 +133,7 @@ impl Interpreter {
                     let mut i = 0;
                     let new_index = index + 1;
                     self.current_scope = new_index;
-                    self.scope.insert(new_index, HashMap::new());
-                    // self.scope.insert(new_index, HashMap::new()); // make a new scope right after index
+
                     dbg!("=== SCOPES ({}) ===", self.scope.len());    
 
 
@@ -149,6 +148,9 @@ impl Interpreter {
                     if params.len() != args.len(){
                         return Err("mismatching args and params".to_string())
                     }
+                    
+                    self.scope.insert(new_index, HashMap::new());
+                    // self.scope.insert(new_index, HashMap::new()); // make a new scope right after index
                     // add variables to the new scope right after index
                     while i < params.len(){
                         let lit = self.evaluate(args[i].clone())?;  // Call --> [id, [expr1, expr2]]
