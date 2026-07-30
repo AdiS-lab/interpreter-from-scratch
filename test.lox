@@ -1,12 +1,12 @@
-● fun makeGreeter() {
+fun makeGreeter() {
     fun greet(name) {
       print "Hello " + name;                  
     }                                     
     return greet;
   }                                                                                                                                                            
    
-  var sayHello = makeGreeter();                                                                                                                                
+var sayHello = makeGreeter();                                                                                                                                
                                                                                                                                                              
-  sayHello("Bob");
-  sayHello("Alice");
-  sayHello("Eve");
+sayHello("Bob");
+sayHello("Alice");
+sayHello("Eve");

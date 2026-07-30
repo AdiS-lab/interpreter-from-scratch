@@ -133,7 +133,18 @@ impl Interpreter {
                     let mut i = 0;
                     let new_index = index + 1;
                     self.current_scope = new_index;
-                    self.scope.insert(new_index, HashMap::new()); // make a new scope right after index
+                    self.scope.insert(new_index, HashMap::new());
+                    // self.scope.insert(new_index, HashMap::new()); // make a new scope right after index
+                    dbg!("=== SCOPES ({}) ===", self.scope.len());    
+
+
+                    for (i, scope) in self.scope.iter().enumerate() {
+                        let keys: Vec<_> = scope.iter().map(|(k, v)| format!("{k}={v:?}")).collect();                                                                            
+                        dbg!("  [{}] {}", i, keys.join("           "));                                                                                                             
+                    }
+                    dbg!("===");
+
+                    dbg!("CURRENT SCOPE {:?}", self.current_scope);
 
                     if params.len() != args.len(){
                         return Err("mismatching args and params".to_string())

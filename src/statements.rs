@@ -91,5 +91,7 @@ pub fn ex_var(id: String, stmt: Stmt, interpreter: &mut Interpreter) -> Result<(
 
 pub fn add_function(id: String, parameters: Vec<String>, stmt: Stmt, interpreter: &mut Interpreter){
     let i = interpreter.current_scope;
+    dbg!("this is usize to be inserted {}", i);
+    dbg!("this id of functions {}", id.clone());
     interpreter.scope[i].insert(id.clone(), Lit::DefineFn(id, parameters, Box::new(stmt), i));
 }
