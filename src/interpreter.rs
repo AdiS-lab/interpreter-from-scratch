@@ -2,9 +2,11 @@ use crate::types::*;
 use std::collections::HashMap;
 use std::time::{SystemTime, UNIX_EPOCH};
 use crate::statements::*;
+use std::rc::Rc;                                                                                                                                             
+use std::cell::RefCell;
 
 pub struct Interpreter {
-    pub scope: Vec<HashMap<String, Lit>>,
+    pub scope: Vec<Env>,
 }
 
 impl Interpreter {
@@ -95,8 +97,8 @@ impl Interpreter {
                 let res: Lit = self.evaluate(*expr)?; // total + 1
                 let iter  = self.scope.iter_mut().rev();
                 for vars in iter{
-                    if vars.contains_key(&k){
-                        vars.insert(k, res.clone()); 
+                   if vars.borrow().contains_key(&k) {                                                                                                                          
+                        vars.borrow_mut().insert(k, res.clone());        
                         return Ok(res)
                     };
                 };
@@ -128,23 +130,18 @@ impl Interpreter {
                     if params.len() != args.len() {return Err("arguments do not match parameters".to_string())}
                     let real_scope = self.scope.clone();
                     self.scope = temp_scope;
-                    self.scope.push(HashMap::new());
+                    self.scope.push(Rc::new(RefCell::new(HashMap::new())));
 
                     while i < params.len(){
                         let lit = self.evaluate(args[i].clone())?;  // Call --> [id, [expr1, expr2]]
-                        self.scope.last_mut().unwrap().insert(params[i].clone(), lit); // DefineFn --> [id, ["arg1", "arg2"], blockStmt]
+                        self.scope.last().unwrap().borrow_mut().insert(params[i].clone(), lit); // DefineFn --> [id, ["arg1", "arg2"], blockStmt]
                         i+=1;
                     }
                     // inserting vars into the same scope as func. 
 
                     let val: Lit = ex_reg(*block_stmt, self)?;
                     self.scope.pop();
-                    
-                   if self.scope.len() > real_scope.len() {
-                        self.scope = self.scope[..real_scope.len()].to_vec();
-                    } else if self.scope.len() < real_scope.len() {
-                        self.scope = [&self.scope[..], &real_scope[self.scope.len()..]].concat();
-                    }
+                    self.scope = real_scope;
 
                     if let Lit::Return(return_res) = val { return Ok(*return_res); }
                     return Ok(Lit::Nil)
@@ -168,8 +165,8 @@ impl Interpreter {
     fn search_state(&mut self, key: String)-> Result<Lit, String>{
         let iter= self.scope.iter().rev();
         for val in iter {
-            if val.contains_key(&key){
-                return Ok(val[&key].clone())
+            if val.borrow().contains_key(&key){
+                return Ok(val.borrow()[&key].clone())
             };
         };
         return Err(format!("{} not found", key))

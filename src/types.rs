@@ -1,4 +1,8 @@
-use std::collections::HashMap; 
+use std::rc::Rc;                                                                                                                                             
+use std::cell::RefCell;
+use std::collections::HashMap;
+
+pub type Env = Rc<RefCell<HashMap<String, Lit>>>;
 
 #[derive(Debug, Clone)]
 pub enum Declr{
@@ -35,7 +39,7 @@ pub enum Lit{
     Nil,
     F64(f64),
     Id(String),
-    DefineFn(String, Vec<String>, Box<Stmt>, Vec<HashMap<String, Lit>>),
+    DefineFn(String, Vec<String>, Box<Stmt>, Vec<Env>),
     NativeFn(String), // this would mean that have to parse string out when matching on this
     Return(Box<Lit>)
 }

@@ -2,6 +2,8 @@
 use crate::types::*;
 use std::collections::{HashMap};
 use crate::Interpreter;
+use std::rc::Rc;                                                                                                                                             
+use std::cell::RefCell;
 
 
 pub fn execute(list: Vec<Declr>, interpreter: &mut Interpreter) -> Result<Lit, String> {
@@ -25,7 +27,7 @@ pub fn ex_reg(stmt: Stmt, interpreter: &mut Interpreter)->Result<Lit, String>{
 
     }else if let Stmt::Block(list) = stmt{
 
-        interpreter.scope.push(HashMap::new());
+        interpreter.scope.push(Rc::new(RefCell::new(HashMap::new())));
         let val: Lit = execute(list, interpreter)?; 
         interpreter.scope.pop();
         if matches!(val, Lit::Return(_)) { return Ok(val); }
@@ -83,12 +85,15 @@ pub fn ex_reg(stmt: Stmt, interpreter: &mut Interpreter)->Result<Lit, String>{
 pub fn ex_var(id: String, stmt: Stmt, interpreter: &mut Interpreter) -> Result<(), String>{
   if let Stmt::Other(expr) = stmt { 
     let val: Lit = interpreter.evaluate(expr)?;
-    interpreter.scope.last_mut().unwrap().insert(id, val);
+    interpreter.scope.last().unwrap().borrow_mut().insert(id, val);
+
   }
   return Ok(())
 }
 
 pub fn add_function(id: String, parameters: Vec<String>, stmt: Stmt, interpreter: &mut Interpreter){
-    let temp_scope: Vec<HashMap<String, Lit>> = interpreter.scope.clone();
-    interpreter.scope.last_mut().unwrap().insert(id.clone(), Lit::DefineFn(id, parameters, Box::new(stmt), temp_scope));
+    let temp_scope: Vec<Env> = interpreter.scope.clone();
+    let val =  Lit::DefineFn(id.clone(), parameters, Box::new(stmt), temp_scope);
+    // interpreter.scope.borrow_mut().unwrap().insert(id.clone(), Lit::DefineFn(id, parameters, Box::new(stmt), temp_scope));
+    interpreter.scope.last().unwrap().borrow_mut().insert(id, val);
 }

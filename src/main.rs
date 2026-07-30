@@ -8,6 +8,8 @@ use std::env;
 use std::fs;
 use std::process::ExitCode;
 use std::collections::HashMap;
+use std::rc::Rc;                                                                                                                                             
+use std::cell::RefCell;
 
 mod types;
 mod parser;
@@ -85,7 +87,7 @@ fn main() -> ExitCode {
             let mut parser = Parser{tokens, current: 0};
             let result = match parser.equality(){
                 Ok(val) => { 
-                    let mut interpreter: Interpreter = Interpreter{scope: vec![HashMap::new()]};
+                    let mut interpreter: Interpreter = Interpreter{scope: vec![Rc::new(RefCell::new(HashMap::new()))]};
                     let res = match interpreter.evaluate(val){
                         Ok(val)=> println!("{}", val),
                         Err(err) =>{
@@ -107,7 +109,7 @@ fn main() -> ExitCode {
                 Ok(val)=>{
                     let mut scope: HashMap<String, Lit> = HashMap::new();
                     scope.insert("clock".to_string(), Lit::NativeFn("clock".to_string()));
-                    let mut interpreter: Interpreter = Interpreter{scope: vec![scope]};
+                    let mut interpreter: Interpreter = Interpreter{scope: vec![Rc::new(RefCell::new(scope))]};
 
                     match execute(val, &mut interpreter){
                         Ok(val) => {},
