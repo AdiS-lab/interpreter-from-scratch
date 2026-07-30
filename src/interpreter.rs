@@ -11,6 +11,8 @@ pub struct Interpreter {
 
 impl Interpreter {
     pub fn evaluate(&mut self, expr: Expr) -> Result<Lit, String> {
+
+        dbg!(&self.scope);
         match expr{
             Expr::Literal(lit) => {
                 if let Lit::Id(s) = lit {
@@ -124,8 +126,6 @@ impl Interpreter {
                         _=> return Err("function not found".to_string())
                     }
                 }else if let Lit::DefineFn(_, params, block_stmt, temp_scope) = call_type{
-
-
                     let mut i = 0;
                     if params.len() != args.len() {return Err("arguments do not match parameters".to_string())}
                     let real_scope = self.scope.clone();
@@ -142,7 +142,6 @@ impl Interpreter {
                     let val: Lit = ex_reg(*block_stmt, self)?;
                     self.scope.pop();
                     self.scope = real_scope;
-
                     if let Lit::Return(return_res) = val { return Ok(*return_res); }
                     return Ok(Lit::Nil)
                 }else{
