@@ -27,7 +27,7 @@ pub fn execute(list: Vec<Declr>, interpreter: &mut Interpreter) -> Result<Lit, S
 pub fn ex_reg(stmt: Stmt, interpreter: &mut Interpreter) -> Result<Lit, String> {
     if let Stmt::Print(expr) = stmt {
         let val: Lit = interpreter.evaluate(expr)?;
-        dbg!("printg out {}...", val.clone());
+        // dbg!("printg out {}...", val.clone());
         println!("{}", val);
     } else if let Stmt::Block(list) = stmt {
         interpreter
