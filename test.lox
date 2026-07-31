@@ -1,10 +1,13 @@
-
 fun returnArg(arg) {
-    return arg;
+  return arg;
 }
+
 fun returnFunCallWithArg(func, arg) {
-    return returnArg(func)(arg);
+  return returnArg(func)(arg);
 }
+
 fun printArg(arg) {
-    print arg;
+  print arg;
 }
+
+returnFunCallWithArg(printArg, "foo");
