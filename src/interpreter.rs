@@ -11,7 +11,9 @@ pub struct Interpreter {
 
 impl Interpreter {
     pub fn evaluate(&mut self, expr: Expr) -> Result<Lit, String> {
-        // dbg!(&self.scope);
+        println!("{:?}", &self.scope);
+
+
         match expr {
             Expr::Literal(lit) => {
                 if let Lit::Id(s) = lit {
