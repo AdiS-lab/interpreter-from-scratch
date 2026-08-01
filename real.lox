@@ -1,0 +1,94 @@
+var R1 = 100;
+var R2 = 25;
+
+var K1 = 0.5
+var K2 = 1
+
+var SCREEN_WIDTH = 1024;
+var SCREEN_HEIGHT = 768;
+
+fun x3D(x, y, cosA, cosB, sinA, sinB, cosPhi, sinPhi){
+    vx = sinPhi * cosB * x;
+    vy = cosPhi * y;
+    return vx + vy
+}
+
+
+fun y3D(x, y, cosA, cosB, sinA, sinB, cosPhi, sinPhi){
+    vx =  ( sinB*cosC - cosPhi*cosB*sinC ) * x;
+    vy = sinPhi * sinC * y;
+    return vx + vy
+}
+
+fun z3D(x, y, cosA, cosB, sinA, sinB, cosPhi, sinPhi)={
+   vx = -cosPhi cosB cosB - sinB sinC;
+   vy = sinPhi * cosC;
+   return vx + vy
+}
+
+
+
+fun ascii_donut(){
+    var k = 0;
+    var A = 0.7
+    var B = 0.4 
+
+    varZbuffer[][] = 0
+
+    var outputX = 
+    var outputY = 
+
+    var cosA = cos(A)
+    var cosB = cos(B)
+    var sinA = sin(A)
+    var sinB = sin(B)
+
+    while k < 1000 {
+        A = A + 0.1
+        B = B + 0.1
+        cosA = cos(A)
+        cosB = cos(B)
+        sinA = sin(A)
+        sinB = sin(B)
+
+
+        // theta for circle
+        for var i = 0 ; i < 6.28 ; i = i + 0.1{ 
+            var cosTheta = cos(i); var sinTheta = sin(i);
+
+            // phi for sweep
+            for var j = 0 j < 6.28; j = j + 0.1{
+                
+                var cosPhi = cos(j); var sinPhi = sin(i);
+
+                var x = R1 + (R2 * cosTheta); var y = R2 * sinTheta;
+
+                var xDonut = x3D(x, y, cosA, cosB, sinA, sinB, cosPhi, sinPhi);
+                var yDonut = y3D(x, y, cosA, cosB, sinA, sinB, cosPhi, sinPhi);
+                var zDonut = z3D(x, y, cosA, cosB, sinA, sinB, cosPhi, sinPhi);
+
+                var xProj =  xDonut*K1 / (K1 + zDonut); var yProj =  yDonut*K1 / (K1 + zDonut);
+
+                // final x, y coords
+                var realXProj = SCREEN_WIDTH / 2 + xProj;
+                var realYProj = SCREEN_HEIGHT / 2 - yProj; 
+
+                var yNormal = y3D(cosTheta, sinTheta, cosA, cosB, sinA, sinB, cosPhi, sinPhi);
+                var zNormal = z3D(cosTheta, sinTheta, cosA, cosB, sinA, sinB, cosPhi, sinPhi);
+
+                // assuming light is <0,-1,1>
+                var luminance = yNormal - zNormal;
+                if luminance > 0 { 
+                    if zBuffer[x] == realXProjection && zBuffer[y] == realYProj{
+                        i
+                    }
+
+                }
+                
+            }
+
+        }
+
+        k = k + 1;
+    }
+}

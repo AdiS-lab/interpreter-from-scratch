@@ -39,6 +39,8 @@ pub fn tokenize(file_contents: String) -> (Vec<String>, Vec<String>) {
                 '+' => result.push("PLUS + null".to_string()),
                 '*' => result.push("STAR * null".to_string()),
                 '-' => result.push("MINUS - null".to_string()),
+                '[' => result.push("LEFT_SQUARE [ null".to_string()),
+                ']' => result.push("RIGHT_SQUARE ] null".to_string()),
                 '/' => {
                     if str_iter.peek() == Some(&'/') {
                         while let Some(new_ch) = str_iter.next() {
@@ -126,7 +128,7 @@ pub fn tokenize(file_contents: String) -> (Vec<String>, Vec<String>) {
                         };
                     } else if ch == '_' || ch.is_ascii_alphabetic() {
                         //strings
-                        let mut identifier = ch.to_string();
+                        let mut identifier: String = ch.to_string();
                         while let Some(new_ch) = str_iter.peek() {
                             if !new_ch.is_digit(10)
                                 && !(*new_ch == '_')

@@ -32,6 +32,7 @@ pub enum Expr {
     Assign(String, Box<Expr>),
     Operand(Box<Expr>, String, Box<Expr>),
     Call(Box<Expr>, Vec<Expr>),
+    Arr(Box<Expr>, Box<Expr>), // <id, index>
 }
 #[derive(Debug, Clone)]
 pub enum Lit {
@@ -41,8 +42,9 @@ pub enum Lit {
     F64(f64),
     Id(String),
     DefineFn(String, Vec<String>, Box<Stmt>, Vec<Env>),
-    NativeFn(String), // this would mean that have to parse string out when matching on this
+    NativeFn(String),
     Return(Box<Lit>),
+    Arr(Vec<Expr>),
 }
 
 impl std::fmt::Display for Lit {
@@ -56,6 +58,7 @@ impl std::fmt::Display for Lit {
             Lit::DefineFn(s, _, _, _) => write!(f, "<fn {}>", s),
             Lit::NativeFn(s) => write!(f, "<fn {}>", s),
             Lit::Return(e) => write!(f, "{:?}", e),
+            Lit::Arr(v ) => write!(f, "{:?}", v),
         }
     }
 }
