@@ -1,2 +1,111 @@
-var a = [[1,2,3], [1,2,3], [1,2,3]];
-print a;
+//R1 = length to circle
+//R2 = radius inside circle
+
+
+var R1 = 1; 
+var R2 = 2;
+
+var SCREEN_WIDTH = 100;
+var SCREEN_HEIGHT = 40;
+
+//K1 is magnifying. 
+//K2 determines our depth: larger means smaller, lower means bigger
+var K2 = 7;
+var K1 = SCREEN_HEIGHT*K2*5/(8*(R1+R2));
+
+var A = 0;
+var B = 0; 
+
+
+var ASCII = [".", "," , "-" , "~" , ":" , ";" , "=" , "!" , "*" , "#" , "$" , "@"];
+
+
+//----------------------- BEGINNING -------------------------------
+fun asciiDonut(){
+    while(true){
+        print clock();
+        var zBuffer = [0];
+        var outputArr = [" "];
+
+        for (var y = 0; y < SCREEN_HEIGHT; y = y + 1) {
+            zBuffer[y] = [0];
+            outputArr[y] = [" "];
+            for (var x = 0; x < SCREEN_WIDTH; x = x + 1){
+                    zBuffer[y][x] = 0;
+                    outputArr[y][x] = " ";
+                }
+        }
+
+        A = A + 0.7;
+        B = B + 0.3;
+
+
+        var cA = cos(A); var cB = cos(B);
+        var sA = sin(A); var sB = sin(B);
+
+        var cAsB = cA*sB;
+        var sAsB = sA*sB;
+        var sAcB = sA*cB;
+        var cAcB = cA*cB;
+
+        //-------------------------- START CREATING THE DONUT -------------------------
+        for (var i = 0 ; i < 6.28 ; i = i + 0.12){ 
+            var cTheta = cos(i); var sTheta = sin(i);
+            for (var j = 0; j < 6.28; j = j + 0.1) {
+                var cPhi = cos(j); var sPhi = sin(j);
+
+                var x = R1 + R2 * cTheta; var y = R2 * sTheta; 
+
+                var xDonut = (cB * cPhi + sAsB*sPhi)*x - cAsB*y;
+                var yDonut = (sB*cPhi - sAcB*sPhi) * x + cAcB*y;
+                var zDonut = cA * sPhi * x + sA * y;
+                var ooz = 1/(K2 + zDonut);
+
+                var xProj = xDonut*K1*ooz; var yProj = yDonut*K1*ooz; 
+
+                var px = SCREEN_WIDTH / 2 + xProj * 2;
+                var py = SCREEN_HEIGHT / 2 - yProj;
+
+                // find normal using unit circle
+                var yNormal = (sB*cPhi - sAcB*sPhi) * cTheta + cAcB*sTheta;
+                var zNormal = cA * sPhi * cTheta + sA * sTheta;
+
+
+                // ------------------------- LUMINANCE -------------------------------------------
+                var luminance = yNormal - zNormal;
+                if (luminance > 0){ 
+                    if (px >= 0 and px < SCREEN_WIDTH and py >= 0 and py < SCREEN_HEIGHT and ooz >= zBuffer[py][px]) {
+                        zBuffer[py][px] = ooz;
+                        var luminance_index = luminance*8;
+                        var L = floor(luminance_index);
+                        if (L < 0 ){
+                            L = 0;
+                        }else if (L > 11){
+                            L = 11;
+                        }
+
+                        var ascii_char = ASCII[L];
+                        outputArr[py][px] = ascii_char;
+                    }
+                } // end of luminance 
+            } 
+        } // end of creating circle = 2d arr should be created
+
+
+        clear();
+        for (var y = 0; y < SCREEN_HEIGHT; y = y + 1) {
+            for (var x = 0; x < SCREEN_WIDTH; x = x + 1){
+                write(outputArr[y][x]);
+            }
+            flush();
+            print "";
+        }
+        print clock();
+        sleep(33);
+    }
+}
+
+
+
+asciiDonut();
+

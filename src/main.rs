@@ -2,26 +2,17 @@ use std::env;
 use std::fs;
 use std::process::ExitCode;
 
+mod helpers;
 mod interpreter;
 mod parser;
 mod statements;
 mod tokenizer;
 mod types;
 
-use interpreter::{Interpreter};
+use interpreter::Interpreter;
 use parser::{Parser, parse};
 use statements::execute;
 use tokenizer::tokenize;
-
-
-// notes to self -- find if there is a way to simplify across all three
-// _________________________________________________________________________
-// tokenize --> uses tokenize + tokens and error
-// parse --> uses tokenize + tokens, uses parser.equality
-// evaluate --> uses tokenize + tokens, uses parser.equality
-// run --> uses tokenize + tokens, uses parser.declaration
-//_________________________________________________________________________
-// try replacing c::new(RefCell::new(HashMap::new())) with something different
 
 fn main() -> ExitCode {
     let args: Vec<String> = env::args().collect();
@@ -86,8 +77,8 @@ fn main() -> ExitCode {
                     let mut interpreter: Interpreter = Interpreter::new();
                     match interpreter.evaluate(tree) {
                         Ok(ast_tree) => println!("{}", ast_tree),
-                        Err(error) => {
-                            eprintln!("{}", error);
+                        Err(e) => {
+                            eprintln!("{}", e);
                             return ExitCode::from(70);
                         }
                     };
@@ -108,7 +99,7 @@ fn main() -> ExitCode {
             match parser.declaration() {
                 Ok(tree) => {
                     let mut interpreter: Interpreter = Interpreter::new();
-                    dbg!("interpreter initialized");
+                    // dbg!("interpreter initialized");
                     match execute(tree, &mut interpreter) {
                         Ok(_) => {}
                         Err(e) => {
